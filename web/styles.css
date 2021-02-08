@@ -1,0 +1,61 @@
+body {
+  margin: 0;
+}
+
+#root {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+#graph {
+  position: sticky;
+  top: 0;
+}
+
+table {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  border-collapse: collapse;
+}
+
+table,
+td {
+  border: 0;
+  white-space: nowrap;
+
+  padding: 0px 4px;
+}
+
+table tr {
+  line-height: 24px;
+}
+
+table .hash {
+  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+table .author {
+  max-width: 150px;
+}
+
+.commit {
+  cursor: default;
+  color: black;
+}
+.commit.selected {
+  background-color: #3875af;
+  color: white;
+}
+
+.command-input {
+  position: sticky;
+  bottom: 0px;
+  width: 100%;
+  border: 0;
+  background-color: black;
+  color: white;
+  outline: none;
+}
