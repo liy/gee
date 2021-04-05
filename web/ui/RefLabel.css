@@ -1,0 +1,14 @@
+.ref-label {
+  margin-right: 10px;
+  border-radius: 3px;
+  padding: 2px 6px;
+  color: white;
+}
+
+.ref-label.branch {
+  background-color: #ff9900;
+}
+
+.ref-label.tag {
+  background-color: #ff0000;
+}

@@ -75,6 +75,26 @@ export default class Graph {
     return node;
   }
 
+  appendNode(node: Node, parents: Array<Hash>): void {
+    this.map.set(node.hash, node);
+    node.y = 0;
+    this.nodes.unshift(node);
+
+    // Create parent nodes of this node (this node's parents only) if not exist yet.
+    node.parentNodes = parents.map((parentHash) => {
+      let parentNode = this.map.get(parentHash);
+      if (!parentNode) {
+        parentNode = new Node(parentHash);
+        this.map.set(parentHash, parentNode);
+      }
+      return parentNode;
+    });
+
+    if (node.parentNodes.length > 1) {
+      this.merges.push(node);
+    }
+  }
+
   containsNode(hash: Hash): boolean {
     return this.map.has(hash);
   }
@@ -128,6 +148,14 @@ export default class Graph {
       node = node.parentNodes[0];
     }
     return nodes;
+  }
+
+  reset(): void {
+    for (let i = 0; i < this.nodes.length; ++i) {
+      const node = this.nodes[i];
+      node.x = -1;
+      node.y = i;
+    }
   }
 
   get size(): number {

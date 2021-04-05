@@ -29,4 +29,7 @@ contextBridge.exposeInMainWorld('api', {
       func(args);
     });
   },
+  git: (args: { command: string; data: any }) => {
+    ipcRenderer.send('git', args);
+  },
 });

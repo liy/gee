@@ -1,7 +1,8 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import StraightLayout from 'layouts/StraightLayout';
-import { Commit, Repository, Revwalk } from 'nodegit';
-import Graph from '../web/Graph';
+import Node from 'Node';
+import { Commit, Object, Reference, Repository, Revwalk } from 'nodegit';
+import Graph, { Hash } from '../web/Graph';
 
 export interface CommitPod {
   hash: string;
@@ -19,10 +20,35 @@ export interface CommitPod {
   };
 }
 
+export interface RefPod {
+  name: string;
+  shorthand: string;
+  hash: Hash;
+  type: Reference.TYPE;
+  isRemote: boolean;
+  isBranch: boolean;
+}
+
+const graph = new Graph();
+
 export default async function init(mainWindow: BrowserWindow) {
-  const graph = new Graph();
   // Open the repository directory.
   const repo = await Repository.open('./repo');
+
+  const references = await repo.getReferences();
+
+  const refs: Array<RefPod> = await Promise.all(
+    references.map(async (ref) => {
+      return {
+        name: ref.name(),
+        shorthand: ref.shorthand(),
+        hash: (await ref.peel(Object.TYPE.COMMIT)).id().tostrS(),
+        type: ref.type(),
+        isRemote: ref.isRemote() === 1,
+        isBranch: ref.isBranch() === 1,
+      };
+    })
+  );
 
   const revWalk = repo.createRevWalk();
   revWalk.sorting(Revwalk.SORT.TOPOLOGICAL, Revwalk.SORT.TIME);
@@ -70,9 +96,49 @@ export default async function init(mainWindow: BrowserWindow) {
         },
       };
     }),
+    refs,
   ]);
 
   ipcMain.on('toMain', (event, args) => {
     console.log('!! received from web ', args);
+  });
+
+  ipcMain.on('git', async (event, args: { command: string; data: any }) => {
+    const branches = args.data as Array<string>;
+    const currentBranch = await repo.getBranchCommit(await repo.getCurrentBranch());
+    const branchHashes = await Promise.all(
+      branches.map(async (branch) => {
+        const ref = await repo.getBranch(`refs/heads/${branch}`);
+        return (await repo.getBranchCommit(ref)).sha();
+      })
+    );
+    const parents = [currentBranch.sha(), ...branchHashes];
+    graph.appendNode(new Node('0'), parents);
+    graph.reset();
+
+    const layout = new StraightLayout(graph);
+    const result = layout.process();
+    console.log(result);
+    mainWindow.webContents.send('fromMain', [
+      result.pod(),
+      commits.map((c) => {
+        return {
+          hash: c.sha(),
+          summary: c.summary(),
+          date: c.date().getTime(),
+          time: c.time(),
+          body: c.body(),
+          author: {
+            name: c.author().name(),
+            email: c.author().email(),
+          },
+          committer: {
+            name: c.committer().name(),
+            email: c.committer().email(),
+          },
+        };
+      }),
+      refs,
+    ]);
   });
 }

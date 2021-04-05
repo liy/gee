@@ -1,7 +1,21 @@
 import { NodePod } from '../Node';
-import { CommitPod } from '../../src/app';
+import { CommitPod, RefPod } from '../../src/app';
 import CommitManager from './CommitManager';
+import RefLabel from './RefLabel';
 
+const laneColours = [
+  '#f44336',
+  '#9c27b0',
+  '#2196f3',
+  '#00bcd4',
+  '#4caf50',
+  '#cddc39',
+  '#ffc107',
+  '#ff5722',
+  '#795548',
+  '#9e9e9e',
+  '#607d8b',
+];
 const dateFormat = Intl.DateTimeFormat('en-GB', {
   month: 'short',
   day: '2-digit',
@@ -59,6 +73,13 @@ class CommitElement {
     this.element.appendChild(timeElm);
 
     this.element.addEventListener('click', this.onSelect.bind(this));
+  }
+
+  addRef(ref: RefPod): void {
+    // FIXME: fix it by convert it to RGB
+    const index = this.node.x % laneColours.length;
+    const refElm = new RefLabel(ref, laneColours[index]);
+    this.element.firstChild?.insertBefore(refElm.element, this.element.firstChild?.firstChild);
   }
 
   set selected(value: boolean) {

@@ -24,8 +24,13 @@ const laneColours = [
   0x607d8b,
 ];
 
+export function getColour(x: number): number {
+  const index = x % laneColours.length;
+  return laneColours[index];
+}
+
 class GraphView {
-  private layoutResult!: LayoutResultPod;
+  layoutResult!: LayoutResultPod;
 
   private lineGraphics!: Graphics;
 
@@ -137,6 +142,7 @@ class GraphView {
     const { syncLines, nodes, branchLines } = this.layoutResult;
 
     this.lineGraphics.clear();
+    this.nodeContainer.removeChildren();
 
     // Draw outline of the lines
     const thickness = [6, 2];
