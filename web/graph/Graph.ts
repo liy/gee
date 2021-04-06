@@ -19,17 +19,9 @@ export default class Graph {
    */
   nodes: Node[];
 
-  /**
-   * Stores all merge nodes of a node in this graph
-   */
-  // mergeMap: Map<Hash, Array<Node>>;
-
-  merges: Node[];
-
   constructor() {
     this.map = new Map<Hash, Node>();
     this.nodes = new Array<Node>();
-    this.merges = new Array<Node>();
   }
 
   createNode(hash: Hash, parents: Array<Hash>): Node {
@@ -41,40 +33,32 @@ export default class Graph {
     node.y = this.nodes.length;
     this.nodes.push(node);
 
-    // Create parent nodes of this node (this node's parents only) if not exist yet.
-    node.parentNodes = parents.map((parentHash) => {
-      let parentNode = this.map.get(parentHash);
-      if (!parentNode) {
-        parentNode = new Node(parentHash);
-        this.map.set(parentHash, parentNode);
-      }
-      return parentNode;
-    });
-
-    if (node.parentNodes.length > 1) {
-      this.merges.push(node);
-    }
+    node.parents = parents;
 
     return node;
   }
 
-  appendNode(node: Node, parents: Array<Hash>): void {
+  prependNode(node: Node): void {
     this.map.set(node.hash, node);
-    node.y = 0;
     this.nodes.unshift(node);
+  }
 
-    // Create parent nodes of this node (this node's parents only) if not exist yet.
-    node.parentNodes = parents.map((parentHash) => {
-      let parentNode = this.map.get(parentHash);
-      if (!parentNode) {
-        parentNode = new Node(parentHash);
-        this.map.set(parentHash, parentNode);
-      }
-      return parentNode;
-    });
+  appendNode(node: Node): void {
+    this.map.set(node.hash, node);
+    this.nodes.push(node);
+  }
 
-    if (node.parentNodes.length > 1) {
-      this.merges.push(node);
+  removeNode(node: Node): void {
+    this.map.delete(node.hash);
+    const index = this.nodes.indexOf(node);
+    if (index !== -1) {
+      this.nodes = this.nodes.splice(index, 1);
+    }
+  }
+
+  refreshPosition(): void {
+    for (let i = 0; i < this.nodes.length; ++i) {
+      this.nodes[i].y = i;
     }
   }
 
@@ -82,8 +66,17 @@ export default class Graph {
     return this.map.has(hash);
   }
 
-  getNode(hash: Hash): Node | undefined {
-    return this.map.get(hash);
+  getNode(hash: Hash): Node {
+    const node = this.map.get(hash);
+    if (!node) {
+      throw new Error(`Node does not exist in graph: ${hash}`);
+    }
+
+    return node;
+  }
+
+  hasNode(hash: Hash): boolean {
+    return this.map.has(hash);
   }
 
   trunkNodes(trunkTip: Hash, foreach?: (node: Node) => void): Array<Node> {
@@ -92,7 +85,7 @@ export default class Graph {
     while (node) {
       if (foreach) foreach(node);
       nodes.push(node);
-      node = node.parentNodes[0];
+      node = this.getNode(node.parents[0]);
     }
     return nodes;
   }
@@ -110,7 +103,7 @@ export default class Graph {
     while (node && !trunk.has(node.hash)) {
       if (foreach) foreach(node);
       nodes.push(node);
-      node = node.parentNodes[0];
+      node = this.getNode(node.parents[0]);
     }
     return nodes;
   }
@@ -125,5 +118,13 @@ export default class Graph {
 
   get size(): number {
     return this.nodes.length;
+  }
+
+  clone(): Graph {
+    const graph = new Graph();
+    for (const node of this.nodes) {
+      graph.appendNode(node.clone());
+    }
+    return graph;
   }
 }

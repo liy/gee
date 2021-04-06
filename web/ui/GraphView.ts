@@ -30,7 +30,7 @@ export function getColour(x: number): number {
 }
 
 class GraphView {
-  layoutResult!: LayoutResult;
+  private layoutResult!: LayoutResult;
 
   private lineGraphics!: Graphics;
 
@@ -143,11 +143,12 @@ class GraphView {
       this.initialized = true;
     }
 
-    this.update();
+    this.update(layoutResult);
   }
 
-  update(): void {
-    const { syncLines, nodes, branchLines } = this.layoutResult;
+  update(layoutResult: LayoutResult): void {
+    this.layoutResult = layoutResult;
+    const { syncLines, nodes, branchLines } = layoutResult;
 
     this.lineGraphics.clear();
     this.nodeContainer.removeChildren();

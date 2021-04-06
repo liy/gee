@@ -4,11 +4,7 @@ export interface NodePod {
   x: number;
   y: number;
   hash: Hash;
-  parents: Array<{
-    x: number;
-    y: number;
-    hash: Hash;
-  }>;
+  parents: Array<Hash>;
 }
 
 /**
@@ -31,9 +27,9 @@ export default class Node {
   y: number;
 
   /**
-   * Parents of the node
+   * Parent nodes hash
    */
-  parentNodes: Array<Node>;
+  parents: Array<Hash>;
 
   /**
    *
@@ -43,7 +39,7 @@ export default class Node {
     this.hash = hash;
     this.y = -1;
     this.x = -1;
-    this.parentNodes = [];
+    this.parents = [];
   }
 
   pod(): NodePod {
@@ -51,13 +47,21 @@ export default class Node {
       x: this.x,
       y: this.y,
       hash: this.hash,
-      parents: this.parentNodes.map((node) => ({ x: node.x, y: node.y, hash: node.hash })),
+      parents: this.parents,
     };
   }
 
   toString(): string {
-    return `${this.hash.substr(0, 7)} colIndex: ${this.x} index: ${this.y} parents: ${this.parentNodes.map((node) =>
-      node.hash.substr(0, 7)
+    return `${this.hash.substr(0, 7)} colIndex: ${this.x} index: ${this.y} parents: ${this.parents.map((hash) =>
+      hash.substr(0, 7)
     )}\n`;
+  }
+
+  clone(): Node {
+    const n = new Node(this.hash);
+    n.x = this.x;
+    n.y = this.y;
+    n.parents = [...this.parents];
+    return n;
   }
 }

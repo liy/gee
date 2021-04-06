@@ -30,6 +30,12 @@ export interface RefPod {
   isBranch: boolean;
 }
 
+export interface HeadPod {
+  hash: Hash;
+  name: string;
+  shorthand: string;
+}
+
 export default async function init(mainWindow: BrowserWindow) {
   // Open the repository directory.
   const repo = await Repository.open('./repo');
@@ -67,6 +73,13 @@ export default async function init(mainWindow: BrowserWindow) {
   }
   await walk();
 
+  const headRef = await repo.head();
+  const head = {
+    hash: (await headRef.peel(Object.TYPE.COMMIT)).id().tostrS(),
+    name: headRef.name(),
+    shorthand: headRef.shorthand(),
+  };
+
   mainWindow.webContents.send('fromMain', [
     commits.map(([c, parents]) => {
       return {
@@ -87,6 +100,7 @@ export default async function init(mainWindow: BrowserWindow) {
       };
     }),
     refs,
+    head,
   ]);
 
   ipcMain.on('toMain', (event, args) => {
@@ -94,6 +108,7 @@ export default async function init(mainWindow: BrowserWindow) {
   });
 
   ipcMain.on('git', async (event, args: { command: string; data: any }) => {
+    console.log('run git !');
     // const branches = args.data as Array<string>;
     // const currentBranch = await repo.getBranchCommit(await repo.getCurrentBranch());
     // const branchHashes = await Promise.all(
