@@ -1,7 +1,7 @@
 /* eslint-disable no-constant-condition */
 import { Line, Vertex } from '../draw';
-import Graph, { Hash } from '../Graph';
-import Node, { NodePod } from '../Node';
+import Graph, { Hash } from '../graph/Graph';
+import Node, { NodePod } from '../graph/Node';
 
 export interface LayoutResultPod {
   syncLines: Array<Vertex[]>;

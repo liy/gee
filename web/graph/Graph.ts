@@ -28,7 +28,6 @@ export default class Graph {
 
   constructor() {
     this.map = new Map<Hash, Node>();
-    // this.mergeMap = new Map<Hash, Array<Node>>();
     this.nodes = new Array<Node>();
     this.merges = new Array<Node>();
   }
@@ -55,22 +54,6 @@ export default class Graph {
     if (node.parentNodes.length > 1) {
       this.merges.push(node);
     }
-
-    // Note that, not every node is a merge node. Therefore it is better to have
-    // a separated storage for these information than put it in Node class.
-    // Node is a merge node when there are multiple parents.
-    // Every parents of this node will have its merges information points back to this node.
-    // if (node.parentNodes.length > 1) {
-    //   for (const parent of parents) {
-    //     // Add all merge nodes for a node.
-    //     let mergeNodes = this.mergeMap.get(parent);
-    //     if (!mergeNodes) {
-    //       mergeNodes = new Array<Node>();
-    //       this.mergeMap.set(parent, mergeNodes);
-    //     }
-    //     mergeNodes.push(node);
-    //   }
-    // }
 
     return node;
   }
@@ -102,24 +85,6 @@ export default class Graph {
   getNode(hash: Hash): Node | undefined {
     return this.map.get(hash);
   }
-
-  /**
-   * Retrieve the merge node of its parent node
-   * @param hash Parent node hash
-   * @param index The index of the merge nodes
-   * @returns
-   */
-  // getMergeNode(hash: Hash, index: number): Node | undefined {
-  //   const merges = this.mergeMap.get(hash);
-  //   if (merges) {
-  //     return merges[index];
-  //   }
-  //   return undefined;
-  // }
-
-  // getMergeNodes(hash: Hash): Array<Node> | undefined {
-  //   return this.mergeMap.get(hash);
-  // }
 
   trunkNodes(trunkTip: Hash, foreach?: (node: Node) => void): Array<Node> {
     const nodes = [];

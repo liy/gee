@@ -1,16 +1,16 @@
-import { LayoutResultPod } from '../layouts/StraightLayout';
-import { NodePod } from '../Node';
+import { LayoutResult } from '../layouts/StraightLayout';
+import Node from '../graph/Node';
 import { CommitPod, RefPod } from '../../src/app';
 import CommitElement from './CommitElement';
 import EventEmitter from '../EventEmitter';
-import { Hash } from 'Graph';
+import { Hash } from '../graph/Graph';
 
 class CommitManager extends EventEmitter {
   elements: Array<CommitElement>;
 
-  commits!: Array<CommitPod>;
+  commits!: Map<string, CommitPod>;
 
-  nodes!: Array<NodePod>;
+  nodes!: Array<Node>;
 
   container: HTMLElement;
 
@@ -18,45 +18,46 @@ class CommitManager extends EventEmitter {
 
   map: Map<string, CommitElement>;
 
+  initialized: boolean;
+
   constructor() {
     super();
 
+    this.initialized = false;
+
+    this.commits = new Map<string, CommitPod>();
     this.map = new Map<string, CommitElement>();
     this.elements = new Array<CommitElement>();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.container = document.getElementById('commits')!;
   }
 
-  init(layoutResult: LayoutResultPod, commits: Array<CommitPod>, refMap: Map<Hash, Array<RefPod>>) {
+  init(layoutResult: LayoutResult, commits: Array<CommitPod>, refMap: Map<Hash, Array<RefPod>>) {
     this.nodes = layoutResult.nodes;
-    this.commits = commits;
-    for (let i = 0; i < commits.length; ++i) {
-      const commitPod = this.commits[i];
-      const nodePod = this.nodes[i];
-      this.createElement(nodePod, commitPod, refMap);
+
+    if (this.initialized) {
+      this.container.innerHTML = '';
+    } else {
+      for (let i = 0; i < commits.length; ++i) {
+        this.commits.set(commits[i].hash, commits[i]);
+      }
+      document.addEventListener('keydown', this.onKeyDown.bind(this));
     }
 
-    document.addEventListener('keydown', this.onKeyDown.bind(this));
-  }
-
-  update(layoutResult: LayoutResultPod, commits: Array<CommitPod>, refMap: Map<Hash, Array<RefPod>>) {
-    this.container.innerHTML = '';
-
-    this.nodes = layoutResult.nodes;
-    this.commits = commits;
     for (let i = 0; i < commits.length; ++i) {
-      const commitPod = this.commits[i];
-      const nodePod = this.nodes[i];
-      this.createElement(nodePod, commitPod, refMap);
+      const node = this.nodes[i];
+      const commitPod = this.commits.get(node.hash);
+      this.createElement(node, commitPod, refMap);
     }
-  }
 
-  createElement(nodePod: NodePod, commitPod: CommitPod, refMap: Map<Hash, Array<RefPod>>): CommitElement {
-    const commitElement = new CommitElement(nodePod, commitPod);
+    this.initialized = true;
+  }
+  createElement(node: Node, commitPod: CommitPod | undefined, refMap: Map<Hash, Array<RefPod>>): CommitElement {
+    const commitElement = new CommitElement(node, commitPod);
     this.container.appendChild(commitElement.element);
-    this.map.set(commitPod.hash, commitElement);
+    this.map.set(node.hash, commitElement);
 
-    const refs = refMap.get(commitPod.hash);
+    const refs = refMap.get(node.hash);
     if (refs) {
       for (const ref of refs) {
         commitElement.addRef(ref);
