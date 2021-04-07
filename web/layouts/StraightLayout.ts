@@ -1,6 +1,7 @@
 /* eslint-disable no-constant-condition */
+import { Hash } from '../@types/git';
 import { Line, Vertex } from '../draw';
-import Graph, { Hash } from '../graph/Graph';
+import Graph from '../graph/Graph';
 import Node, { NodePod } from '../graph/Node';
 
 export interface LayoutResultPod {

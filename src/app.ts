@@ -1,59 +1,13 @@
 import { BrowserWindow, ipcMain } from 'electron';
-import StraightLayout from '../web/layouts/StraightLayout';
-import Node from '../web/graph/Node';
+import { RepositoryData } from '../web/git/Repository';
 import { Commit, Object, Reference, Repository, Revwalk } from 'nodegit';
-import { Hash } from '../web/graph/Graph';
+import { Hash } from '../web/@types/git';
 
-export interface CommitPod {
-  hash: Hash;
-  summary: string;
-  date: number;
-  time: number;
-  body: string;
-  author: {
-    name: string;
-    email: string;
-  };
-  committer: {
-    name: string;
-    email: string;
-  };
-  parents: Array<Hash>;
-}
+Reference.TYPE.INVALID;
 
-export interface RefPod {
-  name: string;
-  shorthand: string;
-  hash: Hash;
-  type: Reference.TYPE;
-  isRemote: boolean;
-  isBranch: boolean;
-}
-
-export interface HeadPod {
-  hash: Hash;
-  name: string;
-  shorthand: string;
-}
-
-export default async function init(mainWindow: BrowserWindow) {
+export default async function init(mainWindow: BrowserWindow): Promise<void> {
   // Open the repository directory.
   const repo = await Repository.open('./repo');
-
-  const references = await repo.getReferences();
-
-  const refs: Array<RefPod> = await Promise.all(
-    references.map(async (ref) => {
-      return {
-        name: ref.name(),
-        shorthand: ref.shorthand(),
-        hash: (await ref.peel(Object.TYPE.COMMIT)).id().tostrS(),
-        type: ref.type(),
-        isRemote: ref.isRemote() === 1,
-        isBranch: ref.isBranch() === 1,
-      };
-    })
-  );
 
   const revWalk = repo.createRevWalk();
   revWalk.sorting(Revwalk.SORT.TOPOLOGICAL, Revwalk.SORT.TIME);
@@ -73,15 +27,12 @@ export default async function init(mainWindow: BrowserWindow) {
   }
   await walk();
 
-  const headRef = await repo.head();
-  const head = {
-    hash: (await headRef.peel(Object.TYPE.COMMIT)).id().tostrS(),
-    name: headRef.name(),
-    shorthand: headRef.shorthand(),
-  };
+  const references = await repo.getReferences();
+  const headReference = await repo.head();
 
-  mainWindow.webContents.send('fromMain', [
-    commits.map(([c, parents]) => {
+  const repoData: RepositoryData = {
+    id: './repo',
+    commits: commits.map(([c, parents]) => {
       return {
         hash: c.sha(),
         summary: c.summary(),
@@ -99,9 +50,26 @@ export default async function init(mainWindow: BrowserWindow) {
         parents,
       };
     }),
-    refs,
-    head,
-  ]);
+    references: await Promise.all(
+      references.map(async (ref) => {
+        return {
+          name: ref.name(),
+          shorthand: ref.shorthand(),
+          hash: (await ref.peel(Object.TYPE.COMMIT)).id().tostrS(),
+          type: ref.type(),
+          isRemote: ref.isRemote() === 1,
+          isBranch: ref.isBranch() === 1,
+        };
+      })
+    ),
+    head: {
+      hash: (await headReference.peel(Object.TYPE.COMMIT)).id().tostrS(),
+      name: headReference.name(),
+      shorthand: headReference.shorthand(),
+    },
+  };
+
+  mainWindow.webContents.send('fromMain', [repoData]);
 
   ipcMain.on('toMain', (event, args) => {
     console.log('!! received from web ', args);

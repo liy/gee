@@ -17,7 +17,7 @@
     "paths": {
       "mini-signals": ["node_modules/resource-loader/typings/mini-signals.d.ts"]
     },
-    "baseUrl": "./web"
+    "baseUrl": "./src"
     // pixi end
   },
   "include": ["./src/**/*", "./web/**/*"]

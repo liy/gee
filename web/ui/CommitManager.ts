@@ -1,14 +1,14 @@
 import { LayoutResult } from '../layouts/StraightLayout';
 import Node from '../graph/Node';
-import { CommitPod, RefPod } from '../../src/app';
 import CommitElement from './CommitElement';
 import EventEmitter from '../EventEmitter';
-import { Hash } from '../graph/Graph';
+import { Repository } from '../git';
+import { gee, Hash } from '../@types/git';
 
 class CommitManager extends EventEmitter {
   elements: Array<CommitElement>;
 
-  commits!: Map<string, CommitPod>;
+  commits!: Map<Hash, gee.Commit>;
 
   nodes!: Array<Node>;
 
@@ -25,34 +25,34 @@ class CommitManager extends EventEmitter {
 
     this.initialized = false;
 
-    this.commits = new Map<string, CommitPod>();
+    this.commits = new Map<string, gee.Commit>();
     this.map = new Map<string, CommitElement>();
     this.elements = new Array<CommitElement>();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.container = document.getElementById('commits')!;
   }
 
-  init(layoutResult: LayoutResult, commits: Array<CommitPod>, refMap: Map<Hash, Array<RefPod>>) {
+  init(layoutResult: LayoutResult, repo: Repository) {
     this.nodes = layoutResult.nodes;
 
     if (this.initialized) {
       this.container.innerHTML = '';
     } else {
-      for (let i = 0; i < commits.length; ++i) {
-        this.commits.set(commits[i].hash, commits[i]);
+      for (let i = 0; i < repo.commits.length; ++i) {
+        this.commits.set(repo.commits[i].hash, repo.commits[i]);
       }
       document.addEventListener('keydown', this.onKeyDown.bind(this));
     }
 
-    for (let i = 0; i < commits.length; ++i) {
+    for (let i = 0; i < repo.commits.length; ++i) {
       const node = this.nodes[i];
       const commitPod = this.commits.get(node.hash);
-      this.createElement(node, commitPod, refMap);
+      this.createElement(node, commitPod, repo.referenceMap);
     }
 
     this.initialized = true;
   }
-  createElement(node: Node, commitPod: CommitPod | undefined, refMap: Map<Hash, Array<RefPod>>): CommitElement {
+  createElement(node: Node, commitPod: gee.Commit | undefined, refMap: Map<Hash, Array<gee.Reference>>): CommitElement {
     const commitElement = new CommitElement(node, commitPod);
     this.container.appendChild(commitElement.element);
     this.map.set(node.hash, commitElement);

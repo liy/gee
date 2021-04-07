@@ -1,4 +1,4 @@
-import { Hash } from './Graph';
+import { Hash } from '../@types/git';
 
 export interface NodePod {
   x: number;

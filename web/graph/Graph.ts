@@ -1,9 +1,5 @@
+import { Hash } from '../@types/git';
 import Node from './Node';
-
-/**
- * Unique identifier for a node
- */
-export type Hash = string;
 
 /**
  * Stores and manage all the nodes.
