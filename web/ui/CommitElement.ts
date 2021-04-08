@@ -1,7 +1,7 @@
-import { NodePod } from '../Node';
-import { CommitPod, RefPod } from '../../src/app';
+import Node from '../graph/Node';
 import CommitManager from './CommitManager';
 import RefLabel from './RefLabel';
+import { gee } from '../@types/git';
 
 const laneColours = [
   '#f44336',
@@ -30,16 +30,16 @@ const timeFormat = Intl.DateTimeFormat('en-GB', {
 
 class CommitElement {
   element: HTMLElement;
-  commit: CommitPod | undefined;
+  commit: gee.Commit | undefined;
   hash: string | undefined;
-  node: NodePod;
+  node: Node;
 
   private _selected: boolean;
 
-  constructor(node: NodePod, commitPod?: CommitPod) {
+  constructor(node: Node, commit?: gee.Commit, references?: Array<gee.Reference>) {
     this.node = node;
-    this.commit = commitPod;
-    this.hash = commitPod?.hash;
+    this.commit = commit;
+    this.hash = commit?.hash;
     this._selected = false;
 
     this.element = document.createElement('tr');
@@ -47,37 +47,38 @@ class CommitElement {
 
     const summaryElm = document.createElement('td');
     summaryElm.className = 'summary';
-    summaryElm.textContent = commitPod?.summary.substr(0, 100) || '';
+    summaryElm.textContent = commit?.summary.substr(0, 100) || '';
     this.element.appendChild(summaryElm);
 
     const hashElm = document.createElement('td');
     hashElm.className = 'hash';
-    hashElm.textContent = commitPod?.hash.substr(0, 7) || '';
+    hashElm.textContent = commit?.hash.substr(0, 7) || '';
     this.element.appendChild(hashElm);
 
     const authorElm = document.createElement('td');
     authorElm.className = 'author';
-    authorElm.textContent = commitPod?.author.name || '';
+    authorElm.textContent = commit?.author.name || '';
     this.element.appendChild(authorElm);
 
     const dateElm = document.createElement('td');
     dateElm.className = 'date';
-    dateElm.textContent = dateFormat.format(commitPod?.date);
+    dateElm.textContent = dateFormat.format(commit?.date);
     this.element.appendChild(dateElm);
 
     const timeElm = document.createElement('td');
     timeElm.className = 'time';
-    timeElm.textContent = timeFormat.format(commitPod?.time);
+    timeElm.textContent = timeFormat.format(commit?.time);
     this.element.appendChild(timeElm);
 
-    this.element.addEventListener('click', this.onSelect.bind(this));
-  }
+    if (references) {
+      const index = this.node.x % laneColours.length;
+      for (const ref of references) {
+        const refElm = new RefLabel(ref, laneColours[index]);
+        this.element.firstChild?.insertBefore(refElm.element, this.element.firstChild?.firstChild);
+      }
+    }
 
-  addRef(ref: RefPod): void {
-    // FIXME: fix it by convert it to RGB
-    const index = this.node.x % laneColours.length;
-    const refElm = new RefLabel(ref, laneColours[index]);
-    this.element.firstChild?.insertBefore(refElm.element, this.element.firstChild?.firstChild);
+    this.element.addEventListener('click', this.onSelect.bind(this));
   }
 
   set selected(value: boolean) {
@@ -98,9 +99,9 @@ class CommitElement {
   }
 
   getParent(index: number): CommitElement | undefined {
-    const parent = this.node.parents[index];
-    if (parent) {
-      return CommitManager.getCommitElement(parent.hash);
+    const parentHash = this.node.parents[index];
+    if (parentHash) {
+      return CommitManager.getCommitElement(parentHash);
     }
     return undefined;
   }

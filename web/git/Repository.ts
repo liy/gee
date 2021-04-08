@@ -13,8 +13,8 @@ export default class Repository {
   readonly references: Array<gee.Reference>;
   readonly head: Head;
 
-  commitMap = new Map<Hash, gee.Commit>();
-  referenceMap = new Map<Hash, Array<gee.Reference>>();
+  private commitMap = new Map<Hash, gee.Commit>();
+  private referenceMap = new Map<Hash, Array<gee.Reference>>();
 
   constructor(id: string, commits: Array<gee.Commit>, references: Array<gee.Reference>, head: Head) {
     this.id = id;
@@ -35,7 +35,46 @@ export default class Repository {
     }
   }
 
-  getReferences(names: Array<string>): Array<gee.Reference> {
+  prependCommit(commit: gee.Commit): void {
+    this.commits.unshift(commit);
+    this.commitMap.set(commit.hash, commit);
+  }
+
+  insertCommitAt(commits: Array<gee.Commit>, before: Hash): boolean {
+    const index = this.commits.findIndex((c) => c.hash === before);
+    if (index !== -1) {
+      this.commits.splice(index, 0, ...commits);
+      for (const commit of commits) {
+        this.commitMap.set(commit.hash, commit);
+      }
+      return false;
+    }
+
+    return false;
+  }
+
+  removeCommit(hash: Hash): void {
+    if (this.commitMap.delete(hash)) {
+      this.commits.splice(
+        this.commits.findIndex((c) => c.hash === hash),
+        1
+      );
+    }
+  }
+
+  getReferencesByNames(names: Array<string>): Array<gee.Reference> {
     return this.references.filter((ref) => names.some((name) => name === ref.shorthand || name === ref.name));
+  }
+
+  getReferences(hash: Hash): Array<gee.Reference> | undefined {
+    return this.referenceMap.get(hash);
+  }
+
+  getCommit(hash: Hash): gee.Commit | undefined {
+    return this.commitMap.get(hash);
+  }
+
+  getCommitAt(index: number): gee.Commit {
+    return this.commits[index];
   }
 }

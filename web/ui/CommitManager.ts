@@ -2,8 +2,8 @@ import { LayoutResult } from '../layouts/StraightLayout';
 import Node from '../graph/Node';
 import CommitElement from './CommitElement';
 import EventEmitter from '../EventEmitter';
-import { Repository } from '../git';
 import { gee, Hash } from '../@types/git';
+import Repository from '../git/Repository';
 
 class CommitManager extends EventEmitter {
   elements: Array<CommitElement>;
@@ -20,6 +20,8 @@ class CommitManager extends EventEmitter {
 
   initialized: boolean;
 
+  repository!: Repository;
+
   constructor() {
     super();
 
@@ -34,6 +36,7 @@ class CommitManager extends EventEmitter {
 
   init(layoutResult: LayoutResult, repo: Repository) {
     this.nodes = layoutResult.nodes;
+    this.repository = repo;
 
     if (this.initialized) {
       this.container.innerHTML = '';
@@ -46,25 +49,38 @@ class CommitManager extends EventEmitter {
 
     for (let i = 0; i < repo.commits.length; ++i) {
       const node = this.nodes[i];
-      const commitPod = this.commits.get(node.hash);
-      this.createElement(node, commitPod, repo.referenceMap);
+
+      this.append(node, this.commits.get(node.hash));
     }
 
     this.initialized = true;
   }
-  createElement(node: Node, commitPod: gee.Commit | undefined, refMap: Map<Hash, Array<gee.Reference>>): CommitElement {
-    const commitElement = new CommitElement(node, commitPod);
+
+  append(node: Node, commit: gee.Commit | undefined): CommitElement {
+    const references = this.repository.getReferences(node.hash);
+    const commitElement = new CommitElement(node, commit, references);
     this.container.appendChild(commitElement.element);
     this.map.set(node.hash, commitElement);
 
-    const refs = refMap.get(node.hash);
-    if (refs) {
-      for (const ref of refs) {
-        commitElement.addRef(ref);
-      }
-    }
+    return commitElement;
+  }
+
+  prepend(node: Node, commit: gee.Commit): CommitElement {
+    const commitElement = new CommitElement(node, commit);
+    this.container.prepend(commitElement.element);
+    this.map.set(node.hash, commitElement);
 
     return commitElement;
+  }
+
+  remove(hash: Hash): boolean {
+    const commitElement = this.map.get(hash);
+    if (commitElement) {
+      this.container.removeChild(commitElement.element);
+      this.map.delete(hash);
+      return true;
+    }
+    return false;
   }
 
   onKeyDown(e: KeyboardEvent) {

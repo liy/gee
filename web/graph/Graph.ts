@@ -48,7 +48,7 @@ export default class Graph {
     this.map.delete(node.hash);
     const index = this.nodes.indexOf(node);
     if (index !== -1) {
-      this.nodes = this.nodes.splice(index, 1);
+      this.nodes.splice(index, 1);
     }
   }
 

@@ -69,7 +69,7 @@ export default async function init(mainWindow: BrowserWindow): Promise<void> {
     },
   };
 
-  mainWindow.webContents.send('fromMain', [repoData]);
+  mainWindow.webContents.send('fromMain', repoData);
 
   ipcMain.on('toMain', (event, args) => {
     console.log('!! received from web ', args);

@@ -35,7 +35,5 @@ function init(repoData: RepositoryData) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-window.api.receive(([repoData]: [RepositoryData]) => {
-  init(repoData);
-});
+window.api.receive(init);
 window.api.send('some user interaction data');
