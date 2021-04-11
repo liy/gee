@@ -50,7 +50,7 @@ table .author {
   color: white;
 }
 
-.command-input {
+/* .command-input {
   position: sticky;
   bottom: 0px;
   width: 100%;
@@ -58,4 +58,8 @@ table .author {
   background-color: black;
   color: white;
   outline: none;
-}
+} */
+
+/* #terminal {
+  position: sticky;
+} */

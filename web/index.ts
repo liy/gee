@@ -8,31 +8,10 @@ import Repository, { RepositoryData } from './git/Repository';
 import RepositoryStore from './git/RepositoryStore';
 import GraphStore from './graph/GraphStore';
 
-const stats = new Stats();
-stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-document.body.appendChild(stats.dom);
-stats.dom.style.left = 'unset';
-stats.dom.style.right = '0';
-
-function init(repoData: RepositoryData) {
-  // Setup repository
-  const repo = new Repository(repoData.id, repoData.commits, repoData.references, repoData.head);
-  RepositoryStore.addRepository(repo);
-  RepositoryStore.use(repo.id);
-
-  // Setup graph
-  const graph = GraphStore.createGraph(repo.id);
-  for (const commit of repo.commits) {
-    graph.createNode(commit.hash, commit.parents);
-  }
-
-  const layout = new StraightLayout(graph);
-  const result = layout.process();
-
-  CommitManager.init(result, repo);
-  GraphView.init(result);
-  Commander.init(repo);
-}
+// import * as os from 'os';
+// import { Terminal } from 'xterm';
+// import * as pty from 'node-pty';
+// import 'xterm/css/xterm.css';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 window.api.receive(init);
