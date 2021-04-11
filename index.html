@@ -10,17 +10,17 @@
     <script type="module" src="dist/index.js"></script>
   </head>
   <body>
-    <div style="display: none">
+    <input id="command-input" type="text" />
+    <div id="terminal"></div>
+    <div>
       <div id="root">
         <div id="graph"><canvas id="canvas"></canvas></div>
         <div>
           <table>
             <tbody id="commits"></tbody>
           </table>
-          <input class="command-input" type="text" />
         </div>
       </div>
     </div>
-    <div id="terminal"></div>
   </body>
 </html>

@@ -11,7 +11,8 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts ."
+    "lint": "eslint --ext .ts .",
+    "rebuild-native": "electron-rebuild -f"
   },
   "repository": {
     "type": "git",
@@ -70,7 +71,7 @@
     "electron": "^11.2.3",
     "electron-rebuild": "^2.3.5",
     "electron-reload": "^1.5.0",
-    "esbuild": "^0.8.43",
+    "esbuild": "^0.8.57",
     "eslint": "^7.13.0",
     "eslint-plugin-import": "^2.20.0",
     "prettier": "^2.2.1",

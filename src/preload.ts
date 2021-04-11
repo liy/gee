@@ -32,4 +32,12 @@ contextBridge.exposeInMainWorld('api', {
   git: (args: { command: string; data: any }) => {
     ipcRenderer.send('git', args);
   },
+  terminalKeyStroke: (data: any) => {
+    ipcRenderer.send('terminal.keystroke', data);
+  },
+  terminalData: (func: (args: any) => void) => {
+    ipcRenderer.on('terminal.incomingData', (event, args) => {
+      func(args);
+    });
+  },
 });

@@ -2,6 +2,8 @@ import { BrowserWindow, ipcMain } from 'electron';
 import { RepositoryData } from '../web/git/Repository';
 import { Commit, Object, Reference, Repository, Revwalk } from 'nodegit';
 import { Hash } from '../web/@types/git';
+import os from 'os';
+import pty from 'node-pty';
 
 Reference.TYPE.INVALID;
 
@@ -111,5 +113,27 @@ export default async function init(mainWindow: BrowserWindow): Promise<void> {
     //   }),
     //   refs,
     // ]);
+  });
+
+  const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
+
+  const ptyProcess = pty.spawn(shell, [], {
+    name: 'xterm-color',
+    cols: 80,
+    rows: 30,
+    cwd: process.env.HOME,
+    env: process.env,
+  });
+
+  ptyProcess.onData((data) => {
+    mainWindow.webContents.send('terminal.incomingData', data);
+  });
+
+  ptyProcess.write('ls\r');
+  ptyProcess.resize(100, 40);
+  ptyProcess.write('ls\r');
+
+  ipcMain.on('terminal.keystroke', (event, key) => {
+    ptyProcess.write(key);
   });
 }

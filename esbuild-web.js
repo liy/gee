@@ -5,7 +5,6 @@ require('esbuild')
     bundle: true,
     sourcemap: true,
     watch: true,
-    platform: 'node',
     format: 'esm',
     outdir: 'dist',
   })

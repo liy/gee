@@ -9,7 +9,7 @@ export type ViewRefresh = () => void;
 
 class Commander {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  cmdInput = document.querySelector('.command-input')!;
+  cmdInput = document.querySelector('#command-input')!;
 
   stateDebounce = createDebounce(300);
 

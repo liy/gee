@@ -5,7 +5,7 @@ require('esbuild')
     bundle: true,
     sourcemap: true,
     platform: 'node',
-    external: ['nodegit', 'electron', 'electron-reload'],
+    external: ['nodegit', 'electron', 'electron-reload', 'node-pty'],
     outdir: 'dist',
   })
   .then(() => {
