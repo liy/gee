@@ -7,8 +7,6 @@ import Commander from './Commander';
 import Repository, { RepositoryData } from './git/Repository';
 import RepositoryStore from './git/RepositoryStore';
 import GraphStore from './graph/GraphStore';
-import { Terminal } from 'xterm';
-import 'xterm/css/xterm.css';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -34,18 +32,6 @@ function init(repoData: RepositoryData) {
   CommitManager.init(result, repo);
   GraphView.init(result);
   Commander.init(repo);
-
-  const term = new Terminal({ cols: 80, rows: 24 });
-  term.open(document.getElementById('terminal')!);
-
-  term.onData((e) => {
-    console.log(e);
-    window.api.terminalKeyStroke(e);
-  });
-
-  window.api.terminalData((data: any) => {
-    term.write(data);
-  });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
