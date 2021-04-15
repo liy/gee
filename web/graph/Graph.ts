@@ -52,7 +52,10 @@ export default class Graph {
     }
   }
 
-  refreshPosition(): void {
+  /**
+   * Update Y position index of all nodes
+   */
+  updatePositions(): void {
     for (let i = 0; i < this.nodes.length; ++i) {
       this.nodes[i].y = i;
     }
@@ -111,6 +114,24 @@ export default class Graph {
       node.y = i;
     }
   }
+
+  getParentNodes(node: Node): Array<Node> {
+    return node.parents.map((hash) => this.getNode(hash));
+  }
+
+  // canReach(start: Hash, end: Hash): boolean {
+  //   if (start === end) return true;
+
+  //   const startNode = this.getNode(start);
+  //   const endNode = this.getNode(end);
+
+  //   this.getParentNodes(startNode);
+  //   this.canReach(startNode);
+  // }
+
+  // getAncestors(node: Node): Set<Node> {
+
+  // }
 
   get size(): number {
     return this.nodes.length;

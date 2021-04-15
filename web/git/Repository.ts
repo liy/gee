@@ -16,6 +16,12 @@ export default class Repository {
   private commitMap = new Map<Hash, gee.Commit>();
   private referenceMap = new Map<Hash, Array<gee.Reference>>();
 
+  /**
+   * Contains all the fake references
+   * hash + full name
+   */
+  private fakeRefs = new Set<string>();
+
   constructor(id: string, commits: Array<gee.Commit>, references: Array<gee.Reference>, head: Head) {
     this.id = id;
     this.commits = commits;
@@ -70,11 +76,47 @@ export default class Repository {
     return this.referenceMap.get(hash);
   }
 
+  getReference(hash: Hash, name: string): gee.Reference | undefined {
+    const refs = this.referenceMap.get(hash);
+    if (refs) {
+      return refs.find((ref) => ref.name === name || ref.shorthand === name);
+    }
+    return undefined;
+  }
+
   getCommit(hash: Hash): gee.Commit | undefined {
     return this.commitMap.get(hash);
   }
 
   getCommitAt(index: number): gee.Commit {
     return this.commits[index];
+  }
+
+  addReference(ref: gee.Reference, isFake = false): void {
+    this.references.push(ref);
+    const refs = this.referenceMap.get(ref.hash) || [];
+    if (refs) {
+      refs.push(ref);
+    }
+    this.referenceMap.set(ref.hash, refs);
+
+    if (isFake) {
+      this.fakeRefs.add(ref.hash + ref.name);
+    }
+  }
+
+  // TODO: to be improved
+  removeReference(hash: Hash, name: string): void {
+    const refs = this.referenceMap.get(hash);
+    if (refs) {
+      const index = refs.findIndex((ref) => ref.name === name || ref.shorthand === name);
+      if (index != -1) {
+        const toRemove = refs[index];
+        refs.splice(index);
+        this.references.splice(this.references.indexOf(toRemove), 1);
+
+        this.fakeRefs.delete(hash + name);
+      }
+    }
   }
 }
