@@ -9,42 +9,6 @@ import CommitManager from '../ui/CommitManager';
 import minimist from 'minimist';
 import { Hash } from '../@types/git';
 
-function isReachable(start: Hash, destination: Hash, graph: Graph): boolean {
-  if (start === destination) return true;
-
-  const startNode = graph.getNode(start);
-  const destinationNode = graph.getNode(destination);
-  if (startNode.y > destinationNode.y) return false;
-
-  // Start node will be visited
-  const visited = new Set<Hash>(start);
-  // Initialize queue with start nodes other parents
-  const queue = new Array<Hash>();
-  const node = graph.getNode(start);
-  for (let i = 1; i < node.parents.length; ++i) {
-    queue.push(node.parents[i]);
-  }
-
-  let next = startNode.parents[0];
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    if (visited.has(next) || next === undefined) {
-      if (queue.length === 0) return false;
-      next = queue.pop()!;
-    }
-
-    if (next === destination) return true;
-
-    const node = graph.getNode(next);
-    for (let i = 1; i < node.parents.length; ++i) {
-      queue.push(node.parents[i]);
-    }
-    visited.add(next);
-
-    next = node.parents[0];
-  }
-}
-
 export function merge(
   graph: Graph,
   repository: Repository,
@@ -57,7 +21,7 @@ export function merge(
   // Filter out any source branch that are reachable from current head, head is up to date with them.
   // Only need to merge non-reachable branches
   sourceHashes = sourceHashes.filter((destination) => {
-    return !isReachable(repository.head.hash, destination, graph);
+    return !graph.canReach(repository.head.hash, destination);
   });
   if (sourceHashes.length === 0) return [false];
 
@@ -89,9 +53,10 @@ export function merge(
   };
   repository.prependCommit(commit);
 
-  // // Update reference
-  // const ref = repository.getReference(repository.head.hash, )
-  // repository.addReference({...}, true);
+  // Update reference
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const ref = repository.getReference(repository.head.hash, repository.head.name)!;
+  repository.addReference({ ...ref, hash }, true);
 
   // Refresh view
   GraphView.update(result);
@@ -103,7 +68,7 @@ export function merge(
       graph.removeNode(node);
       graph.updatePositions();
       repository.removeCommit(hash);
-      repository.removeReference(hash, repository.head);
+      repository.removeReference(hash, repository.head.name);
 
       const result = new StraightLayout(graph).process();
       GraphView.update(result);

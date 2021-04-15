@@ -66,7 +66,8 @@ class CommitManager extends EventEmitter {
   }
 
   prepend(node: Node, commit: gee.Commit): CommitElement {
-    const commitElement = new CommitElement(node, commit);
+    const references = this.repository.getReferences(node.hash);
+    const commitElement = new CommitElement(node, commit, references);
     this.container.prepend(commitElement.element);
     this.map.set(node.hash, commitElement);
 

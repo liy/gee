@@ -105,6 +105,10 @@ export default class Repository {
     }
   }
 
+  isFake(ref: gee.Reference): boolean {
+    return this.fakeRefs.has(ref.hash + ref.name);
+  }
+
   // TODO: to be improved
   removeReference(hash: Hash, name: string): void {
     const refs = this.referenceMap.get(hash);

@@ -119,19 +119,49 @@ export default class Graph {
     return node.parents.map((hash) => this.getNode(hash));
   }
 
-  // canReach(start: Hash, end: Hash): boolean {
-  //   if (start === end) return true;
+  /**
+   * Traverse the ancestors of start nodes, and decide whether destination node can be reached.
+   * Useful when deciding one branch is up to date with another branch.
+   * @param start Start node hash
+   * @param destination Destination node has
+   * @returns True if destination node is reachable via ancestor traversing
+   */
+  canReach(start: Hash, destination: Hash): boolean {
+    if (start === destination) return true;
 
-  //   const startNode = this.getNode(start);
-  //   const endNode = this.getNode(end);
+    const startNode = this.getNode(start);
+    const destinationNode = this.getNode(destination);
+    if (startNode.y > destinationNode.y) return false;
 
-  //   this.getParentNodes(startNode);
-  //   this.canReach(startNode);
-  // }
+    // Start node will be visited
+    const visited = new Set<Hash>(start);
+    // Initialize queue with start nodes other parents
+    const queue = new Array<Hash>();
+    const node = this.getNode(start);
+    for (let i = 1; i < node.parents.length; ++i) {
+      queue.push(node.parents[i]);
+    }
 
-  // getAncestors(node: Node): Set<Node> {
+    let next = startNode.parents[0];
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      if (visited.has(next) || next === undefined) {
+        if (queue.length === 0) return false;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        next = queue.pop()!;
+      }
 
-  // }
+      if (next === destination) return true;
+
+      const node = this.getNode(next);
+      for (let i = 1; i < node.parents.length; ++i) {
+        queue.push(node.parents[i]);
+      }
+      visited.add(next);
+
+      next = node.parents[0];
+    }
+  }
 
   get size(): number {
     return this.nodes.length;
