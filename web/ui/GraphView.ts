@@ -212,10 +212,7 @@ class GraphView {
             this.lineGraphics.arcTo(
               vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
               vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
-              vertices[1].x * this.laneWidth +
-                this.laneWidth * 0.5 +
-                this.px +
-                this.radius * Math.sign(vertices[1].x - vertices[0].x),
+              vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
               vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py + this.radius,
               this.radius
             );
