@@ -9,6 +9,7 @@ import '../styles.css';
 
 import { LayoutResult } from '../layouts/StraightLayout';
 import CommitManager from './CommitManager';
+import Fake from '../Fake';
 
 const laneColours = [
   0xf44336,
@@ -156,14 +157,14 @@ class GraphView {
     // Draw outline of the lines
     const thickness = [6, 2];
     const alphas = [0.6, 1];
-    for (const { vertices } of branchLines) {
+    for (const { vertices, fake } of branchLines) {
       for (let i = 0; i < 2; ++i) {
         let colour = 0;
         if (i === 1) {
           const index = vertices[1].x % laneColours.length;
           colour = laneColours[index];
         }
-        this.lineGraphics.lineStyle(thickness[i], colour, alphas[i]);
+        this.lineGraphics.lineStyle(thickness[i], colour, fake ? 0.3 : alphas[i]);
         if (vertices.length === 2) {
           this.lineGraphics.moveTo(
             vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
@@ -173,25 +174,56 @@ class GraphView {
             vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
             vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
           );
-        } else if (vertices.length === 3) {
-          this.lineGraphics.moveTo(
-            vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
-            vertices[0].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
-          );
-          this.lineGraphics.arcTo(
-            vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
-            vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
-            vertices[1].x * this.laneWidth +
-              this.laneWidth * 0.5 +
-              this.px +
-              this.radius * Math.sign(vertices[2].x - vertices[1].x),
-            vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
-            this.radius
-          );
-          this.lineGraphics.lineTo(
-            vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
-            vertices[2].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
-          );
+        }
+        // either be :
+        // __| |__
+        // or
+        // __   __
+        //   | |
+        else if (vertices.length === 3) {
+          // __| |__
+          if (vertices[0].x === vertices[1].x) {
+            this.lineGraphics.moveTo(
+              vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              vertices[0].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
+            );
+            this.lineGraphics.arcTo(
+              vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
+              vertices[1].x * this.laneWidth +
+                this.laneWidth * 0.5 +
+                this.px +
+                this.radius * Math.sign(vertices[2].x - vertices[1].x),
+              vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
+              this.radius
+            );
+            this.lineGraphics.lineTo(
+              vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              vertices[2].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
+            );
+          }
+          // __   __
+          //   | |
+          else {
+            this.lineGraphics.moveTo(
+              vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              vertices[0].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
+            );
+            this.lineGraphics.arcTo(
+              vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
+              vertices[1].x * this.laneWidth +
+                this.laneWidth * 0.5 +
+                this.px +
+                this.radius * Math.sign(vertices[1].x - vertices[0].x),
+              vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py + this.radius,
+              this.radius
+            );
+            this.lineGraphics.lineTo(
+              vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              vertices[2].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
+            );
+          }
         } else if (vertices.length == 4) {
           this.lineGraphics.moveTo(
             vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
@@ -222,7 +254,7 @@ class GraphView {
       }
     }
 
-    for (const { vertices } of syncLines) {
+    for (const { vertices, fake } of syncLines) {
       for (let i = 0; i < 2; ++i) {
         let colour = 0;
         if (i === 1) {
@@ -230,7 +262,7 @@ class GraphView {
           colour = laneColours[index];
         }
 
-        this.lineGraphics.lineStyle(thickness[i], colour, alphas[i]);
+        this.lineGraphics.lineStyle(thickness[i], colour, fake ? 0.3 : alphas[i]);
         if (vertices.length === 3) {
           this.lineGraphics.moveTo(
             vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
@@ -284,6 +316,10 @@ class GraphView {
       sprite.y = node.y * this.sliceHeight + this.sliceHeight * 0.5 + this.py;
       sprite.anchor.set(0.5, 0.5);
       sprite.tint = laneColours[node.x % laneColours.length];
+
+      if (Fake.isFake(node.hash)) {
+        sprite.alpha = 0.5;
+      }
     }
   }
 

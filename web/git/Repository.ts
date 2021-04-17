@@ -16,12 +16,6 @@ export default class Repository {
   private commitMap = new Map<Hash, gee.Commit>();
   private referenceMap = new Map<Hash, Array<gee.Reference>>();
 
-  /**
-   * Contains all the fake references
-   * hash + full name
-   */
-  private fakeRefs = new Set<string>();
-
   constructor(id: string, commits: Array<gee.Commit>, references: Array<gee.Reference>, head: Head) {
     this.id = id;
     this.commits = commits;
@@ -92,21 +86,13 @@ export default class Repository {
     return this.commits[index];
   }
 
-  addReference(ref: gee.Reference, isFake = false): void {
+  addReference(ref: gee.Reference): void {
     this.references.push(ref);
     const refs = this.referenceMap.get(ref.hash) || [];
     if (refs) {
       refs.push(ref);
     }
     this.referenceMap.set(ref.hash, refs);
-
-    if (isFake) {
-      this.fakeRefs.add(ref.hash + ref.name);
-    }
-  }
-
-  isFake(ref: gee.Reference): boolean {
-    return this.fakeRefs.has(ref.hash + ref.name);
   }
 
   // TODO: to be improved
@@ -118,8 +104,6 @@ export default class Repository {
         const toRemove = refs[index];
         refs.splice(index);
         this.references.splice(this.references.indexOf(toRemove), 1);
-
-        this.fakeRefs.delete(hash + name);
       }
     }
   }

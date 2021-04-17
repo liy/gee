@@ -1,5 +1,5 @@
 import { gee } from '../@types/git';
-import RepositoryStore from '../git/RepositoryStore';
+import Fake from '../Fake';
 import './RefLabel.css';
 
 export default class RefLabel {
@@ -9,8 +9,5 @@ export default class RefLabel {
     this.element.className = 'ref-label';
     this.element.innerHTML = ref.shorthand;
     this.element.style.backgroundColor = colour;
-    if (RepositoryStore.current.isFake(ref)) {
-      this.element.style.opacity = '0.5';
-    }
   }
 }

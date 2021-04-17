@@ -1,10 +1,3 @@
-import { Hash } from './@types/git';
-
-let counter = 0;
-export function fakeHash(): Hash {
-  return (counter++).toString();
-}
-
 export function createDebounce(milliseconds: number): (overrideMilliseconds?: number) => Promise<unknown> {
   {
     let id = 0;

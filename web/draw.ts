@@ -1,3 +1,5 @@
+import Node from './graph/Node';
+
 export class Vertex {
   x: number;
   y: number;
@@ -11,11 +13,15 @@ export class Vertex {
 export class Line {
   vertices: Vertex[];
 
-  color: number;
+  readonly fake: boolean;
 
-  constructor() {
+  constructor(startVertex?: Vertex, fake = false) {
     this.vertices = [];
-    this.color = 0xffffff;
+    this.fake = fake;
+
+    if (startVertex) {
+      this.vertices.push(startVertex);
+    }
   }
 
   /**

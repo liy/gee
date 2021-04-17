@@ -1,13 +1,12 @@
 import Node from '../graph/Node';
 import Graph from '../graph/Graph';
 import { isGit } from './others';
-import { fakeHash } from '../utils';
 import Repository from '../git/Repository';
 import StraightLayout from '../layouts/StraightLayout';
 import GraphView from '../ui/GraphView';
 import CommitManager from '../ui/CommitManager';
 import minimist from 'minimist';
-import { Hash } from '../@types/git';
+import Fake from '../Fake';
 
 export function merge(
   graph: Graph,
@@ -27,8 +26,9 @@ export function merge(
 
   const parents = [repository.head.hash, ...sourceHashes];
 
-  const hash = fakeHash();
-  const node = new Node(hash);
+  const fakeHash = Fake.hash();
+
+  const node = new Node(fakeHash);
   node.parents = parents;
   graph.prependNode(node);
   graph.updatePositions();
@@ -36,7 +36,7 @@ export function merge(
 
   const now = new Date().getTime();
   const commit = {
-    hash,
+    hash: fakeHash,
     summary: 'Merge',
     date: now,
     time: now,
@@ -56,7 +56,7 @@ export function merge(
   // Update reference
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const ref = repository.getReference(repository.head.hash, repository.head.name)!;
-  repository.addReference({ ...ref, hash }, true);
+  repository.addReference({ ...ref, hash: fakeHash });
 
   // Refresh view
   GraphView.update(result);
@@ -67,12 +67,14 @@ export function merge(
     () => {
       graph.removeNode(node);
       graph.updatePositions();
-      repository.removeCommit(hash);
-      repository.removeReference(hash, repository.head.name);
+      repository.removeCommit(fakeHash);
+      repository.removeReference(fakeHash, repository.head.name);
 
       const result = new StraightLayout(graph).process();
       GraphView.update(result);
-      CommitManager.remove(hash);
+      CommitManager.remove(fakeHash);
+
+      Fake.remove(fakeHash);
     },
   ];
 }

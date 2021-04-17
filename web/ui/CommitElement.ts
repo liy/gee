@@ -2,6 +2,7 @@ import Node from '../graph/Node';
 import CommitManager from './CommitManager';
 import RefLabel from './RefLabel';
 import { gee } from '../@types/git';
+import Fake from '../Fake';
 
 const laneColours = [
   '#f44336',
@@ -76,6 +77,10 @@ class CommitElement {
         const refElm = new RefLabel(ref, laneColours[index]);
         this.element.firstChild?.insertBefore(refElm.element, this.element.firstChild?.firstChild);
       }
+    }
+
+    if (Fake.isFake(node.hash)) {
+      this.element.style.opacity = '0.5';
     }
 
     this.element.addEventListener('click', this.onSelect.bind(this));
