@@ -2,7 +2,7 @@ import Node from '../graph/Node';
 import CommitManager from './CommitManager';
 import RefLabel from './RefLabel';
 import { gee } from '../@types/git';
-import Fake from '../Fake';
+import Simulator from '../Simulator';
 
 const laneColours = [
   '#f44336',
@@ -79,7 +79,7 @@ class CommitElement {
       }
     }
 
-    if (Fake.isFake(node.hash)) {
+    if (Simulator.isSimulated(node.hash)) {
       this.element.style.opacity = '0.5';
     }
 

@@ -1,38 +1,14 @@
 /* eslint-disable no-constant-condition */
 import { Hash } from '../@types/git';
-import { Line, Vertex } from '../draw';
-import Fake from '../Fake';
+import { LineArray } from '../draw';
 import Graph from '../graph/Graph';
-import Node, { NodePod } from '../graph/Node';
+import Node from '../graph/Node';
 
-export interface LayoutResultPod {
-  syncLines: Array<Vertex[]>;
-  nodes: Array<NodePod>;
-  branchLines: Array<Vertex[]>;
-  maxLanes: number;
-}
-
-export class LayoutResult {
-  syncLines: Array<Line>;
+export interface LayoutResult {
+  syncLines: LineArray;
   nodes: Array<Node>;
-  branchLines: Array<Line>;
+  branchLines: LineArray;
   maxLanes: number;
-
-  constructor(nodes: Array<Node>, branchLines: Array<Line>, syncLines: Array<Line>, maxLanes: number) {
-    this.syncLines = syncLines;
-    this.nodes = nodes;
-    this.branchLines = branchLines;
-    this.maxLanes = maxLanes;
-  }
-
-  pod(): LayoutResultPod {
-    return {
-      nodes: this.nodes.map((node) => node.pod()),
-      branchLines: this.branchLines.map((line) => line.vertices),
-      syncLines: this.syncLines.map((line) => line.vertices),
-      maxLanes: this.maxLanes,
-    };
-  }
 }
 
 class LaneAllocator {
@@ -152,12 +128,12 @@ export default class StraightLayout {
      * Sync line is the edge between 2 visited nodes. In git, it usually happens when people try to
      * keep a topic branch up to date with another branch. Also notice that, the sync merge does not end the topic branch.
      */
-    const syncLines = new Array<Line>();
+    const syncLines = new LineArray();
 
     /**
      * Branch line contains the main branch start and end information. Just the line drawing representation of the normal branch.
      */
-    const branchLines = new Array<Line>();
+    const branchLines = new LineArray();
 
     /**
      * Temp set to store visited nodes. Typical usage:
@@ -184,8 +160,8 @@ export default class StraightLayout {
       if (!visited.has(node)) {
         const startIndex = node.y;
         let endIndex = startIndex;
-        let line = new Line(new Vertex(i, node.y), Fake.isFake(node.hash));
-        branchLines.push(line);
+
+        branchLines.start(i, node.y, node.hash);
 
         while (true) {
           node.x = i;
@@ -194,25 +170,19 @@ export default class StraightLayout {
 
           if (node.parents[0] === undefined) break;
 
-          // Create a new line if node is not
-          const isFakeNode = Fake.isFake(node.hash);
-          if (isFakeNode !== line.fake) {
-            line.add(i, node.y);
-
-            line = new Line(new Vertex(i, node.y), isFakeNode);
-            branchLines.push(line);
-          }
+          // Create a new line if node "fakeness" is changed
+          branchLines.node(i, node.y, node.hash);
 
           node = this.graph.getNode(node.parents[0]);
 
           if (visited.has(node)) {
-            line.add(i, node.y);
+            branchLines.vertex(i, node.y);
             break;
           }
         }
         this.priorityBranchSections[i] = [startIndex, endIndex];
 
-        line.add(node.x, node.y);
+        branchLines.vertex(node.x, node.y);
       }
     }
 
@@ -230,8 +200,7 @@ export default class StraightLayout {
         node.x = laneIndex;
         visited.add(node);
 
-        let line = new Line(new Vertex(node.x, node.y), Fake.isFake(node.hash));
-        branchLines.push(line);
+        branchLines.start(node.x, node.y, node.hash);
 
         // Firstly, traverse all the trunk parent nodes and set their lane index
         let branchBase = node;
@@ -241,14 +210,8 @@ export default class StraightLayout {
           // if (branchBase.parentNodes[0] === undefined) break;
           if (branchBase.parents[0] === undefined) break;
 
-          // Create a new line if node is not
-          const isFakeNode = Fake.isFake(branchBase.hash);
-          if (isFakeNode !== line.fake) {
-            line.add(laneIndex, branchBase.y);
-
-            line = new Line(new Vertex(laneIndex, branchBase.y), isFakeNode);
-            branchLines.push(line);
-          }
+          // Create a new line if node "fakeness" is changed
+          branchLines.node(laneIndex, branchBase.y, branchBase.hash);
 
           branchBase = this.graph.getNode(branchBase.parents[0]);
 
@@ -259,8 +222,8 @@ export default class StraightLayout {
           visited.add(branchBase);
         }
 
-        line.add(laneIndex, branchBase.y);
-        line.add(branchBase.x, branchBase.y);
+        branchLines.vertex(laneIndex, branchBase.y);
+        branchLines.vertex(branchBase.x, branchBase.y);
 
         laneAllocator.recordBranch(laneIndex, branchBase.y);
       }
@@ -272,8 +235,9 @@ export default class StraightLayout {
         // If the parent is visited and it is a sync merge node, which means its lane index has already been set.
         // Needs special taken care of!
         if (visited.has(branchBase)) {
-          const syncLine = new Line(new Vertex(node.x, node.y), Fake.isFake(node.hash));
-          syncLines.push(syncLine);
+          // Sync line has no intermediate node which only contains start and end 2 nodes and with 3 or 4 vertices.
+          // Therefore no need to use node() method to track "fakeness" of the line.
+          syncLines.start(node.x, node.y, node.hash);
 
           // If no node is blocking branch base node and current node on the lane of the branch base (lane index must be set since branch base node is visited)
           //
@@ -294,8 +258,8 @@ export default class StraightLayout {
             }
           }
           if (!divert) {
-            syncLine.add(branchBase.x, node.y);
-            syncLine.add(branchBase.x, branchBase.y);
+            syncLines.vertex(branchBase.x, node.y);
+            syncLines.vertex(branchBase.x, branchBase.y);
           }
           // Otherwise, we have to find an available lane to draw the line, it will need 4 vertices:
           //
@@ -312,9 +276,9 @@ export default class StraightLayout {
               visited
             );
 
-            syncLine.add(laneIndex, node.y);
-            syncLine.add(laneIndex, branchBase.y);
-            syncLine.add(branchBase.x, branchBase.y);
+            syncLines.vertex(laneIndex, node.y);
+            syncLines.vertex(laneIndex, branchBase.y);
+            syncLines.vertex(branchBase.x, branchBase.y);
 
             // Don't forget to record the branch information in order to close it correctly
             laneAllocator.recordBranch(laneIndex, branchBase.y);
@@ -330,9 +294,10 @@ export default class StraightLayout {
             visited
           );
 
-          let line = new Line(new Vertex(node.x, node.y), Fake.isFake(node.hash));
-          branchLines.push(line);
-          line.add(laneIndex, node.y);
+          // Normal branch line always starts from a merge node...
+          branchLines.start(node.x, node.y, node.hash);
+          // ... and with extra corner vertex
+          branchLines.vertex(laneIndex, node.y);
 
           while (true) {
             branchBase.x = laneIndex;
@@ -340,27 +305,21 @@ export default class StraightLayout {
 
             if (branchBase.parents[0] === undefined) break;
 
-            // Create a new line if node is not
-            const isFakeNode = Fake.isFake(branchBase.hash);
-            if (isFakeNode !== line.fake) {
-              line.add(laneIndex, branchBase.y);
-
-              line = new Line(new Vertex(laneIndex, branchBase.y), isFakeNode);
-              branchLines.push(line);
-            }
+            // Create a new line if node "fakeness" is changed
+            branchLines.node(laneIndex, branchBase.y, branchBase.hash);
 
             branchBase = this.graph.getNode(branchBase.parents[0]);
 
             if (visited.has(branchBase)) break;
           }
-          line.add(laneIndex, branchBase.y);
-          line.add(branchBase.x, branchBase.y);
+          branchLines.vertex(laneIndex, branchBase.y);
+          branchLines.vertex(branchBase.x, branchBase.y);
 
           laneAllocator.recordBranch(laneIndex, branchBase.y);
         }
       }
     }
 
-    return new LayoutResult(this.graph.nodes, branchLines, syncLines, laneAllocator.activeBranches.length);
+    return { nodes: this.graph.nodes, branchLines, syncLines, maxLanes: laneAllocator.activeBranches.length };
   }
 }

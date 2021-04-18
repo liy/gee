@@ -9,7 +9,7 @@ import '../styles.css';
 
 import { LayoutResult } from '../layouts/StraightLayout';
 import CommitManager from './CommitManager';
-import Fake from '../Fake';
+import Simulator, { SimType } from '../Simulator';
 
 const laneColours = [
   0xf44336,
@@ -157,14 +157,14 @@ class GraphView {
     // Draw outline of the lines
     const thickness = [6, 2];
     const alphas = [0.6, 1];
-    for (const { vertices, fake } of branchLines) {
+    for (const { vertices, simType } of branchLines) {
       for (let i = 0; i < 2; ++i) {
         let colour = 0;
         if (i === 1) {
           const index = vertices[1].x % laneColours.length;
           colour = laneColours[index];
         }
-        this.lineGraphics.lineStyle(thickness[i], colour, fake ? 0.3 : alphas[i]);
+        this.lineGraphics.lineStyle(thickness[i], colour, simType === SimType.ADD ? 0.3 : alphas[i]);
         if (vertices.length === 2) {
           this.lineGraphics.moveTo(
             vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
@@ -251,7 +251,7 @@ class GraphView {
       }
     }
 
-    for (const { vertices, fake } of syncLines) {
+    for (const { vertices, simType } of syncLines) {
       for (let i = 0; i < 2; ++i) {
         let colour = 0;
         if (i === 1) {
@@ -259,7 +259,7 @@ class GraphView {
           colour = laneColours[index];
         }
 
-        this.lineGraphics.lineStyle(thickness[i], colour, fake ? 0.3 : alphas[i]);
+        this.lineGraphics.lineStyle(thickness[i], colour, simType === SimType.ADD ? 0.3 : alphas[i]);
         if (vertices.length === 3) {
           this.lineGraphics.moveTo(
             vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
@@ -314,7 +314,7 @@ class GraphView {
       sprite.anchor.set(0.5, 0.5);
       sprite.tint = laneColours[node.x % laneColours.length];
 
-      if (Fake.isFake(node.hash)) {
+      if (Simulator.isSimulated(node.hash)) {
         sprite.alpha = 0.5;
       }
     }

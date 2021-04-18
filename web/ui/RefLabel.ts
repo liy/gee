@@ -1,5 +1,4 @@
 import { gee } from '../@types/git';
-import Fake from '../Fake';
 import './RefLabel.css';
 
 export default class RefLabel {

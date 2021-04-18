@@ -1,9 +1,10 @@
 import minimist from 'minimist';
 import Repository from '../git/Repository';
 import Graph from '../graph/Graph';
+import { checkout } from './checkout';
 import { merge } from './merge';
 
-const commands = [merge];
+const commands = [merge, checkout];
 class CommandProcessor {
   undo: (() => void) | undefined;
 
