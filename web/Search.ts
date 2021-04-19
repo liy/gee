@@ -1,0 +1,53 @@
+import Fuse from 'fuse.js';
+import { gee, Hash } from './@types/git';
+
+class Search {
+  commitSearch!: Fuse<gee.Commit>;
+  referenceSearch!: Fuse<gee.Reference>;
+
+  init(commits: Array<gee.Commit>, references: Array<gee.Reference>) {
+    this.commitSearch = new Fuse(commits, {
+      keys: ['hash', 'summary', 'body', 'author.name', 'author.email'],
+      threshold: 0,
+    });
+    this.referenceSearch = new Fuse(references, { keys: ['name', 'shorthand'], threshold: 0 });
+  }
+
+  update(commits: Array<gee.Commit>, references: Array<gee.Reference>) {
+    this.updateCommits(commits);
+    this.updateReferences(references);
+  }
+
+  updateCommits(commits: Array<gee.Commit>) {
+    this.commitSearch.setCollection(commits);
+  }
+
+  addCommit(commit: gee.Commit) {
+    this.commitSearch.add(commit);
+  }
+
+  removeCommit(hash: Hash) {
+    this.commitSearch.remove((commit) => commit.hash === hash);
+  }
+
+  updateReferences(references: Array<gee.Reference>) {
+    this.referenceSearch.setCollection(references);
+  }
+
+  addReference(ref: gee.Reference) {
+    this.referenceSearch.add(ref);
+  }
+
+  removeReference(hash: Hash) {
+    this.referenceSearch.remove((commit) => commit.hash === hash);
+  }
+
+  perform(pattern: string): [Fuse.FuseResult<gee.Reference>[], Fuse.FuseResult<gee.Commit>[]] {
+    const refResults = this.referenceSearch.search(pattern);
+    const commitResults = this.commitSearch.search(pattern);
+
+    return [refResults, commitResults];
+  }
+}
+
+export default new Search();

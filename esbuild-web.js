@@ -7,6 +7,9 @@ require('esbuild')
     watch: true,
     format: 'esm',
     outdir: 'dist',
+    define: {
+      'process.env.NODE_ENV': '"development"',
+    },
   })
   .then(() => {
     console.log('Watching src folder changes...');
