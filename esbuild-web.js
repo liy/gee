@@ -1,4 +1,6 @@
+const sassPlugin = require('esbuild-plugin-sass');
 /* eslint-disable @typescript-eslint/no-var-requires */
+
 require('esbuild')
   .build({
     entryPoints: ['web/index.ts'],
@@ -10,6 +12,7 @@ require('esbuild')
     define: {
       'process.env.NODE_ENV': '"development"',
     },
+    plugins: [sassPlugin()],
   })
   .then(() => {
     console.log('Watching src folder changes...');

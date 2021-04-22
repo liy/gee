@@ -7,10 +7,12 @@ import GraphView from '../ui/GraphView';
 import CommitManager from '../ui/CommitManager';
 import minimist from 'minimist';
 import Simulator from '../Simulator';
+import AutoComplete from '../ui/AutoComplete';
 
 export function merge(
   graph: Graph,
   repository: Repository,
+  autoComplete: AutoComplete,
   args: minimist.ParsedArgs
 ): [performed: boolean, undo?: () => void] {
   if (!isGit(args) || args._[1] !== 'merge') return [false];
@@ -74,7 +76,7 @@ export function merge(
       GraphView.update(result);
       CommitManager.remove(simulatedHash);
 
-      Simulator.delete(simulatedHash);
+      Simulator.stop(simulatedHash);
     },
   ];
 }

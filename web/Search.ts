@@ -7,8 +7,14 @@ class Search {
 
   init(commits: Array<gee.Commit>, references: Array<gee.Reference>) {
     this.commitSearch = new Fuse(commits, {
-      keys: ['hash', 'summary', 'body', 'author.name', 'author.email'],
+      keys: ['hash', 'summary', 'body', 'author.name', 'author.email', 'date'],
       threshold: 0,
+      sortFn: (a, b) => {
+        if (a.score === b.score) {
+          return (b.item as any)[5] - (a.item as any)[5];
+        }
+        return 0;
+      },
     });
     this.referenceSearch = new Fuse(references, { keys: ['name', 'shorthand'], threshold: 0 });
   }

@@ -4,12 +4,13 @@ import Graph from '../graph/Graph';
 import Repository from '../git/Repository';
 import GraphStore from '../graph/GraphStore';
 import CommandProcessor from '../commands/CommandProcessor';
+import AutoComplete from './AutoComplete';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 class CommandInput {
   element: HTMLElement;
-  suggestions: HTMLDivElement;
   input: HTMLInputElement;
+  autoComplete: AutoComplete;
 
   repository!: Repository;
 
@@ -19,19 +20,17 @@ class CommandInput {
 
   constructor() {
     this.element = document.getElementById('command-aside')!;
-    this.element.innerHTML = `
-      <input id="command-input"></input>
-      <div id="suggestions">
-      </div>
-    `;
+    this.element.innerHTML = `<input id="command-input"></input>`;
 
     this.input = this.element.querySelector('#command-input')!;
-    this.suggestions = this.element.querySelector('#suggestions')!;
-
     this.input.addEventListener('input', this.onInput.bind(this));
+
+    this.autoComplete = new AutoComplete();
+    this.element.appendChild(this.autoComplete.element);
   }
 
   init(repo: Repository): void {
+    CommandProcessor.init(this.autoComplete);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.graph = GraphStore.getGraph(repo.id)!;
     this.repository = repo;
