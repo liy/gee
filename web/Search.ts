@@ -49,10 +49,15 @@ class Search {
   }
 
   perform(pattern: string): [Fuse.FuseResult<gee.Reference>[], Fuse.FuseResult<gee.Commit>[]] {
-    const refResults = this.referenceSearch.search(pattern);
-    const commitResults = this.commitSearch.search(pattern);
+    return [this.references(pattern), this.commits(pattern)];
+  }
 
-    return [refResults, commitResults];
+  references(pattern: string): Fuse.FuseResult<gee.Reference>[] {
+    return this.referenceSearch.search(pattern);
+  }
+
+  commits(pattern: string): Fuse.FuseResult<gee.Commit>[] {
+    return this.commitSearch.search(pattern);
   }
 }
 

@@ -42,10 +42,9 @@ class CommandInput {
     // revert back to original graph and repository state
     CommandProcessor.tryUndo();
 
-    const value = (e.target as HTMLInputElement).value;
-    const args = minimist(value.split(' '));
+    const text = (e.target as HTMLInputElement).value;
 
-    CommandProcessor.process(this.graph, this.repository, args);
+    await CommandProcessor.process(this.graph, this.repository, text);
   }
 }
 

@@ -1,9 +1,10 @@
-import minimist from 'minimist';
 import Repository from '../git/Repository';
 import Graph from '../graph/Graph';
 import AutoComplete from '../ui/AutoComplete';
 import { checkout } from './checkout';
 import { merge } from './merge';
+
+import parse from 'ght';
 
 const commands = [merge, checkout];
 class CommandProcessor {
@@ -15,9 +16,9 @@ class CommandProcessor {
     this.autoComplete = autoComplete;
   }
 
-  process(graph: Graph, repo: Repository, args: minimist.ParsedArgs) {
+  async process(graph: Graph, repo: Repository, text: string) {
     for (const command of commands) {
-      const [performed, undo] = command(graph, repo, this.autoComplete, args);
+      const [performed, undo] = await command(graph, repo, this.autoComplete, text);
       if (performed) {
         this.undo = undo;
         break;

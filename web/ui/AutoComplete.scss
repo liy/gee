@@ -1,7 +1,28 @@
 .candidate {
-  display: flex;
+  margin-top: 0.5em;
+  background-color: #ffffff;
 
-  :first-child {
-    margin-right: 2px;
+  .name-field {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+
+  .description {
+    font-size: 0.8em;
+    margin-top: 0.15em;
+
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &.focus {
+    background-color: #cccccc;
+  }
+}
+
+.autocomplete {
+  cursor: pointer;
+  width: 400px;
 }

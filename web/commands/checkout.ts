@@ -4,22 +4,39 @@ import Repository from '../git/Repository';
 import minimist from 'minimist';
 import Search from '../Search';
 import AutoComplete, { CandidateData } from '../ui/AutoComplete';
+import CommandInput from '../ui/CommandInput';
+import templates, { CommandOption } from './templates';
 
-export function checkout(
+function getOption(str: string): CommandOption | null {
+  for (const option of templates.checkout.options) {
+    if (option.name === str) {
+      return option;
+    }
+  }
+
+  return null;
+}
+
+export async function checkout(
   graph: Graph,
   repository: Repository,
   autoComplete: AutoComplete,
   args: minimist.ParsedArgs
-): [performed: boolean, undo?: () => void] {
+): Promise<[performed: boolean, undo?: () => void]> {
   console.log(args);
   if (!isGit(args) || args._[1] !== 'checkout') return [false];
-  // if (!args._[2]) return [false];
 
-  const target = args._.slice(2).join(' ');
-  console.log(target);
+  console.log(args);
+
+  let target = args._.slice(2).join(' ');
+
+  // TODO: get the word of the current input selection and try to auto complete it with command templates.
+  // We need to know which command option or command param cursor is at. Extract the full word and try to
+  // auto complete the command params or options.
+
+  if (target === '') autoComplete.clear();
 
   const results = Search.perform(target);
-  console.log(results);
 
   const entries = new Array<CandidateData>();
   for (let i = 0; i < results[0].length; ++i) {
@@ -48,6 +65,13 @@ export function checkout(
     });
   }
   autoComplete.update(entries);
+
+  target = (await autoComplete.selection).value as string;
+  autoComplete.clear();
+
+  const chunks = CommandInput.input.value.split(' ');
+  chunks.pop();
+  CommandInput.input.value = chunks.join(' ') + ' ' + target;
 
   if (target) {
     // const refs = repository.referenceSearch.search(target);
