@@ -65,6 +65,12 @@ When candidate is selected, different commands have different behaviours, e.g., 
 
 ---
 
-user input -> command -> auto complete -> command.update() -> input value
+## Command process
 
-user input -> input value
+user input -> input event -> command.update event -> command process (update simulation only)
+
+## Auto complete
+
+user input -> input event -> update autocomplete candidates (update suggestions only)
+
+autocomplete selection -> command.update event -> command process (update simulation only)
