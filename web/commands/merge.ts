@@ -1,23 +1,24 @@
 import Node from '../graph/Node';
 import Graph from '../graph/Graph';
-import { isGit } from './others';
 import Repository from '../git/Repository';
 import StraightLayout from '../layouts/StraightLayout';
 import GraphView from '../ui/GraphView';
 import CommitManager from '../ui/CommitManager';
-import minimist from 'minimist';
 import Simulator from '../Simulator';
 import AutoComplete from '../ui/AutoComplete';
+import parse from 'ght';
 
 export async function merge(
   graph: Graph,
   repository: Repository,
   autoComplete: AutoComplete,
-  args: minimist.ParsedArgs
+  text: string
 ): Promise<[performed: boolean, undo?: () => void]> {
-  if (!isGit(args) || args._[1] !== 'merge') return [false];
+  // if (!isGit(args) || args._[1] !== 'merge') return [false];
+  const { context } = parse(text);
+  if (context[0].toLowerCase() !== 'git' && context[1].toLowerCase() !== 'merge') return [false];
 
-  const sourceBranchNames = args._.slice(2);
+  const sourceBranchNames = context.slice(2);
   let sourceHashes = repository.getReferencesByNames(sourceBranchNames).map((ref) => ref.hash);
   // Filter out any source branch that are reachable from current head, head is up to date with them.
   // Only need to merge non-reachable branches

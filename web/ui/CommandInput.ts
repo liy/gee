@@ -1,5 +1,4 @@
 import { createDebounce } from '../utils';
-import minimist from 'minimist';
 import Graph from '../graph/Graph';
 import Repository from '../git/Repository';
 import GraphStore from '../graph/GraphStore';
@@ -42,9 +41,7 @@ class CommandInput {
     // revert back to original graph and repository state
     CommandProcessor.tryUndo();
 
-    const text = (e.target as HTMLInputElement).value;
-
-    await CommandProcessor.process(this.graph, this.repository, text);
+    await CommandProcessor.process(this.graph, this.repository, (e.target as HTMLInputElement).value);
   }
 }
 

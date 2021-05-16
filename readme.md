@@ -61,4 +61,10 @@ When candidate is selected, different commands have different behaviours, e.g., 
     user input -------------> command -----------> auto complete --------------> input value
         |         onInput               update                      set value
         |
-        -----------> input value
+         -----------> input value
+
+---
+
+user input -> command -> auto complete -> command.update() -> input value
+
+user input -> input value

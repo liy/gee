@@ -1,11 +1,10 @@
 import Graph from '../graph/Graph';
-import { isGit } from './others';
 import Repository from '../git/Repository';
-import minimist from 'minimist';
 import Search from '../Search';
 import AutoComplete, { CandidateData } from '../ui/AutoComplete';
 import CommandInput from '../ui/CommandInput';
 import templates, { CommandOption } from './templates';
+import parse from 'ght';
 
 function getOption(str: string): CommandOption | null {
   for (const option of templates.checkout.options) {
@@ -21,18 +20,17 @@ export async function checkout(
   graph: Graph,
   repository: Repository,
   autoComplete: AutoComplete,
-  args: minimist.ParsedArgs
+  text: string
 ): Promise<[performed: boolean, undo?: () => void]> {
-  console.log(args);
-  if (!isGit(args) || args._[1] !== 'checkout') return [false];
-
-  console.log(args);
-
-  let target = args._.slice(2).join(' ');
+  // console.log(args);
+  const { context } = parse(text);
+  if (context[0].toLowerCase() !== 'git' && context[1].toLowerCase() !== 'checkout') return [false];
 
   // TODO: get the word of the current input selection and try to auto complete it with command templates.
   // We need to know which command option or command param cursor is at. Extract the full word and try to
   // auto complete the command params or options.
+
+  let target = context.slice(2).join(' ');
 
   if (target === '') autoComplete.clear();
 
