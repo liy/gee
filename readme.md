@@ -67,10 +67,12 @@ When candidate is selected, different commands have different behaviours, e.g., 
 
 ## Command process
 
-user input -> input event -> command.update event -> command process (update simulation only)
+user input -> input event -> debounce -> command.update event -> command process (update simulation only)
+
+autocomplete selection event -> command.update event -> command process (update simulation only)
 
 ## Auto complete
 
 user input -> input event -> update autocomplete candidates (update suggestions only)
 
-autocomplete selection -> command.update event -> command process (update simulation only)
+keyboard event -> update autocomplete candidates (update suggestions only)

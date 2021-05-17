@@ -30,46 +30,7 @@ export async function checkout(
   // We need to know which command option or command param cursor is at. Extract the full word and try to
   // auto complete the command params or options.
 
-  let target = context.slice(2).join(' ');
-
-  if (target === '') autoComplete.clear();
-
-  const results = Search.perform(target);
-
-  const entries = new Array<CandidateData>();
-  for (let i = 0; i < results[0].length; ++i) {
-    const result = results[0][i];
-    entries.push({
-      name: result.item.shorthand,
-      description: result.item.name,
-      value: result.item.name,
-    });
-
-    if (entries.length > 10) {
-      break;
-    }
-  }
-
-  for (let i = 0; i < results[1].length; ++i) {
-    if (entries.length > 10) {
-      break;
-    }
-
-    const result = results[1][i];
-    entries.push({
-      name: result.item.summary,
-      description: result.item.body,
-      value: result.item.hash,
-    });
-  }
-  autoComplete.update(entries);
-
-  target = (await autoComplete.selection).value as string;
-  autoComplete.clear();
-
-  const chunks = CommandInput.input.value.split(' ');
-  chunks.pop();
-  CommandInput.input.value = chunks.join(' ') + ' ' + target;
+  const target = context.slice(2).join(' ');
 
   if (target) {
     // const refs = repository.referenceSearch.search(target);

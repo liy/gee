@@ -1,6 +1,10 @@
+import parse from 'ght';
+import CommandEvent from '../CommandEvent';
+import CommandProcessor from '../commands/CommandProcessor';
 import EventEmitter from '../EventEmitter';
 import Search from '../Search';
 import './AutoComplete.scss';
+import CommandInput from './CommandInput';
 
 export interface CandidateData {
   name: string;
@@ -15,7 +19,6 @@ class Candidate {
 
   nameField: HTMLElement;
   descriptionField: HTMLElement;
-
   constructor(candidateData: CandidateData) {
     this.element.classList.add('candidate');
     this.data = candidateData;
@@ -51,13 +54,11 @@ class Candidate {
 export default class AutoComplete {
   element = document.createElement('div');
 
+  private _isOpen = false;
+
   private candidates = new Array<Candidate>();
 
   private _focusedIndex = -1;
-
-  private _selectionResolve!: (data: CandidateData) => void;
-
-  private _selectionPromise!: Promise<CandidateData>;
 
   constructor(dataEntries?: Array<CandidateData>) {
     this.element.classList.add('autocomplete');
@@ -67,7 +68,30 @@ export default class AutoComplete {
       }
     }
 
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', this.onKeyboard.bind(this));
+  }
+
+  init() {
+    CommandInput.input.addEventListener('input', this.onInput.bind(this));
+  }
+
+  onInput(e: Event) {
+    // TODO: update auto complete candidates
+  }
+
+  onKeyboard(e: KeyboardEvent) {
+    if (!this.isOpen) {
+      switch (e.key) {
+        case ' ':
+          if (e.ctrlKey) {
+            this.open();
+          }
+          break;
+        case 'Escape':
+          this.close();
+          break;
+      }
+    } else {
       if (this.candidates.length === 0) return;
 
       switch (e.key) {
@@ -84,7 +108,15 @@ export default class AutoComplete {
           this.select(this.candidates[this.focusedIndex].data);
           break;
       }
-    });
+    }
+  }
+
+  open(): void {
+    this._isOpen = true;
+  }
+
+  close(): void {
+    this._isOpen = false;
   }
 
   update(dataEntries: Array<CandidateData>): void {
@@ -109,10 +141,6 @@ export default class AutoComplete {
     }
 
     this.focusedIndex = 0;
-
-    this._selectionPromise = new Promise((resolve) => {
-      this._selectionResolve = resolve;
-    });
   }
 
   updateReferences(pattern: string): void {
@@ -161,11 +189,8 @@ export default class AutoComplete {
   }
 
   select(data: CandidateData): void {
-    this._selectionResolve(data);
-  }
-
-  get selection(): Promise<CandidateData> {
-    return this._selectionPromise;
+    // insert auto completed word into caret position
+    CommandInput.insertText(data.value);
   }
 
   set focusedIndex(value: number) {
@@ -200,5 +225,9 @@ export default class AutoComplete {
       this.candidates[i].remove();
     }
     this.candidates = [];
+  }
+
+  get isOpen(): boolean {
+    return this._isOpen;
   }
 }

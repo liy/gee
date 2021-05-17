@@ -8,20 +8,31 @@ import { merge } from './merge';
 import parse from 'ght';
 import CommandInput from '../ui/CommandInput';
 import Search from '../Search';
+import CommandEvent from '../CommandEvent';
 
 const commands = [merge, checkout];
 class CommandProcessor {
+  repository!: Repository;
+
+  graph!: Graph;
+
   undo: (() => void) | undefined;
 
   private autoComplete!: AutoComplete;
 
-  init(autoComplete: AutoComplete) {
+  init(autoComplete: AutoComplete, graph: Graph, repo: Repository) {
     this.autoComplete = autoComplete;
+    this.graph = graph;
+    this.repository = repo;
+
+    CommandInput.on(CommandEvent.UPDATE, this.process.bind(this));
   }
 
-  async process(graph: Graph, repo: Repository, text: string) {
+  async process(text: string) {
+    this.tryUndo(); // revert back to original graph and repository state
+
     for (const command of commands) {
-      const [performed, undo] = await command(graph, repo, this.autoComplete, text);
+      const [performed, undo] = await command(this.graph, this.repository, this.autoComplete, text);
       if (performed) {
         this.undo = undo;
         break;
@@ -57,9 +68,6 @@ class CommandProcessor {
           });
         }
         this.autoComplete.update(entries);
-
-        const target = (await this.autoComplete.selection).value as string;
-        this.autoComplete.clear();
       }
     }
   }
