@@ -5,7 +5,6 @@ import AutoComplete, { CandidateData } from '../ui/AutoComplete';
 import { checkout } from './checkout';
 import { merge } from './merge';
 
-import parse from 'ght';
 import CommandInput from '../ui/CommandInput';
 import Search from '../Search';
 import CommandEvent from '../CommandEvent';

@@ -7,9 +7,20 @@ export interface CommandOption {
   };
 }
 
-export default {
-  merge: {
+export interface CommandTemplate {
+  name: string;
+  options: Array<CommandOption>;
+  description: string;
+  param?: {
+    type: string | 'text' | 'number' | 'hash';
+    search: Array<string>;
+  };
+}
+
+const templates: Array<CommandTemplate> = [
+  {
     name: 'merge',
+    description: '',
     options: [
       {
         name: '--commit',
@@ -30,8 +41,9 @@ export default {
       search: ['reference.name', 'commit.hash'],
     },
   },
-  commit: {
+  {
     name: 'commit',
+    description: '',
     options: [
       {
         name: '-m',
@@ -44,8 +56,9 @@ export default {
       },
     ],
   },
-  checkout: {
+  {
     name: 'checkout',
+    description: '',
     options: [
       {
         name: '-b',
@@ -61,4 +74,6 @@ export default {
       search: ['commit.summary', 'references.name'],
     },
   },
-};
+];
+
+export default templates;

@@ -1,6 +1,7 @@
 import parse from 'ght';
 import CommandEvent from '../CommandEvent';
 import CommandProcessor from '../commands/CommandProcessor';
+import predict from '../commands/Prediction';
 import EventEmitter from '../EventEmitter';
 import Search from '../Search';
 import './AutoComplete.scss';
@@ -71,44 +72,42 @@ export default class AutoComplete {
     document.addEventListener('keydown', this.onKeyboard.bind(this));
   }
 
-  init() {
-    CommandInput.input.addEventListener('input', this.onInput.bind(this));
-  }
-
-  onInput(e: Event) {
+  onInput(textInput: string): void {
     // TODO: update auto complete candidates
+    console.log(textInput);
   }
 
   onKeyboard(e: KeyboardEvent) {
-    if (!this.isOpen) {
-      switch (e.key) {
-        case ' ':
-          if (e.ctrlKey) {
-            this.open();
-          }
-          break;
-        case 'Escape':
-          this.close();
-          break;
-      }
-    } else {
-      if (this.candidates.length === 0) return;
-
-      switch (e.key) {
-        case 'ArrowUp':
-          e.preventDefault();
-          this.focusedIndex--;
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          this.focusedIndex++;
-          break;
-        case 'Enter':
-          e.preventDefault();
-          this.select(this.candidates[this.focusedIndex].data);
-          break;
-      }
+    // if (!this.isOpen) {
+    switch (e.key) {
+      case ' ':
+        if (e.ctrlKey) {
+          this.open();
+          predict(CommandInput.value, CommandInput.caretPosition!);
+        }
+        break;
+      case 'Escape':
+        this.close();
+        break;
     }
+    // } else {
+    //   if (this.candidates.length === 0) return;
+
+    //   switch (e.key) {
+    //     case 'ArrowUp':
+    //       e.preventDefault();
+    //       this.focusedIndex--;
+    //       break;
+    //     case 'ArrowDown':
+    //       e.preventDefault();
+    //       this.focusedIndex++;
+    //       break;
+    //     case 'Enter':
+    //       e.preventDefault();
+    //       this.select(this.candidates[this.focusedIndex].data);
+    //       break;
+    //   }
+    // }
   }
 
   open(): void {

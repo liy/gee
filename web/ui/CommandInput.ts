@@ -6,6 +6,7 @@ import CommandProcessor from '../commands/CommandProcessor';
 import AutoComplete from './AutoComplete';
 import EventEmitter from '../EventEmitter';
 import CommandEvent from '../CommandEvent';
+import predict from '../commands/Prediction';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 class CommandInput extends EventEmitter {
@@ -37,12 +38,15 @@ class CommandInput extends EventEmitter {
     this.repository = repo;
 
     CommandProcessor.init(this.autoComplete, this.graph, this.repository);
-    this.autoComplete.init();
   }
 
   async onInput(): Promise<any> {
+    // this.autoComplete.onInput(this.input.value);
+
     await this.stateDebounce();
-    this.emit(CommandEvent.UPDATE, this.input.value);
+    // this.emit(CommandEvent.UPDATE, this.input.value);
+
+    predict(this.input.value, this.input.selectionStart!);
   }
 
   /**
@@ -55,6 +59,14 @@ class CommandInput extends EventEmitter {
       this.input.setRangeText(text, start, end, 'select');
     }
     this.emit(CommandEvent.UPDATE, this.input.value);
+  }
+
+  get value() {
+    return this.input.value;
+  }
+
+  get caretPosition() {
+    return this.input.selectionStart;
   }
 }
 
