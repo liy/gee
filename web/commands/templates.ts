@@ -7,7 +7,7 @@ export interface CommandOption {
   };
 }
 
-export interface CommandTemplate {
+export interface Argument {
   name: string;
   options: Array<CommandOption>;
   description: string;
@@ -17,19 +17,11 @@ export interface CommandTemplate {
   };
 }
 
-export interface CommandTemplate2 {
-  {
-    name: string;
-    options: Array<CommandOption>;
-    description: string;
-    param?: {
-      type: string | 'text' | 'number' | 'hash';
-      search: Array<string>;
-    };
-  }
+export interface CommandTemplate {
+  [key: string]: Array<Argument>;
 }
 
-const gitTemplates: Array<CommandTemplate> = {
+export const templates: CommandTemplate = {
   git: [
     {
       name: 'merge',
@@ -89,12 +81,3 @@ const gitTemplates: Array<CommandTemplate> = {
     },
   ],
 };
-
-const gitMap = new Map<string, CommandTemplate>();
-for (const gitTemplate of gitTemplates) {
-  gitMap.set(gitTemplate.name, gitTemplate);
-}
-
-export default function getGitTemplate(name: string): CommandTemplate | undefined {
-  return gitMap.get(name);
-}

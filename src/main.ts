@@ -15,6 +15,9 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
     },
+    // frame: false,
+    // titleBarStyle: 'hidden',
+    transparent: true,
   });
 
   // and load the index.html of the app.

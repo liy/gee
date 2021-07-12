@@ -3,18 +3,7 @@ import Repository from '../git/Repository';
 import Search from '../Search';
 import AutoComplete, { CandidateData } from '../ui/AutoComplete';
 import CommandInput from '../ui/CommandInput';
-import templates, { CommandOption } from './templates';
 import parse from 'ght';
-
-function getOption(str: string): CommandOption | null {
-  for (const option of templates.checkout.options) {
-    if (option.name === str) {
-      return option;
-    }
-  }
-
-  return null;
-}
 
 export async function checkout(
   graph: Graph,
