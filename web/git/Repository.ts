@@ -1,6 +1,4 @@
 import { gee, Hash, Head } from '../@types/git';
-import Search from '../Search';
-// import { Search } from 'js-search';
 
 export interface RepositoryData {
   id: string;
@@ -18,26 +16,11 @@ export default class Repository {
   private commitMap = new Map<Hash, gee.Commit>();
   private referenceMap = new Map<Hash, Array<gee.Reference>>();
 
-  // readonly commitSearch = new Search(['hash']);
-  // readonly referenceSearch = new Search(['name']);
-
   constructor(id: string, commits: Array<gee.Commit>, references: Array<gee.Reference>, head: Head) {
     this.id = id;
     this.commits = commits;
     this.references = references;
     this.head = head;
-
-    // this.commitSearch.addIndex('hash');
-    // this.commitSearch.addIndex('summary');
-    // this.commitSearch.addIndex('body');
-    // this.commitSearch.addIndex(['author', 'name']);
-    // this.commitSearch.addIndex(['committer', 'name']);
-    // this.commitSearch.addDocuments(commits);
-
-    // this.referenceSearch.addIndex('name');
-    // this.referenceSearch.addIndex('shorthand');
-    // this.referenceSearch.addDocuments(references);
-    Search.init(commits, references);
 
     for (const commit of commits) {
       this.commitMap.set(commit.hash, commit);
@@ -55,8 +38,6 @@ export default class Repository {
   prependCommit(commit: gee.Commit): void {
     this.commits.unshift(commit);
     this.commitMap.set(commit.hash, commit);
-
-    Search.addCommit(commit);
   }
 
   insertCommitAt(commits: Array<gee.Commit>, before: Hash): boolean {

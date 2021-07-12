@@ -3,11 +3,9 @@ import StraightLayout from './layouts/StraightLayout';
 
 import CommitManager from './ui/CommitManager';
 import GraphView from './ui/GraphView';
-import Commander from './Commander';
 import Repository, { RepositoryData } from './git/Repository';
 import RepositoryStore from './git/RepositoryStore';
 import GraphStore from './graph/GraphStore';
-import CommandInput from './ui/CommandInput';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -32,9 +30,6 @@ function init(repoData: RepositoryData) {
 
   CommitManager.init(result, repo);
   GraphView.init(result);
-
-  // UI
-  CommandInput.init(repo);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
