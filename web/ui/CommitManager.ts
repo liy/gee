@@ -85,7 +85,7 @@ class CommitManager extends EventEmitter {
   }
 
   onKeyDown(e: KeyboardEvent) {
-    const index = parseInt(e.key);
+    const index = parseInt(e.key) - 1;
     if (!isNaN(index) && this.selectedCommit) {
       const elm = this.selectedCommit.getParent(index);
       if (elm) {
