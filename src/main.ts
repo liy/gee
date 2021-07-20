@@ -5,9 +5,10 @@ import init from './app';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('electron-reload')(__dirname);
 
-function createWindow() {
+
+function createMainWindow() {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  const browserWindow = new BrowserWindow({
     height: 1000,
     width: 1720,
     webPreferences: {
@@ -15,18 +16,32 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
     },
-    // frame: false,
-    // titleBarStyle: 'hidden',
-    transparent: true,
   });
 
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, '../index.html'));
-
+  browserWindow.loadFile(path.join(__dirname, '../index.html'));
+  
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  browserWindow.webContents.openDevTools();
 
-  return mainWindow;
+  return browserWindow;
+}
+
+export function createSubWindow(html: string, preload?:string) {
+  const browserWindow = new BrowserWindow({
+    height: 1000,
+    width: 1720,
+    webPreferences: {
+      preload: preload,
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  // and load the index.html of the app.
+  browserWindow.loadFile(html);
+
+  return browserWindow;
 }
 
 function createTray(mainWindow: BrowserWindow) {
@@ -45,26 +60,15 @@ function createTray(mainWindow: BrowserWindow) {
     mainWindow.isVisible() ? mainWindow.setSkipTaskbar(false) : mainWindow.setSkipTaskbar(true);
   });
 
-  // mainWindow.on('show', () => {
-  //   tray.setHighlightMode('always');
-  // });
-  // mainWindow.on('hide', () => {
-  //   tray.setHighlightMode('never');
-  // });
 }
-
-function shortcut(mainWindow: BrowserWindow) {
-  globalShortcut.register('Control+Shift+L', () => {
-    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
-  });
-}
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  const mainWindow = createWindow();
-  shortcut(mainWindow);
+  const mainWindow = getMainWindow();
+  globalShortcut.register('Shift+Alt+E', () => {
+    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
+  });
 
   // Close to the tray
   mainWindow.on('close', (event) => {
@@ -73,15 +77,15 @@ app.on('ready', async () => {
     mainWindow.setSkipTaskbar(true);
   });
 
-  app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-
   await init(mainWindow);
   createTray(mainWindow);
 });
+
+// app.on('activate', function () {
+//   // On macOS it's common to re-create a window in the app when the
+//   // dock icon is clicked and there are no other windows open.
+//   if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
+// });
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -94,3 +98,14 @@ app.on('ready', async () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+
+let mainWindow: BrowserWindow;
+export function getMainWindow(): BrowserWindow {
+  if(mainWindow) return mainWindow;
+  mainWindow = createMainWindow();
+  return mainWindow;
+}
+
+export function send(data: any) {
+  getMainWindow().webContents.send('MainToRenderer', data);
+}

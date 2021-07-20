@@ -1,9 +1,8 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { RepositoryData } from '../web/git/Repository';
-import { Commit, Object, Reference, Repository, Revwalk } from 'nodegit';
+import { Commit, Object, Repository, Revwalk } from 'nodegit';
 import { Hash } from '../web/@types/git';
 
-Reference.TYPE.INVALID;
 
 export default async function init(mainWindow: BrowserWindow): Promise<void> {
   // Open the repository directory.
@@ -69,9 +68,9 @@ export default async function init(mainWindow: BrowserWindow): Promise<void> {
     },
   };
 
-  mainWindow.webContents.send('fromMain', repoData);
+  mainWindow.webContents.send('MainToRenderer', repoData);
 
-  ipcMain.on('toMain', (event, args) => {
+  ipcMain.on('RendererToMain', (event, args) => {
     console.log('!! received from web ', args);
   });
 
@@ -90,7 +89,7 @@ export default async function init(mainWindow: BrowserWindow): Promise<void> {
     // graph.reset();
     // const layout = new StraightLayout(graph);
     // const result = layout.process();
-    // mainWindow.webContents.send('fromMain', [
+    // mainWindow.webContents.send('MainToRenderer', [
     //   result.pod(),
     //   commits.map((c) => {
     //     return {

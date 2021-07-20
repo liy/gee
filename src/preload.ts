@@ -20,24 +20,16 @@ window.addEventListener('DOMContentLoaded', async () => {
 contextBridge.exposeInMainWorld('api', {
   // Send to main
   send: (data: any) => {
-    ipcRenderer.send('toMain', data);
+    ipcRenderer.send('RendererToMain', data);
   },
   // receive from main
   receive: (func: (args: any) => void) => {
     // Deliberately strip event as it includes `sender`
-    ipcRenderer.on('fromMain', (event, args) => {
+    ipcRenderer.on('MainToRenderer', (event, args) => {
       func(args);
     });
   },
   git: (args: { command: string; data: any }) => {
     ipcRenderer.send('git', args);
-  },
-  terminalKeyStroke: (data: any) => {
-    ipcRenderer.send('terminal.keystroke', data);
-  },
-  terminalData: (func: (args: any) => void) => {
-    ipcRenderer.on('terminal.incomingData', (event, args) => {
-      func(args);
-    });
   },
 });
