@@ -1,12 +1,12 @@
-import { BrowserWindow, ipcMain } from 'electron';
 import { RepositoryData } from '../web/git/Repository';
 import { Commit, Object, Repository, Revwalk } from 'nodegit';
 import { Hash } from '../web/@types/git';
+import { onGitCommand, onReceive, send } from 'api';
 
-
-export default async function init(mainWindow: BrowserWindow): Promise<void> {
+export default async function open(repoPath: string): Promise<void> {
+  console.log('opening', repoPath);
   // Open the repository directory.
-  const repo = await Repository.open('./repo');
+  const repo = await Repository.open(repoPath);
 
   const revWalk = repo.createRevWalk();
   revWalk.sorting(Revwalk.SORT.TOPOLOGICAL, Revwalk.SORT.TIME);
@@ -30,7 +30,7 @@ export default async function init(mainWindow: BrowserWindow): Promise<void> {
   const headReference = await repo.head();
 
   const repoData: RepositoryData = {
-    id: './repo',
+    id: repoPath,
     commits: commits.map(([c, parents]) => {
       return {
         hash: c.sha(),
@@ -68,47 +68,13 @@ export default async function init(mainWindow: BrowserWindow): Promise<void> {
     },
   };
 
-  mainWindow.webContents.send('MainToRenderer', repoData);
+  send(repoData);
 
-  ipcMain.on('RendererToMain', (event, args) => {
-    console.log('!! received from web ', args);
+  onReceive((data) => {
+    console.log('!! received from web ', data);
   });
 
-  ipcMain.on('git', async (event, args: { command: string; data: any }) => {
-    console.log('run git !');
-    // const branches = args.data as Array<string>;
-    // const currentBranch = await repo.getBranchCommit(await repo.getCurrentBranch());
-    // const branchHashes = await Promise.all(
-    //   branches.map(async (branch) => {
-    //     const ref = await repo.getBranch(`refs/heads/${branch}`);
-    //     return (await repo.getBranchCommit(ref)).sha();
-    //   })
-    // );
-    // const parents = [currentBranch.sha(), ...branchHashes];
-    // graph.appendNode(new Node('0'), parents);
-    // graph.reset();
-    // const layout = new StraightLayout(graph);
-    // const result = layout.process();
-    // mainWindow.webContents.send('MainToRenderer', [
-    //   result.pod(),
-    //   commits.map((c) => {
-    //     return {
-    //       hash: c.sha(),
-    //       summary: c.summary(),
-    //       date: c.date().getTime(),
-    //       time: c.time(),
-    //       body: c.body(),
-    //       author: {
-    //         name: c.author().name(),
-    //         email: c.author().email(),
-    //       },
-    //       committer: {
-    //         name: c.committer().name(),
-    //         email: c.committer().email(),
-    //       },
-    //     };
-    //   }),
-    //   refs,
-    // ]);
+  onGitCommand((data) => {
+    console.log('git command ', data);
   });
 }

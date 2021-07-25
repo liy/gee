@@ -6,7 +6,12 @@ require('esbuild')
     entryPoints: ['web/index.ts'],
     bundle: true,
     sourcemap: true,
-    watch: true,
+    watch: {
+      onRebuild(error, result) {
+        if (error) console.error('web build failed:', error);
+        else console.log('web updated');
+      },
+    },
     format: 'esm',
     outdir: 'dist',
     define: {

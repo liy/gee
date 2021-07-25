@@ -23,13 +23,13 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.send('RendererToMain', data);
   },
   // receive from main
-  receive: (func: (args: any) => void) => {
+  onReceive: (func: (args: any) => void) => {
     // Deliberately strip event as it includes `sender`
     ipcRenderer.on('MainToRenderer', (event, args) => {
       func(args);
     });
   },
-  git: (args: { command: string; data: any }) => {
-    ipcRenderer.send('git', args);
+  git: (command: string) => {
+    ipcRenderer.send('git', command);
   },
 });

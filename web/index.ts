@@ -30,8 +30,10 @@ function init(repoData: RepositoryData) {
 
   CommitManager.init(result, repo);
   GraphView.init(result);
+  CommitManager.on('selected', (data) => {
+    window.api.send(data);
+  });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-window.api.receive(init);
-window.api.send('some user interaction data');
+window.api.onReceive(init);
