@@ -1,80 +1,32 @@
-import { RepositoryData } from '../web/git/Repository';
-import { Commit, Object, Repository, Revwalk } from 'nodegit';
-import { Hash } from '../web/@types/git';
-import { onGitCommand, onReceive, send } from 'api';
+import { ipcMain } from 'electron';
+import { getMainWindow } from 'main';
+import { gee } from '../web/@types/gee';
+import { REPOSITORY_DATA_INIT } from '../web/constants';
+import EventEmitter from '../web/EventEmitter';
+import RepositoryReader from './RepositoryReader';
 
-export default async function open(repoPath: string): Promise<void> {
-  console.log('opening', repoPath);
-  // Open the repository directory.
-  const repo = await Repository.open(repoPath);
-
-  const revWalk = repo.createRevWalk();
-  revWalk.sorting(Revwalk.SORT.TOPOLOGICAL, Revwalk.SORT.TIME);
-  revWalk.pushGlob('refs/heads/*');
-
-  const commits = new Array<[Commit, Array<Hash>]>();
-  // eslint-disable-next-line no-constant-condition
-  async function walk() {
-    const oid = await revWalk.next().catch(() => null);
-    if (!oid) return;
-
-    const commit = await repo.getCommit(oid);
-    const parents = commit.parents().map((oid) => oid.tostrS());
-    commits.push([commit, parents]);
-
-    await walk();
+class GeeApp extends EventEmitter {
+  constructor() {
+    super();
   }
-  await walk();
 
-  const references = await repo.getReferences();
-  const headReference = await repo.head();
+  init(repoPath: string): void {
+    const promise = RepositoryReader.open(repoPath);
+    ipcMain.on('RendererReady', async () => {
+      this.send({
+        type: REPOSITORY_DATA_INIT,
+        data: await promise,
+      });
+    });
 
-  const repoData: RepositoryData = {
-    id: repoPath,
-    commits: commits.map(([c, parents]) => {
-      return {
-        hash: c.sha(),
-        summary: c.summary(),
-        date: c.date().getTime(),
-        time: c.time(),
-        body: c.body(),
-        author: {
-          name: c.author().name(),
-          email: c.author().email(),
-        },
-        committer: {
-          name: c.committer().name(),
-          email: c.committer().email(),
-        },
-        parents,
-      };
-    }),
-    references: await Promise.all(
-      references.map(async (ref) => {
-        return {
-          name: ref.name(),
-          shorthand: ref.shorthand(),
-          hash: (await ref.peel(Object.TYPE.COMMIT)).id().tostrS(),
-          type: ref.type(),
-          isRemote: ref.isRemote() === 1,
-          isBranch: ref.isBranch() === 1,
-        };
-      })
-    ),
-    head: {
-      hash: (await headReference.peel(Object.TYPE.COMMIT)).id().tostrS(),
-      name: headReference.name(),
-      shorthand: headReference.shorthand(),
-    },
-  };
+    ipcMain.on('RendererToMain', (_, event: gee.Event) => {
+      this.emit(event.type, event.data);
+    });
+  }
 
-  send(repoData);
-
-  onReceive((data) => {
-    console.log('!! received from web ', data);
-  });
-
-  onGitCommand((data) => {
-    console.log('git command ', data);
-  });
+  send(event: gee.Event) {
+    getMainWindow().webContents.send('MainToRenderer', event);
+  }
 }
+
+export default new GeeApp();

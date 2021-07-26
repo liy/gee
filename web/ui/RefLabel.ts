@@ -1,4 +1,4 @@
-import { gee } from '../@types/git';
+import { gee } from '../@types/gee';
 import './RefLabel.css';
 
 export default class RefLabel {

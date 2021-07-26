@@ -1,6 +1,7 @@
 // All of the Node.js APIs are available in the preload process.
 
 import { contextBridge, ipcRenderer } from 'electron';
+import { gee } from '../web/@types/gee';
 
 // It has the same sandbox as a Chrome extension.
 window.addEventListener('DOMContentLoaded', async () => {
@@ -19,17 +20,17 @@ window.addEventListener('DOMContentLoaded', async () => {
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld('api', {
   // Send to main
-  send: (data: any) => {
-    ipcRenderer.send('RendererToMain', data);
+  send: (event: gee.Event) => {
+    ipcRenderer.send('RendererToMain', event);
+  },
+  rendererReady: () => {
+    ipcRenderer.send('RendererReady');
   },
   // receive from main
-  onReceive: (func: (args: any) => void) => {
+  onReceive: (func: (evt: gee.Event) => void) => {
     // Deliberately strip event as it includes `sender`
-    ipcRenderer.on('MainToRenderer', (event, args) => {
-      func(args);
+    ipcRenderer.on('MainToRenderer', (_, event: gee.Event) => {
+      func(event);
     });
-  },
-  git: (command: string) => {
-    ipcRenderer.send('git', command);
   },
 });

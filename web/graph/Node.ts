@@ -1,4 +1,4 @@
-import { Hash } from '../@types/git';
+import { Hash } from '../@types/gee';
 
 export interface NodePod {
   x: number;

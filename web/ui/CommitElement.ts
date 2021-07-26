@@ -1,7 +1,7 @@
 import Node from '../graph/Node';
 import CommitManager from './CommitManager';
 import RefLabel from './RefLabel';
-import { gee } from '../@types/git';
+import { gee } from '../@types/gee';
 import Simulator from '../Simulator';
 
 const laneColours = [

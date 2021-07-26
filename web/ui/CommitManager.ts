@@ -2,7 +2,7 @@ import { LayoutResult } from '../layouts/StraightLayout';
 import Node from '../graph/Node';
 import CommitElement from './CommitElement';
 import EventEmitter from '../EventEmitter';
-import { gee, Hash } from '../@types/git';
+import { gee, Hash } from '../@types/gee';
 import Repository from '../git/Repository';
 
 class CommitManager extends EventEmitter {

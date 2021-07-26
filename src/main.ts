@@ -2,9 +2,9 @@
 
 import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron';
 import path = require('path');
-import open from './app';
 // import fastifyLauncher from 'fastify';
 import express from 'express';
+import GeeApp from 'app';
 const server = express();
 server.use(express.text());
 
@@ -82,10 +82,10 @@ if (app.requestSingleInstanceLock()) {
       mainWindow.show();
     });
 
-    dialog.showMessageBox({
-      buttons: ['OK'],
-      message: `${JSON.stringify(argv)} cwd: ${process.cwd()}`,
-    });
+    // dialog.showMessageBox({
+    //   buttons: ['OK'],
+    //   message: `${JSON.stringify(argv)} cwd: ${process.cwd()}`,
+    // });
 
     // Close to the tray
     mainWindow.on('close', (event) => {
@@ -94,7 +94,7 @@ if (app.requestSingleInstanceLock()) {
       mainWindow.setSkipTaskbar(true);
     });
 
-    open(argv.repo || path.resolve(process.cwd()));
+    GeeApp.init(argv.repo || process.cwd());
     createTray(mainWindow);
   });
 } else {

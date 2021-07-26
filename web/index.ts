@@ -6,6 +6,7 @@ import GraphView from './ui/GraphView';
 import Repository, { RepositoryData } from './git/Repository';
 import RepositoryStore from './git/RepositoryStore';
 import GraphStore from './graph/GraphStore';
+import { COMMIT_SELECTED, REPOSITORY_DATA_INIT } from './constants';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -31,9 +32,14 @@ function init(repoData: RepositoryData) {
   CommitManager.init(result, repo);
   GraphView.init(result);
   CommitManager.on('selected', (data) => {
-    window.api.send(data);
+    window.api.send({
+      type: COMMIT_SELECTED,
+      data,
+    });
   });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-window.api.onReceive(init);
+window.api.onReceive((event) => {
+  if (event.type === REPOSITORY_DATA_INIT) init(event.data);
+});
+window.api.rendererReady();

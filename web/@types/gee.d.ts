@@ -1,3 +1,5 @@
+import { COMMIT_SELECTED, REPOSITORY_DATA_INIT } from '../constants';
+
 export type Hash = string;
 
 export namespace gee {
@@ -33,6 +35,13 @@ export namespace gee {
     isRemote: boolean;
     isBranch: boolean;
   }
+
+  export type EventType = typeof COMMIT_SELECTED | typeof REPOSITORY_DATA_INIT;
+
+  export type Event = {
+    type: EventType;
+    data: any;
+  };
 }
 
 export interface Head {

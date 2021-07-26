@@ -1,4 +1,4 @@
-import { gee, Hash, Head } from '../@types/git';
+import { gee, Hash, Head } from '../@types/gee';
 
 export interface RepositoryData {
   id: string;

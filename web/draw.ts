@@ -1,4 +1,4 @@
-import { Hash } from './@types/git';
+import { Hash } from './@types/gee';
 import Simulator, { SimType } from './Simulator';
 
 export class Vertex {

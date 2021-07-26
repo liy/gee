@@ -1,5 +1,5 @@
 /* eslint-disable no-constant-condition */
-import { Hash } from '../@types/git';
+import { Hash } from '../@types/gee';
 import { LineArray } from '../draw';
 import Graph from '../graph/Graph';
 import Node from '../graph/Node';
