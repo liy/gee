@@ -7,7 +7,7 @@ import express from 'express';
 import GeeApp from 'app';
 import { debugMsg } from './debugUtils';
 const server = express();
-server.use(express.text());
+server.use(express.json());
 
 const argv = require('minimist')(process.argv.slice(2));
 
@@ -72,9 +72,10 @@ if (app.requestSingleInstanceLock()) {
   // TODO: parse command line arguments
   console.log('launch from command line', argv, process.defaultApp);
 
+  // Open repo via rest request
   server.post('/gee', (req, res) => {
-    console.log(req.body);
-    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
+    GeeApp.open(req.body.repo || process.cwd());
+    mainWindow.show();
     return res.json({ status: 200 });
   });
 
@@ -95,7 +96,7 @@ if (app.requestSingleInstanceLock()) {
       mainWindow.setSkipTaskbar(true);
     });
 
-    GeeApp.init(argv.repo || process.cwd());
+    GeeApp.open(argv.repo || process.cwd());
     createTray(mainWindow);
   });
 } else {

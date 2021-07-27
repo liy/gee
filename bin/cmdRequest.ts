@@ -8,7 +8,7 @@ export default (data: string) => {
       path: '/gee',
       method: 'POST',
       headers: {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'application/json',
         'Content-Length': data.length,
       },
     };

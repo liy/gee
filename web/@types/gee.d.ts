@@ -1,4 +1,4 @@
-import { COMMIT_SELECTED, REPOSITORY_DATA_INIT } from '../constants';
+import { COMMIT_SELECTED, REPOSITORY_DATA_INIT, REPOSITORY_DATA_UPDATE } from '../constants';
 
 export type Hash = string;
 
@@ -36,7 +36,7 @@ export namespace gee {
     isBranch: boolean;
   }
 
-  export type EventType = typeof COMMIT_SELECTED | typeof REPOSITORY_DATA_INIT;
+  export type EventType = typeof COMMIT_SELECTED | typeof REPOSITORY_DATA_INIT | typeof REPOSITORY_DATA_UPDATE;
 
   export type Event = {
     type: EventType;

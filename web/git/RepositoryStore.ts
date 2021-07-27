@@ -1,4 +1,4 @@
-import Repository from './Repository';
+import Repository, { RepositoryData } from './Repository';
 
 class RepositoryStore {
   private map = new Map<string, Repository>();
@@ -17,6 +17,10 @@ class RepositoryStore {
     if (!this.map.has(id)) throw new Error(`Repository ${id} does not exist.`);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this._current = this.map.get(id)!;
+  }
+
+  has(id: string): boolean {
+    return this.map.has(id);
   }
 
   get current(): Repository {

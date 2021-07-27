@@ -15,6 +15,10 @@ class GraphStore {
   getGraph(id: string): Graph | undefined {
     return this.map.get(id);
   }
+
+  removeGraph(id: string): boolean {
+    return this.map.delete(id);
+  }
 }
 
 export default new GraphStore();

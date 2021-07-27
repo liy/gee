@@ -1,26 +1,29 @@
 import { ipcMain } from 'electron';
 import { getMainWindow } from 'main';
 import { gee } from '../web/@types/gee';
-import { REPOSITORY_DATA_INIT } from '../web/constants';
+import { REPOSITORY_OPEN } from '../web/constants';
 import EventEmitter from '../web/EventEmitter';
 import RepositoryReader from './RepositoryReader';
 
 class GeeApp extends EventEmitter {
+  private rendererReady: Promise<void>;
   constructor() {
     super();
-  }
 
-  init(repoPath: string): void {
-    const promise = RepositoryReader.open(repoPath);
-    ipcMain.on('RendererReady', async () => {
-      this.send({
-        type: REPOSITORY_DATA_INIT,
-        data: await promise,
-      });
-    });
-
+    let rendererReadyResolve: (() => void) | null;
+    this.rendererReady = new Promise((resolve) => (rendererReadyResolve = resolve));
+    ipcMain.on('RendererReady', async () => rendererReadyResolve!());
     ipcMain.on('RendererToMain', (_, event: gee.Event) => {
       this.emit(event.type, event.data);
+    });
+  }
+
+  async open(repoPath: string) {
+    const promise = RepositoryReader.open(repoPath);
+    await this.rendererReady;
+    this.send({
+      type: REPOSITORY_OPEN,
+      data: await promise,
     });
   }
 

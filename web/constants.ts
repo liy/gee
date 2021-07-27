@@ -1,2 +1,2 @@
 export const COMMIT_SELECTED = 'commit.selected';
-export const REPOSITORY_DATA_INIT = 'repositoryData.init';
+export const REPOSITORY_OPEN = 'repository.open';
