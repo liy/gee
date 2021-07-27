@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 
-import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron';
+import { app, BrowserWindow, globalShortcut, Menu, Tray } from 'electron';
 import path = require('path');
 // import fastifyLauncher from 'fastify';
 import express from 'express';
 import GeeApp from 'app';
+import { debugMsg } from './debugUtils';
 const server = express();
 server.use(express.text());
 
 const argv = require('minimist')(process.argv.slice(2));
+
+// Avoid GC causing tray icon disappers.
+let tray = null;
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('electron-reload')(__dirname);
@@ -33,7 +37,7 @@ function createMainWindow() {
   browserWindow.loadFile(indexPath);
 
   // Open the DevTools.
-  browserWindow.webContents.openDevTools();
+  // browserWindow.webContents.openDevTools();
 
   return browserWindow;
 }
@@ -46,9 +50,9 @@ export function getMainWindow(): BrowserWindow {
 }
 
 function createTray(mainWindow: BrowserWindow) {
-  const iconPath = path.join(__dirname, '../git.png');
+  const iconPath = path.join(__dirname, '../images/git.png');
   console.log('iconPath', iconPath);
-  const tray = new Tray(iconPath);
+  tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'exit',
@@ -76,16 +80,13 @@ if (app.requestSingleInstanceLock()) {
 
   server.listen(28230);
 
-  app.on('ready', async () => {
+  app.on('ready', () => {
     const mainWindow = getMainWindow();
     globalShortcut.register('Shift+Alt+E', () => {
       mainWindow.show();
     });
 
-    // dialog.showMessageBox({
-    //   buttons: ['OK'],
-    //   message: `${JSON.stringify(argv)} cwd: ${process.cwd()}`,
-    // });
+    // debugMsg(`${JSON.stringify(argv)} cwd: ${process.cwd()}`);
 
     // Close to the tray
     mainWindow.on('close', (event) => {
