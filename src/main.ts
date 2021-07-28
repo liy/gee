@@ -6,6 +6,7 @@ import path = require('path');
 import express from 'express';
 import GeeApp from 'app';
 import { debugMsg } from './debugUtils';
+
 const server = express();
 server.use(express.json());
 

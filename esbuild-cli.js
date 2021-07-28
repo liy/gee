@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 require('esbuild')
   .build({
-    entryPoints: ['bin/cli.ts'],
+    entryPoints: ['bin/cli.ts', 'bin/readerProcess.ts'],
     bundle: true,
     sourcemap: true,
     watch: {

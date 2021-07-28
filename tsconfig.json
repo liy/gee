@@ -20,5 +20,5 @@
     "baseUrl": "./src"
     // pixi end
   },
-  "include": ["./src/**/*", "./web/**/*"]
+  "include": ["./src/**/*", "./web/**/*", "bin/RepositoryReaderProcess.ts"]
 }
