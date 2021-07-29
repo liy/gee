@@ -26,11 +26,15 @@ class GeeApp extends EventEmitter {
   async open(repoPath: string) {
     // listen for messages from forked process for the repository data
     this.readerProcess.on('message', async (message: Message) => {
-      await this.rendererReady;
-      this.send({
-        type: REPOSITORY_OPEN,
-        data: message.data,
-      });
+      if (message.type === 'repo.open.response') {
+        await this.rendererReady;
+        this.send({
+          type: REPOSITORY_OPEN,
+          data: message.data,
+        });
+      } else if (message.type === 'repo.changed') {
+        console.log(message);
+      }
     });
 
     // Send message to reader process
