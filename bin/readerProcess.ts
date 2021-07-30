@@ -7,32 +7,39 @@ import { createThrottle } from '../web/utils';
 let watcher = null;
 const throttle = createThrottle(5000);
 
-async function repoChanged(path: string, stats: any) {
+async function repoChanged(repoPath: string) {
   throttle(() => {
     process.send({
       type: 'repo.changed',
-      data: path,
+      data: repoPath,
     });
+
+    sendRepoData(repoPath);
   });
 }
 
+const sendRepoData = (repoPath: string) => {
+  return RepositoryReader.read(repoPath).then((repoData) => {
+    process.send({
+      type: 'repo.open.response',
+      data: repoData,
+    });
+  });
+};
+
 // receive message from master process
 process.on('message', async (msg: Message) => {
+  const { type, data: repoPath } = msg;
   switch (msg.type) {
     case 'repo.open':
-      RepositoryReader.open(msg.data).then((repoData) => {
-        process.send({
-          type: 'repo.open.response',
-          data: repoData,
-        });
-      });
+      sendRepoData(repoPath);
 
       // Stop previous watcher
       if (watcher) {
         await watcher.stop();
       }
       watcher = chokidar.watch(path.join(msg.data, '.git'));
-      watcher.on('change', repoChanged);
+      watcher.on('change', () => repoChanged(repoPath));
 
       break;
   }

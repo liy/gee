@@ -1,5 +1,7 @@
 body {
   margin: 0;
+  background-color: rgba(41, 42, 45, 255);
+  color: rgba(232, 234, 237, 255);
 }
 
 #root {
@@ -43,7 +45,6 @@ table .author {
 
 .commit {
   cursor: default;
-  color: black;
 }
 .commit.selected {
   background-color: #3875af;

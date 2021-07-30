@@ -5,7 +5,7 @@ import { Hash } from '../web/@types/gee';
 const repositoryDataMap = new Map<string, RepositoryData>();
 
 export default {
-  open: async (path: string) => {
+  read: async (path: string) => {
     const repo = await Repository.open(path);
 
     const revWalk = repo.createRevWalk();

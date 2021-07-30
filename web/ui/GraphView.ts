@@ -12,17 +12,7 @@ import CommitManager from './CommitManager';
 import Simulator, { SimType } from '../Simulator';
 
 const laneColours = [
-  0xf44336,
-  0x9c27b0,
-  0x2196f3,
-  0x00bcd4,
-  0x4caf50,
-  0xcddc39,
-  0xffc107,
-  0xff5722,
-  0x795548,
-  0x9e9e9e,
-  0x607d8b,
+  0xf44336, 0x9c27b0, 0x2196f3, 0x00bcd4, 0x4caf50, 0xcddc39, 0xffc107, 0xff5722, 0x795548, 0x9e9e9e, 0x607d8b,
 ];
 
 export function getColour(x: number): number {
@@ -89,6 +79,7 @@ class GraphView {
         view: canvas,
         width: this.canvasWidth,
         height: window.innerHeight,
+        backgroundAlpha: 0,
         antialias: true,
       });
 
@@ -159,7 +150,7 @@ class GraphView {
     const alphas = [0.6, 1];
     for (const { vertices, simType } of branchLines) {
       for (let i = 0; i < 2; ++i) {
-        let colour = 0;
+        let colour = 0x292a2d;
         if (i === 1) {
           const index = vertices[1].x % laneColours.length;
           colour = laneColours[index];
@@ -253,7 +244,7 @@ class GraphView {
 
     for (const { vertices, simType } of syncLines) {
       for (let i = 0; i < 2; ++i) {
-        let colour = 0;
+        let colour = 0x292a2d;
         if (i === 1) {
           const index = vertices[vertices.length - 1].x % laneColours.length;
           colour = laneColours[index];
