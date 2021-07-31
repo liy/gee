@@ -9,7 +9,7 @@ body {
   align-items: flex-start;
   justify-content: flex-start;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #graph {
@@ -21,12 +21,14 @@ table {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 table,
 td {
   border: 0;
   white-space: nowrap;
+  table-layout: fixed;
 
   padding: 0px 4px;
 }
@@ -35,20 +37,29 @@ table tr {
   line-height: 24px;
 }
 
-table .hash {
-  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
-}
-
-table .author {
-  max-width: 150px;
-}
-
 .commit {
   cursor: default;
 }
 .commit.selected {
   background-color: #3875af;
   color: white;
+}
+
+table .summary {
+  max-width: 500px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+table .author {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+table .hash {
+  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  max-width: 80px;
 }
 
 /* .command-input {

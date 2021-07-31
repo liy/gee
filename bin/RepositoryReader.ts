@@ -12,7 +12,7 @@ export default {
     revWalk.sorting(Revwalk.SORT.TOPOLOGICAL, Revwalk.SORT.TIME);
     revWalk.pushGlob('refs/heads/*');
 
-    const commits = new Array<[Commit, Array<Hash>]>();
+    let commits = new Array<[Commit, Array<Hash>]>();
     // eslint-disable-next-line no-constant-condition
     async function walk() {
       const oid = await revWalk.next().catch(() => null);

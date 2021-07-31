@@ -1,10 +1,12 @@
+const argv = require('minimist')(process.argv.slice(2));
+
 /* eslint-disable @typescript-eslint/no-var-requires */
 require('esbuild')
   .build({
     entryPoints: ['bin/cli.ts', 'bin/readerProcess.ts'],
     bundle: true,
     sourcemap: true,
-    watch: {
+    watch: argv.watch && {
       onRebuild(error, result) {
         if (error) console.error('cli build failed:', error);
         else console.log('cli updated');
@@ -15,7 +17,7 @@ require('esbuild')
     outdir: 'dist',
   })
   .then(() => {
-    console.log('cli successfully built.');
+    argv.watch && console.log('cli successfully built.');
   })
   .catch((err) => {
     console.log(err);

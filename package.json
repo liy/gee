@@ -6,15 +6,16 @@
   "scripts": {
     "start": "npx concurrently --kill-others --names \"electron,web,cli\" --prefix-colors \"green,yellow,grey\" \"npm run start-electron\" \"npm run watch-web\" \"npm run watch-cli\"",
     "start-electron": "node esbuild-electron.js && electron . --repo ./repo",
-    "watch-web": "node esbuild-web.js",
-    "watch-cli": "node esbuild-cli.js",
+    "watch-web": "node esbuild-web.js --watch",
+    "watch-cli": "node esbuild-cli.js --watch",
     "typecheck": "tsc -p ./tsconfig.json",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts .",
     "rebuild-native": "npx electron-rebuild -f -b",
-    "test": "jest"
+    "test": "jest",
+    "build": "node esbuild-electron.js && node esbuild-web.js && node esbuild-cli.js"
   },
   "repository": {
     "type": "git",

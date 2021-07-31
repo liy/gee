@@ -23,8 +23,9 @@ function createMainWindow() {
   console.log('preloadPath', preloadPath);
   // Create the browser window.
   const browserWindow = new BrowserWindow({
-    height: 1000,
-    width: 1720,
+    width: 1100,
+    height: 768,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: false,

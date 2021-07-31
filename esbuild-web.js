@@ -1,3 +1,4 @@
+const argv = require('minimist')(process.argv.slice(2));
 const sassPlugin = require('esbuild-plugin-sass');
 /* eslint-disable @typescript-eslint/no-var-requires */
 
@@ -6,7 +7,7 @@ require('esbuild')
     entryPoints: ['web/index.ts'],
     bundle: true,
     sourcemap: true,
-    watch: {
+    watch: argv.watch && {
       onRebuild(error, result) {
         if (error) console.error('web build failed:', error);
         else console.log('web updated');
@@ -20,7 +21,7 @@ require('esbuild')
     plugins: [sassPlugin()],
   })
   .then(() => {
-    console.log('Watching src folder changes...');
+    argv.watch && console.log('Watching src folder changes...');
   })
   .catch((err) => {
     console.log(err);

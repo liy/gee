@@ -109,6 +109,7 @@ class GraphView {
       );
 
       graph.style.height = window.innerHeight + 'px';
+      rootElement.style.height = window.innerHeight + 'px';
       window.addEventListener('resize', (e) => {
         graph.style.height = window.innerHeight + 'px';
         renderer.resize(this.canvasWidth, window.innerHeight);
@@ -126,7 +127,7 @@ class GraphView {
       const nodeGraphics = new Graphics();
       nodeGraphics.lineStyle(2, 0, 0.6, 1);
       nodeGraphics.beginFill(0xffffff, 1);
-      nodeGraphics.drawCircle(0, 0, 4);
+      nodeGraphics.drawCircle(0, 0, 3);
       nodeGraphics.endFill();
       this.nodeTexture = renderer.generateTexture(nodeGraphics);
 
