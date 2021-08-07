@@ -6,10 +6,12 @@ const repositoryDataMap = new Map<string, RepositoryData>();
 
 export default {
   read: async (path: string) => {
+    console.time('speed');
+
     const repo = await Repository.open(path);
 
     const revWalk = repo.createRevWalk();
-    revWalk.sorting(Revwalk.SORT.TOPOLOGICAL, Revwalk.SORT.TIME);
+    revWalk.sorting(Revwalk.SORT.TIME);
     revWalk.pushGlob('refs/heads/*');
 
     let commits = new Array<[Commit, Array<Hash>]>();
@@ -25,6 +27,7 @@ export default {
       await walk();
     }
     await walk();
+    console.timeEnd('speed');
 
     const references = await repo.getReferences();
     const headReference = await repo.head();

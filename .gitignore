@@ -3,6 +3,7 @@ repo-scratch
 .vscode
 dist
 build
+certificates
 
 ## electron forge default ignores
 # Logs
