@@ -3,7 +3,7 @@ const fs = require('fs');
 const process = require('process');
 const grpc = require('@grpc/grpc-js');
 
-loader.load('./messages.proto').then((packageDefinition) => {
+loader.load('./protobuf/messages.proto').then((packageDefinition) => {
   const package = grpc.loadPackageDefinition(packageDefinition);
   //   const Client  = package.pb.RepositoryService;
   const cacert = fs.readFileSync('./certificates/ca.crt');
@@ -21,17 +21,40 @@ loader.load('./messages.proto').then((packageDefinition) => {
   const option = parseInt(process.argv[2], 10);
   switch (option) {
     case 1:
-      sendMetadata(client);
+      getRepository(client);
+      break;
+    case 2:
+      getHead(client);
+    case 3:
       break;
   }
 });
 
-function sendMetadata(client) {
+function getRepository(client) {
   const md = new grpc.Metadata();
-  md.add('username', 'liy');
-  md.add('password', 'password123');
+  md.add('path', './repo');
 
   client.getRepository({}, md, (err, response) => {
     console.log(response, err);
   });
 }
+
+function getHead(client) {
+  const md = new grpc.Metadata();
+  md.add('path', './repo');
+
+  client.getHead({}, md, (err, response) => {
+    console.log(response, err);
+  });
+}
+
+// function getCommits(client) {
+//   const md = new grpc.Metadata();
+//   md.add('path', './repo');
+
+//   const call = client.getCommits({}, md);
+
+//   call.on('data', (data) => {
+//     console.log(data.commits);
+//   });
+// }
