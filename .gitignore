@@ -7,6 +7,7 @@ certificates/*.crt
 certificates/*.key
 certificates/*.csr
 certificates/*.pem
+src/protobuf
 
 ## electron forge default ignores
 # Logs

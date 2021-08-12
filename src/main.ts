@@ -6,6 +6,7 @@ import path = require('path');
 import express from 'express';
 import GeeApp from 'app';
 import { debugMsg } from './debugUtils';
+import rpc from 'RPC';
 
 const server = express();
 server.use(express.json());
@@ -74,16 +75,16 @@ if (app.requestSingleInstanceLock()) {
   // TODO: parse command line arguments
   console.log('launch from command line', argv, process.defaultApp);
 
-  // Open repo via rest request
-  server.post('/gee', (req, res) => {
-    GeeApp.open(req.body.repo || process.cwd());
-    mainWindow.show();
-    return res.json({ status: 200 });
-  });
+  // // Open repo via rest request
+  // server.post('/gee', (req, res) => {
+  //   GeeApp.open(req.body.repo || process.cwd());
+  //   mainWindow.show();
+  //   return res.json({ status: 200 });
+  // });
 
   server.listen(28230);
 
-  app.on('ready', () => {
+  app.on('ready', async () => {
     const mainWindow = getMainWindow();
     globalShortcut.register('Shift+Alt+E', () => {
       mainWindow.show();

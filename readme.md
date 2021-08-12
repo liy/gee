@@ -76,3 +76,9 @@ autocomplete selection event -> command.update event -> command process (update 
 user input -> input event -> update autocomplete candidates (update suggestions only)
 
 keyboard event -> update autocomplete candidates (update suggestions only)
+
+# Build protobuf type infor
+
+```
+ npx proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=src/protobuf/ protobuf/messages.proto
+```
