@@ -3,10 +3,11 @@ import StraightLayout from './layouts/StraightLayout';
 
 import CommitManager from './ui/CommitManager';
 import GraphView from './ui/GraphView';
-import Repository, { RepositoryData } from './git/Repository';
+import Repository from './git/Repository';
 import RepositoryStore from './git/RepositoryStore';
 import GraphStore from './graph/GraphStore';
 import { COMMIT_SELECTED, REPOSITORY_OPEN } from './constants';
+import { Repository__Output } from 'protobuf/pb/Repository';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -40,9 +41,9 @@ CommitManager.on('selected', (data) => {
 //   GraphView.init(result);
 // }
 
-function open(repoData: RepositoryData) {
+function open(repoData: Repository__Output) {
   // Setup repository
-  const repo = new Repository(repoData.id, repoData.commits, repoData.references, repoData.head);
+  const repo = new Repository(repoData.path, repoData.commits as any, repoData.references as any, repoData.head as any);
   RepositoryStore.addRepository(repo);
   RepositoryStore.use(repo.id);
 

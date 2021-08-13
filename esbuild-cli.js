@@ -3,7 +3,7 @@ const argv = require('minimist')(process.argv.slice(2));
 /* eslint-disable @typescript-eslint/no-var-requires */
 require('esbuild')
   .build({
-    entryPoints: ['bin/cli.ts', 'bin/readerProcess.ts'],
+    entryPoints: ['bin/cli.ts'],
     bundle: true,
     sourcemap: true,
     watch: argv.watch && {

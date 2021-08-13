@@ -6,14 +6,12 @@ import EventEmitter from '../web/EventEmitter';
 import { fork, ChildProcess } from 'child_process';
 import path from 'path';
 import { Message } from './message';
+import RPC from 'RPC';
 
 class GeeApp extends EventEmitter {
   private rendererReady: Promise<void>;
-  private readerProcess: ChildProcess;
   constructor() {
     super();
-
-    this.readerProcess = fork(path.join(__dirname, '../dist/readerProcess.js'));
 
     let rendererReadyResolve: (() => void) | null;
     this.rendererReady = new Promise((resolve) => (rendererReadyResolve = resolve));
@@ -25,23 +23,31 @@ class GeeApp extends EventEmitter {
 
   async open(repoPath: string) {
     // listen for messages from forked process for the repository data
-    this.readerProcess.on('message', async (message: Message) => {
-      if (message.type === 'repo.open.response') {
-        await this.rendererReady;
-        this.send({
-          type: REPOSITORY_OPEN,
-          data: message.data,
-        });
-      } else if (message.type === 'repo.changed') {
-        console.log(message);
-      }
-    });
+    // this.readerProcess.on('message', async (message: Message) => {
+    //   if (message.type === 'repo.open.response') {
+    //     await this.rendererReady;
+    //     this.send({
+    //       type: REPOSITORY_OPEN,
+    //       data: message.data,
+    //     });
+    //   } else if (message.type === 'repo.changed') {
+    //     console.log(message);
+    //   }
+    // });
 
-    // Send message to reader process
-    this.readerProcess.send({
-      type: 'repo.open',
-      data: repoPath,
-    });
+    // // Send message to reader process
+    // this.readerProcess.send({
+    //   type: 'repo.open',
+    //   data: repoPath,
+    // });
+    const [data] = await Promise.all([RPC.getRepository(), this.rendererReady]);
+
+    setTimeout(() => {
+      this.send({
+        type: REPOSITORY_OPEN,
+        data,
+      });
+    }, 10000);
   }
 
   send(event: gee.Event) {

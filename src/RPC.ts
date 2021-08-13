@@ -3,11 +3,16 @@ import { ProtoGrpcType } from './protobuf/messages';
 import loader = require('@grpc/proto-loader');
 import fs from 'fs';
 import grpc from '@grpc/grpc-js';
+import { Repository } from 'protobuf/pb/Repository';
+import { Head } from 'protobuf/pb/Head';
 
 class RPC {
   private client: RepositoryServiceClient;
   constructor() {
-    const packageDefinition = loader.loadSync('./protobuf/messages.proto');
+    const packageDefinition = loader.loadSync('./protobuf/messages.proto', {
+      // empty array in grpc will be retained as [], not undefined
+      arrays: true,
+    });
     const pkg = grpc.loadPackageDefinition(packageDefinition) as unknown as ProtoGrpcType;
     //   const Client  = pkg.pb.RepositoryService;
     const cacert = fs.readFileSync('./certificates/ca.crt');
@@ -24,11 +29,11 @@ class RPC {
     });
   }
 
-  getRepository() {
+  getRepository(): Promise<Repository | null | undefined> {
     const md = new grpc.Metadata();
     md.add('path', './repo');
 
-    return new Promise((resolve, reject) => {
+    return new Promise<Repository | null | undefined>((resolve, reject) => {
       this.client.getRepository({}, md, (err, response) => {
         if (err) reject(err);
         resolve(response?.repository);
@@ -36,11 +41,11 @@ class RPC {
     });
   }
 
-  getHead() {
+  getHead(): Promise<Head | null | undefined> {
     const md = new grpc.Metadata();
     md.add('path', './repo');
 
-    return new Promise((resolve, reject) => {
+    return new Promise<Head | null | undefined>((resolve, reject) => {
       this.client.getHead({}, md, (err, response) => {
         if (err) reject(err);
         resolve(response?.head);

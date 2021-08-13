@@ -40,7 +40,7 @@ function createMainWindow() {
   browserWindow.loadFile(indexPath);
 
   // Open the DevTools.
-  // browserWindow.webContents.openDevTools();
+  browserWindow.webContents.openDevTools();
 
   return browserWindow;
 }

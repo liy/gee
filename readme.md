@@ -80,5 +80,5 @@ keyboard event -> update autocomplete candidates (update suggestions only)
 # Build protobuf type infor
 
 ```
- npx proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=src/protobuf/ protobuf/messages.proto
+ npx proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --arrays --grpcLib=@grpc/grpc-js --outDir=protobuf/ protobuf/messages.proto
 ```

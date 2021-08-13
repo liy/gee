@@ -30,6 +30,7 @@ contextBridge.exposeInMainWorld('api', {
   onReceive: (func: (evt: gee.Event) => void) => {
     // Deliberately strip event as it includes `sender`
     ipcRenderer.on('MainToRenderer', (_, event: gee.Event) => {
+      console.log(event);
       func(event);
     });
   },
