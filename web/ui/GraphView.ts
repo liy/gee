@@ -90,6 +90,8 @@ class GraphView {
       this.container.addChild(this.strap);
       this.container.addChild(this.lineGraphics);
       this.container.addChild(this.nodeContainer);
+      this.container.scale.x = -1;
+      this.container.x = this.canvasWidth;
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const rootElement = document.getElementById('root')!;

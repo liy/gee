@@ -31,7 +31,7 @@ class RPC {
 
   getRepository(): Promise<Repository | null | undefined> {
     const md = new grpc.Metadata();
-    md.add('path', './repo');
+    md.add('path', '../repos/checkout');
 
     return new Promise<Repository | null | undefined>((resolve, reject) => {
       this.client.getRepository({}, md, (err, response) => {
@@ -43,7 +43,7 @@ class RPC {
 
   getHead(): Promise<Head | null | undefined> {
     const md = new grpc.Metadata();
-    md.add('path', './repo');
+    md.add('path', '../repos/checkout');
 
     return new Promise<Head | null | undefined>((resolve, reject) => {
       this.client.getHead({}, md, (err, response) => {

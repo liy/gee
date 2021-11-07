@@ -42,12 +42,10 @@ class GeeApp extends EventEmitter {
     // });
     const [data] = await Promise.all([RPC.getRepository(), this.rendererReady]);
 
-    setTimeout(() => {
-      this.send({
-        type: REPOSITORY_OPEN,
-        data,
-      });
-    }, 10000);
+    this.send({
+      type: REPOSITORY_OPEN,
+      data,
+    });
   }
 
   send(event: gee.Event) {

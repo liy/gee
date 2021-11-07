@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+// #!/usr/bin/env node
 
 import { app, BrowserWindow, globalShortcut, Menu, Tray } from 'electron';
 import path = require('path');
@@ -75,6 +75,8 @@ if (app.requestSingleInstanceLock()) {
   // TODO: parse command line arguments
   console.log('launch from command line', argv, process.defaultApp);
 
+  app.on('second-instance', (event, commandLine, workingDirectory) => {});
+
   // // Open repo via rest request
   // server.post('/gee', (req, res) => {
   //   GeeApp.open(req.body.repo || process.cwd());
@@ -106,3 +108,38 @@ if (app.requestSingleInstanceLock()) {
   console.log('single instance lock, exiting');
   app.quit();
 }
+
+// const { app } = require('electron');
+// const process = require('process');
+// const args = process.argv;
+
+// let myWindow: BrowserWindow | null = null;
+
+// const gotTheLock = app.requestSingleInstanceLock();
+
+// if (!gotTheLock) {
+//   app.quit();
+// } else {
+//   app.on('second-instance', (event, commandLine, workingDirectory) => {
+//     // Someone tried to run a second instance, we should focus our window.
+//     if (myWindow) {
+//       if (myWindow.isMinimized()) myWindow.restore();
+//       myWindow.focus();
+//     }
+//     console.log('???', args, commandLine);
+//   });
+
+//   // Create myWindow, load the rest of the app, etc...
+//   app.whenReady().then(() => {
+//     myWindow = new BrowserWindow({
+//       width: 1100,
+//       height: 768,
+//       autoHideMenuBar: true,
+//       webPreferences: {
+//         nodeIntegration: false,
+//         contextIsolation: true,
+//       },
+//     });
+//     console.log('!!!', args);
+//   });
+// }

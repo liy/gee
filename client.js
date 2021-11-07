@@ -19,19 +19,21 @@ const kvpair = {
 const creds = grpc.credentials.createSsl(cacert, key, cert);
 
 const client = new pkg.pb.RepositoryService(`Perceptron-PC:${8888}`, creds, {
-  'grpc.max_receive_message_length': 20 * 1024 * 1024,
+  'grpc.max_receive_message_length': 100 * 1024 * 1024,
 });
 
-const repoPath = path.resolve(__dirname, './repo-scratch');
+const repoPath = '../repos/rails/';
 
 const getRepository = () => {
   const md = new grpc.Metadata();
   md.add('path', repoPath);
 
+  const startTime = performance.now();
   return new Promise((resolve, reject) => {
     client.getRepository({}, md, (err, response) => {
       if (err) reject(err);
       resolve(response?.repository);
+      console.log((performance.now() - startTime) / 1000);
     });
   });
 };
@@ -48,4 +50,6 @@ const getHead = () => {
   });
 };
 
-getRepository();
+getRepository().then((repo) => {
+  // console.log(repo);
+});

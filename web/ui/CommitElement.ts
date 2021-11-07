@@ -3,6 +3,7 @@ import CommitManager from './CommitManager';
 import RefLabel from './RefLabel';
 import { gee } from '../@types/gee';
 import Simulator from '../Simulator';
+import { Commit } from 'protobuf/pb/Commit';
 
 const laneColours = [
   '#f44336',
@@ -31,13 +32,13 @@ const timeFormat = Intl.DateTimeFormat('en-GB', {
 
 class CommitElement {
   element: HTMLElement;
-  commit: gee.Commit | undefined;
+  commit: Commit | undefined;
   hash: string | undefined;
   node: Node;
 
   private _selected: boolean;
 
-  constructor(node: Node, commit?: gee.Commit, references?: Array<gee.Reference>) {
+  constructor(node: Node, commit?: Commit, references?: Array<gee.Reference>) {
     this.node = node;
     this.commit = commit;
     this.hash = commit?.hash;
@@ -48,27 +49,28 @@ class CommitElement {
 
     const summaryElm = document.createElement('td');
     summaryElm.className = 'summary';
-    summaryElm.textContent = commit?.summary.substr(0, 100) || '';
+    summaryElm.textContent = commit?.summary?.substr(0, 100) || '';
     this.element.appendChild(summaryElm);
 
     const hashElm = document.createElement('td');
     hashElm.className = 'hash';
-    hashElm.textContent = commit?.hash.substr(0, 7) || '';
+    hashElm.textContent = commit?.hash?.substr(0, 7) || '';
     this.element.appendChild(hashElm);
 
     const authorElm = document.createElement('td');
     authorElm.className = 'author';
-    authorElm.textContent = commit?.author.name || '';
+    authorElm.textContent = commit?.author?.name || '';
     this.element.appendChild(authorElm);
 
+    const dateTime = new Date((commit!.commitTime!.seconds as any).low * 1000);
     const dateElm = document.createElement('td');
     dateElm.className = 'date';
-    dateElm.textContent = dateFormat.format(commit?.date);
+    dateElm.textContent = dateFormat.format(dateTime);
     this.element.appendChild(dateElm);
 
     const timeElm = document.createElement('td');
     timeElm.className = 'time';
-    timeElm.textContent = timeFormat.format(commit?.time);
+    timeElm.textContent = timeFormat.format(dateTime);
     this.element.appendChild(timeElm);
 
     if (references) {
