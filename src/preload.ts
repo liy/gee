@@ -12,7 +12,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   };
   for (const type of ['chrome', 'node', 'electron']) {
-    replaceText(`${type}-version`, process.versions[type as keyof NodeJS.ProcessVersions]);
+    replaceText(`${type}-version`, process.versions[type as keyof NodeJS.ProcessVersions] as string);
   }
 });
 

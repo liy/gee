@@ -7,7 +7,7 @@ import Repository from './git/Repository';
 import RepositoryStore from './git/RepositoryStore';
 import GraphStore from './graph/GraphStore';
 import { COMMIT_SELECTED, REPOSITORY_OPEN } from './constants';
-import { Repository__Output } from 'protobuf/pb/Repository';
+import { Repository as RepositoryPB } from 'protobuf/pb/Repository';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -22,26 +22,7 @@ CommitManager.on('selected', (data) => {
   });
 });
 
-// function init(repoData: RepositoryData) {
-//   // Setup repository
-//   const repo = new Repository(repoData.id, repoData.commits, repoData.references, repoData.head);
-//   RepositoryStore.addRepository(repo);
-//   RepositoryStore.use(repo.id);
-
-//   // Setup graph
-//   const graph = GraphStore.createGraph(repo.id);
-//   for (const commit of repo.commits) {
-//     graph.createNode(commit.hash, commit.parents);
-//   }
-
-//   const layout = new StraightLayout(graph);
-//   const result = layout.process();
-
-//   CommitManager.init(result, repo);
-//   GraphView.init(result);
-// }
-
-function open(repoData: Repository__Output) {
+function open(repoData: RepositoryPB) {
   // Setup repository
   const repo = new Repository(repoData.path, repoData.commits as any, repoData.references as any, repoData.head as any);
   RepositoryStore.addRepository(repo);

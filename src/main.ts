@@ -2,25 +2,22 @@
 
 import { app, BrowserWindow, globalShortcut, Menu, Tray } from 'electron';
 import path = require('path');
-// import fastifyLauncher from 'fastify';
-import express from 'express';
 import GeeApp from 'app';
 import { debugMsg } from './debugUtils';
-import rpc from 'RPC';
-
-const server = express();
-server.use(express.json());
 
 const argv = require('minimist')(process.argv.slice(2));
 
 // Avoid GC causing tray icon disappers.
 let tray = null;
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('electron-reload')(__dirname);
+require('electron-reload')(__dirname, {
+  electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
+  hardResetMethod: 'exit',
+});
 
 function createMainWindow() {
-  const preloadPath = path.join(__dirname, '../dist/preload.js');
+  console.log('__dirname', __dirname);
+  const preloadPath = path.join(__dirname, './preload.js');
   console.log('preloadPath', preloadPath);
   // Create the browser window.
   const browserWindow = new BrowserWindow({
@@ -75,16 +72,10 @@ if (app.requestSingleInstanceLock()) {
   // TODO: parse command line arguments
   console.log('launch from command line', argv, process.defaultApp);
 
-  app.on('second-instance', (event, commandLine, workingDirectory) => {});
-
-  // // Open repo via rest request
-  // server.post('/gee', (req, res) => {
-  //   GeeApp.open(req.body.repo || process.cwd());
-  //   mainWindow.show();
-  //   return res.json({ status: 200 });
-  // });
-
-  server.listen(28230);
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // TODO: pass the directory to application
+    console.log('second-instance', commandLine, workingDirectory);
+  });
 
   app.on('ready', async () => {
     const mainWindow = getMainWindow();
