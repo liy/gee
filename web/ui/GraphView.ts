@@ -1,5 +1,5 @@
 /* eslint-disable no-constant-condition */
-import { Container, Graphics, Ticker, Renderer, Texture, Sprite } from 'pixi.js';
+import { Container, Graphics, Ticker, Renderer, Texture, Sprite, BitmapFont, BitmapText } from 'pixi.js';
 import * as PIXI from '@pixi/core';
 import { install } from '@pixi/unsafe-eval';
 // Apply the patch to PIXI
@@ -10,6 +10,8 @@ import '../styles.css';
 import { LayoutResult } from '../layouts/StraightLayout';
 import CommitManager from './CommitManager';
 import Simulator, { SimType } from '../Simulator';
+import { Reference__Output } from 'protobuf/pb/Reference';
+import Repository from '../git/Repository';
 
 const laneColours = [
   0xf44336, 0x9c27b0, 0x2196f3, 0x00bcd4, 0x4caf50, 0xcddc39, 0xffc107, 0xff5722, 0x795548, 0x9e9e9e, 0x607d8b,
@@ -47,8 +49,12 @@ class GraphView {
     this.initialized = false;
   }
 
-  init(layoutResult: LayoutResult) {
+  init(layoutResult: LayoutResult, repo: Repository) {
     this.layoutResult = layoutResult;
+
+    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+    const graph = document.getElementById('graph') as HTMLCanvasElement;
+    const rootElement = document.getElementById('root')!;
 
     if (!this.initialized) {
       this.lineGraphics = new Graphics();
@@ -59,9 +65,6 @@ class GraphView {
       document.body.appendChild(stats.dom);
       stats.dom.style.left = 'unset';
       stats.dom.style.right = '0';
-
-      const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-      const graph = document.getElementById('graph') as HTMLCanvasElement;
 
       this.laneWidth = 14;
       this.sliceHeight = 24;
@@ -90,11 +93,10 @@ class GraphView {
       this.container.addChild(this.strap);
       this.container.addChild(this.lineGraphics);
       this.container.addChild(this.nodeContainer);
-      this.container.scale.x = -1;
-      this.container.x = this.canvasWidth;
+      // this.container.scale.x = -1;
+      // this.container.x = this.canvasWidth;
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const rootElement = document.getElementById('root')!;
       rootElement.addEventListener('scroll', (e) => {
         this.container.y = -rootElement.scrollTop;
       });
@@ -139,6 +141,37 @@ class GraphView {
     }
 
     this.update(layoutResult);
+
+    const commitCanvas = document.getElementById('commit-canvas') as HTMLCanvasElement;
+    commitCanvas.width = 300;
+    commitCanvas.height = window.innerHeight;
+    const ctx = commitCanvas.getContext('2d')!;
+    ctx.font = '14px serif';
+    for (let i = 0; i < repo.commits.length; ++i) {
+      const commit = repo.commits[i];
+      ctx.fillText(commit.summary, 0, 24 * i + 18);
+    }
+
+    const scrollContent = document.getElementById('scroll-content')!;
+    scrollContent.style.height = 24 * repo.commits.length + 'px';
+
+    const n = Math.ceil(window.innerHeight / 24);
+    rootElement.addEventListener('scroll', (e) => {
+      ctx.clearRect(0, 0, commitCanvas.width, commitCanvas.height);
+      // this.container.y = -rootElement.scrollTop;
+      // ctx.font = '14px serif';
+      // for (let i = 0; i < repo.commits.length; ++i) {
+      //   const commit = repo.commits[i];
+      //   ctx.fillText(commit.summary, 0, 24 * i - 24 * rootElement.scrollTop);
+      // }
+      let s = Math.ceil(Math.abs(rootElement.scrollTop / 24));
+      let t = 0;
+      console.log(s);
+      for (let i = s, t = 0; i < s + n; ++i, ++t) {
+        const commit = repo.commits[i];
+        ctx.fillText(commit.summary, 0, 24 * t + 18);
+      }
+    });
   }
 
   update(layoutResult: LayoutResult): void {

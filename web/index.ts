@@ -32,8 +32,8 @@ for (const commit of repo.commits) {
 const layout = new StraightLayout(graph);
 const result = layout.process();
 
-CommitManager.init(result, repo);
-GraphView.init(result);
+// CommitManager.init(result, repo);
+GraphView.init(result, repo);
 
 window.api.onNotification((notification) => {
   console.log(notification);

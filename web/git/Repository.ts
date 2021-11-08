@@ -1,22 +1,25 @@
-import { gee, Hash, Head } from '../@types/gee';
+import { Commit__Output } from 'protobuf/pb/Commit';
+import { Head__Output } from 'protobuf/pb/Head';
+import { Reference__Output } from 'protobuf/pb/Reference';
+import { Hash } from '../@types/window';
 
 export interface RepositoryData {
   id: string;
-  commits: Array<gee.Commit>;
-  references: Array<gee.Reference>;
-  head: Head;
+  commits: Array<Commit__Output>;
+  references: Array<Reference__Output>;
+  head: Head__Output;
 }
 
 export default class Repository {
   readonly id: string;
-  readonly commits: Array<gee.Commit>;
-  readonly references: Array<gee.Reference>;
-  readonly head: Head;
+  readonly commits: Array<Commit__Output>;
+  readonly references: Array<Reference__Output>;
+  readonly head: Head__Output;
 
-  private commitMap = new Map<Hash, gee.Commit>();
-  private referenceMap = new Map<Hash, Array<gee.Reference>>();
+  private commitMap = new Map<Hash, Commit__Output>();
+  private referenceMap = new Map<Hash, Array<Reference__Output>>();
 
-  constructor(id: string, commits: Array<gee.Commit>, references: Array<gee.Reference>, head: Head) {
+  constructor(id: string, commits: Array<Commit__Output>, references: Array<Reference__Output>, head: Head__Output) {
     this.id = id;
     this.commits = commits;
     this.references = references;
@@ -35,12 +38,12 @@ export default class Repository {
     }
   }
 
-  prependCommit(commit: gee.Commit): void {
+  prependCommit(commit: Commit__Output): void {
     this.commits.unshift(commit);
     this.commitMap.set(commit.hash, commit);
   }
 
-  insertCommitAt(commits: Array<gee.Commit>, before: Hash): boolean {
+  insertCommitAt(commits: Array<Commit__Output>, before: Hash): boolean {
     const index = this.commits.findIndex((c) => c.hash === before);
     if (index !== -1) {
       this.commits.splice(index, 0, ...commits);
@@ -62,15 +65,15 @@ export default class Repository {
     }
   }
 
-  getReferencesByNames(names: Array<string>): Array<gee.Reference> {
+  getReferencesByNames(names: Array<string>): Array<Reference__Output> {
     return this.references.filter((ref) => names.some((name) => name === ref.shorthand || name === ref.name));
   }
 
-  getReferences(hash: Hash): Array<gee.Reference> | undefined {
+  getReferences(hash: Hash): Array<Reference__Output> | undefined {
     return this.referenceMap.get(hash);
   }
 
-  getReference(hash: Hash, name: string): gee.Reference | undefined {
+  getReference(hash: Hash, name: string): Reference__Output | undefined {
     const refs = this.referenceMap.get(hash);
     if (refs) {
       return refs.find((ref) => ref.name === name || ref.shorthand === name);
@@ -78,15 +81,15 @@ export default class Repository {
     return undefined;
   }
 
-  getCommit(hash: Hash): gee.Commit | undefined {
+  getCommit(hash: Hash): Commit__Output | undefined {
     return this.commitMap.get(hash);
   }
 
-  getCommitAt(index: number): gee.Commit {
+  getCommitAt(index: number): Commit__Output {
     return this.commits[index];
   }
 
-  addReference(ref: gee.Reference): void {
+  addReference(ref: Reference__Output): void {
     this.references.push(ref);
     const refs = this.referenceMap.get(ref.hash) || [];
     if (refs) {
@@ -108,7 +111,7 @@ export default class Repository {
     }
   }
 
-  revParse(value: string | Head): Hash | undefined {
+  revParse(value: string | Head__Output): Hash | undefined {
     // Head
     if (value instanceof Object) return value.hash;
 
