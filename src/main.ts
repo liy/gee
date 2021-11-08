@@ -1,7 +1,7 @@
 // #!/usr/bin/env node
 
-import { app, BrowserWindow, globalShortcut, Menu, Tray } from 'electron';
-import path = require('path');
+import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron';
+import path from 'path';
 import GeeApp from 'app';
 import { debugMsg } from './debugUtils';
 
@@ -12,7 +12,6 @@ let tray = null;
 
 require('electron-reload')(__dirname, {
   electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
-  hardResetMethod: 'exit',
 });
 
 function createMainWindow() {
@@ -75,6 +74,14 @@ if (app.requestSingleInstanceLock()) {
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     // TODO: pass the directory to application
     console.log('second-instance', commandLine, workingDirectory);
+
+    getMainWindow().webContents.send('notification', {
+      title: 'second-instance',
+      message: {
+        commandLine,
+        workingDirectory,
+      },
+    });
   });
 
   app.on('ready', async () => {
@@ -92,13 +99,19 @@ if (app.requestSingleInstanceLock()) {
       mainWindow.setSkipTaskbar(true);
     });
 
-    GeeApp.open(argv.repo || process.cwd());
     createTray(mainWindow);
+
+    GeeApp.init();
   });
 } else {
   console.log('single instance lock, exiting');
   app.quit();
 }
+
+dialog.showErrorBox = function (title, content) {
+  // TODO: log
+  console.log(`${title}\n${content}`);
+};
 
 // const { app } = require('electron');
 // const process = require('process');

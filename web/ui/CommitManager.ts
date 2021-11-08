@@ -2,13 +2,14 @@ import { LayoutResult } from '../layouts/StraightLayout';
 import Node from '../graph/Node';
 import CommitElement from './CommitElement';
 import EventEmitter from '../EventEmitter';
-import { gee, Hash } from '../@types/gee';
 import Repository from '../git/Repository';
+import { Hash } from '../@types/window';
+import { Commit__Output } from 'protobuf/pb/Commit';
 
 class CommitManager extends EventEmitter {
   elements: Array<CommitElement>;
 
-  commits!: Map<Hash, gee.Commit>;
+  commits!: Map<Hash, Commit__Output>;
 
   nodes!: Array<Node>;
 
@@ -27,7 +28,7 @@ class CommitManager extends EventEmitter {
 
     this.initialized = false;
 
-    this.commits = new Map<string, gee.Commit>();
+    this.commits = new Map<string, Commit__Output>();
     this.map = new Map<string, CommitElement>();
     this.elements = new Array<CommitElement>();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -56,7 +57,7 @@ class CommitManager extends EventEmitter {
     this.initialized = true;
   }
 
-  append(node: Node, commit: gee.Commit | undefined): CommitElement {
+  append(node: Node, commit: Commit__Output | undefined): CommitElement {
     const references = this.repository.getReferences(node.hash);
     const commitElement = new CommitElement(node, commit, references);
     this.container.appendChild(commitElement.element);
@@ -65,7 +66,7 @@ class CommitManager extends EventEmitter {
     return commitElement;
   }
 
-  prepend(node: Node, commit: gee.Commit): CommitElement {
+  prepend(node: Node, commit: Commit__Output): CommitElement {
     const references = this.repository.getReferences(node.hash);
     const commitElement = new CommitElement(node, commit, references);
     this.container.prepend(commitElement.element);

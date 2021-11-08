@@ -21,7 +21,7 @@ require('esbuild')
     plugins: [sassPlugin()],
   })
   .then(() => {
-    argv.watch && console.log('Watching src folder changes...');
+    argv.watch && console.log('Watching web folder changes...');
   })
   .catch((err) => {
     console.log(err);

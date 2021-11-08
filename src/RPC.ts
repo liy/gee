@@ -1,10 +1,10 @@
 import { RepositoryServiceClient } from './protobuf/pb/RepositoryService';
 import { ProtoGrpcType } from './protobuf/messages';
-import loader = require('@grpc/proto-loader');
+import loader from '@grpc/proto-loader';
 import fs from 'fs';
 import grpc from '@grpc/grpc-js';
-import { Repository } from 'protobuf/pb/Repository';
-import { Head } from 'protobuf/pb/Head';
+import { Repository, Repository__Output } from 'protobuf/pb/Repository';
+import { Head, Head__Output } from 'protobuf/pb/Head';
 
 class RPC {
   private client: RepositoryServiceClient;
@@ -29,11 +29,11 @@ class RPC {
     });
   }
 
-  getRepository(): Promise<Repository | null | undefined> {
+  getRepository(path: string) {
     const md = new grpc.Metadata();
-    md.add('path', '../repos/checkout');
+    md.add('path', path || '../repos/checkout');
 
-    return new Promise<Repository | null | undefined>((resolve, reject) => {
+    return new Promise<Repository__Output | null | undefined>((resolve, reject) => {
       this.client.getRepository({}, md, (err, response) => {
         if (err) reject(err);
         resolve(response?.repository);
@@ -41,11 +41,11 @@ class RPC {
     });
   }
 
-  getHead(): Promise<Head | null | undefined> {
+  getHead() {
     const md = new grpc.Metadata();
     md.add('path', '../repos/checkout');
 
-    return new Promise<Head | null | undefined>((resolve, reject) => {
+    return new Promise<Head__Output | null | undefined>((resolve, reject) => {
       this.client.getHead({}, md, (err, response) => {
         if (err) reject(err);
         resolve(response?.head);

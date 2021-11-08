@@ -1,7 +1,8 @@
 // All of the Node.js APIs are available in the preload process.
 
 import { contextBridge, ipcRenderer } from 'electron';
-import { gee } from '../web/@types/gee';
+import { Notification } from '../web/@types/window';
+import { REPOSITORY_OPEN } from '../web/constants';
 
 // It has the same sandbox as a Chrome extension.
 window.addEventListener('DOMContentLoaded', async () => {
@@ -18,20 +19,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
+//
+// The function naming should be bounded with renderer. For example, openRepository means render ask main process to open a repository
+// and onNotification should be render process listens to a notification from main process.
 contextBridge.exposeInMainWorld('api', {
-  // Send to main
-  send: (event: gee.Event) => {
-    ipcRenderer.send('RendererToMain', event);
+  openRepository: async (path: string) => {
+    return await ipcRenderer.invoke(REPOSITORY_OPEN, path);
   },
-  rendererReady: () => {
-    ipcRenderer.send('RendererReady');
-  },
-  // receive from main
-  onReceive: (func: (evt: gee.Event) => void) => {
-    // Deliberately strip event as it includes `sender`
-    ipcRenderer.on('MainToRenderer', (_, event: gee.Event) => {
-      console.log(event);
-      func(event);
-    });
+  onNotification: (callback: (_: Notification) => void) => {
+    ipcRenderer.on('notification', (event: Electron.IpcRendererEvent, n: Notification) => callback(n));
   },
 });

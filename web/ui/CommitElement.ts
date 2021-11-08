@@ -1,9 +1,9 @@
 import Node from '../graph/Node';
 import CommitManager from './CommitManager';
 import RefLabel from './RefLabel';
-import { gee } from '../@types/gee';
 import Simulator from '../Simulator';
-import { Commit } from 'protobuf/pb/Commit';
+import { Commit, Commit__Output } from 'protobuf/pb/Commit';
+import { Reference__Output } from 'protobuf/pb/Reference';
 
 const laneColours = [
   '#f44336',
@@ -38,7 +38,7 @@ class CommitElement {
 
   private _selected: boolean;
 
-  constructor(node: Node, commit?: Commit, references?: Array<gee.Reference>) {
+  constructor(node: Node, commit?: Commit__Output, references?: Array<Reference__Output>) {
     this.node = node;
     this.commit = commit;
     this.hash = commit?.hash;
