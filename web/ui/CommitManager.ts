@@ -39,21 +39,51 @@ class CommitManager extends EventEmitter {
     this.nodes = layoutResult.nodes;
     this.repository = repo;
 
-    if (this.initialized) {
-      this.container.innerHTML = '';
-    } else {
+    const rootElement = document.getElementById('root')!;
+
+    // if (this.initialized) {
+    //   this.container.innerHTML = '';
+    // } else {
+
+    //   document.addEventListener('keydown', this.onKeyDown.bind(this));
+    // }
+
+    // for (let i = 0; i < repo.commits.length; ++i) {
+    //   const node = this.nodes[i];
+
+    //   this.append(node, this.commits.get(node.hash));
+    // }
+
+    if (!this.initialized) {
+      const numRows = Math.ceil(window.innerHeight / 24);
+
       for (let i = 0; i < repo.commits.length; ++i) {
         this.commits.set(repo.commits[i].hash, repo.commits[i]);
       }
-      document.addEventListener('keydown', this.onKeyDown.bind(this));
+
+      for (let i = 0; i < numRows; ++i) {
+        const node = this.nodes[i];
+        const element = this.append(node, this.commits.get(node.hash));
+        this.elements.push(element);
+      }
+
+      const scrollContent = document.getElementById('scroll-content')!;
+      scrollContent.style.height = 24 * repo.commits.length + 'px';
+
+      rootElement.addEventListener(
+        'scroll',
+        (e) => {
+          e.preventDefault();
+
+          let startIndex = Math.floor(rootElement.scrollTop / 24);
+          for (let i = 0; i < numRows; ++i, ++startIndex) {
+            const commitElement = this.elements[i];
+            commitElement.update(this.repository.commits[startIndex]);
+          }
+        },
+        { passive: false }
+      );
     }
-
-    for (let i = 0; i < repo.commits.length; ++i) {
-      const node = this.nodes[i];
-
-      this.append(node, this.commits.get(node.hash));
-    }
-
     this.initialized = true;
   }
 

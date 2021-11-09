@@ -142,36 +142,36 @@ class GraphView {
 
     this.update(layoutResult);
 
-    const commitCanvas = document.getElementById('commit-canvas') as HTMLCanvasElement;
-    commitCanvas.width = 300;
-    commitCanvas.height = window.innerHeight;
-    const ctx = commitCanvas.getContext('2d')!;
-    ctx.font = '14px serif';
-    for (let i = 0; i < repo.commits.length; ++i) {
-      const commit = repo.commits[i];
-      ctx.fillText(commit.summary, 0, 24 * i + 18);
-    }
+    // const commitCanvas = document.getElementById('commit-canvas') as HTMLCanvasElement;
+    // commitCanvas.width = 300;
+    // commitCanvas.height = window.innerHeight;
+    // const ctx = commitCanvas.getContext('2d')!;
+    // ctx.font = '14px serif';
+    // for (let i = 0; i < repo.commits.length; ++i) {
+    //   const commit = repo.commits[i];
+    //   ctx.fillText(commit.summary, 0, 24 * i + 18);
+    // }
 
-    const scrollContent = document.getElementById('scroll-content')!;
-    scrollContent.style.height = 24 * repo.commits.length + 'px';
+    // const scrollContent = document.getElementById('scroll-content')!;
+    // scrollContent.style.height = 24 * repo.commits.length + 'px';
 
-    const n = Math.ceil(window.innerHeight / 24);
-    rootElement.addEventListener('scroll', (e) => {
-      ctx.clearRect(0, 0, commitCanvas.width, commitCanvas.height);
-      // this.container.y = -rootElement.scrollTop;
-      // ctx.font = '14px serif';
-      // for (let i = 0; i < repo.commits.length; ++i) {
-      //   const commit = repo.commits[i];
-      //   ctx.fillText(commit.summary, 0, 24 * i - 24 * rootElement.scrollTop);
-      // }
-      let s = Math.ceil(Math.abs(rootElement.scrollTop / 24));
-      let t = 0;
-      console.log(s);
-      for (let i = s, t = 0; i < s + n; ++i, ++t) {
-        const commit = repo.commits[i];
-        ctx.fillText(commit.summary, 0, 24 * t + 18);
-      }
-    });
+    // const n = Math.ceil(window.innerHeight / 24);
+    // rootElement.addEventListener('scroll', (e) => {
+    //   ctx.clearRect(0, 0, commitCanvas.width, commitCanvas.height);
+    //   // this.container.y = -rootElement.scrollTop;
+    //   // ctx.font = '14px serif';
+    //   // for (let i = 0; i < repo.commits.length; ++i) {
+    //   //   const commit = repo.commits[i];
+    //   //   ctx.fillText(commit.summary, 0, 24 * i - 24 * rootElement.scrollTop);
+    //   // }
+    //   let s = Math.ceil(Math.abs(rootElement.scrollTop / 24));
+    //   let t = 0;
+    //   console.log(s);
+    //   for (let i = s, t = 0; i < s + n; ++i, ++t) {
+    //     const commit = repo.commits[i];
+    //     ctx.fillText(commit.summary, 0, 24 * t + 18);
+    //   }
+    // });
   }
 
   update(layoutResult: LayoutResult): void {
