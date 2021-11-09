@@ -5,6 +5,7 @@ import EventEmitter from '../EventEmitter';
 import Repository from '../git/Repository';
 import { Hash } from '../@types/window';
 import { Commit__Output } from 'protobuf/pb/Commit';
+import './table.css';
 
 class CommitManager extends EventEmitter {
   elements: Array<CommitElement>;
@@ -13,7 +14,7 @@ class CommitManager extends EventEmitter {
 
   nodes!: Array<Node>;
 
-  container: HTMLElement;
+  tableBody: HTMLElement;
 
   selectedCommit: CommitElement | undefined;
 
@@ -32,27 +33,16 @@ class CommitManager extends EventEmitter {
     this.map = new Map<string, CommitElement>();
     this.elements = new Array<CommitElement>();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this.container = document.getElementById('commits')!;
+    this.tableBody = document.querySelector('#main table tbody')!;
   }
 
   init(layoutResult: LayoutResult, repo: Repository) {
     this.nodes = layoutResult.nodes;
     this.repository = repo;
 
-    const rootElement = document.getElementById('root')!;
-
-    // if (this.initialized) {
-    //   this.container.innerHTML = '';
-    // } else {
-
-    //   document.addEventListener('keydown', this.onKeyDown.bind(this));
-    // }
-
-    // for (let i = 0; i < repo.commits.length; ++i) {
-    //   const node = this.nodes[i];
-
-    //   this.append(node, this.commits.get(node.hash));
-    // }
+    const mainElement = document.getElementById('main')!;
+    const table = mainElement.getElementsByTagName('table')[0];
+    const scrollElement = mainElement.querySelector<HTMLElement>('.scroll-content')!;
 
     if (!this.initialized) {
       const numRows = Math.ceil(window.innerHeight / 24);
@@ -67,15 +57,16 @@ class CommitManager extends EventEmitter {
         this.elements.push(element);
       }
 
-      const scrollContent = document.getElementById('scroll-content')!;
-      scrollContent.style.height = 24 * repo.commits.length + 'px';
+      scrollElement.style.height = 24 * repo.commits.length + 'px';
 
-      rootElement.addEventListener(
+      mainElement.addEventListener(
         'scroll',
         (e) => {
           e.preventDefault();
 
-          let startIndex = Math.floor(rootElement.scrollTop / 24);
+          table.style.top = -(mainElement.scrollTop % 24) + 'px';
+
+          let startIndex = Math.floor(mainElement.scrollTop / 24);
           for (let i = 0; i < numRows; ++i, ++startIndex) {
             const commitElement = this.elements[i];
             commitElement.update(this.repository.commits[startIndex]);
@@ -90,7 +81,7 @@ class CommitManager extends EventEmitter {
   append(node: Node, commit: Commit__Output | undefined): CommitElement {
     const references = this.repository.getReferences(node.hash);
     const commitElement = new CommitElement(node, commit, references);
-    this.container.appendChild(commitElement.element);
+    this.tableBody.appendChild(commitElement.element);
     this.map.set(node.hash, commitElement);
 
     return commitElement;
@@ -99,7 +90,7 @@ class CommitManager extends EventEmitter {
   prepend(node: Node, commit: Commit__Output): CommitElement {
     const references = this.repository.getReferences(node.hash);
     const commitElement = new CommitElement(node, commit, references);
-    this.container.prepend(commitElement.element);
+    this.tableBody.prepend(commitElement.element);
     this.map.set(node.hash, commitElement);
 
     return commitElement;
@@ -108,7 +99,7 @@ class CommitManager extends EventEmitter {
   remove(hash: Hash): boolean {
     const commitElement = this.map.get(hash);
     if (commitElement) {
-      this.container.removeChild(commitElement.element);
+      this.tableBody.removeChild(commitElement.element);
       this.map.delete(hash);
       return true;
     }

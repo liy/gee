@@ -9,21 +9,15 @@
     <link rel="stylesheet" href="dist/index.css" />
     <script type="module" src="dist/index.js"></script>
   </head>
-  <body style="overflow: hidden">
-    <aside id="command-aside"></aside>
-    <div id="terminal"></div>
-    <div>
-      <div id="root">
-        <div id="graph"><canvas id="canvas"></canvas></div>
-        <div>
-          <table style="position: absolute; overflow: hidden">
-            <tbody id="commits"></tbody>
-          </table>
-        </div>
-        <div>
-          <div id="scroll-content"></div>
-        </div>
-      </div>
-    </div>
+  <!-- Prevent un -->
+  <body>
+    <main id="main">
+      <canvas class="graph"></canvas>
+      <!-- commit table -->
+      <table>
+        <tbody></tbody>
+      </table>
+      <div class="scroll-content"></div>
+    </main>
   </body>
 </html>

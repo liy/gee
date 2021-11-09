@@ -4,6 +4,7 @@ import RefLabel from './RefLabel';
 import Simulator from '../Simulator';
 import { Commit, Commit__Output } from 'protobuf/pb/Commit';
 import { Reference__Output } from 'protobuf/pb/Reference';
+import './commit.css';
 
 const laneColours = [
   '#f44336',
@@ -55,6 +56,8 @@ class CommitElement {
 
     this.summaryElement = document.createElement('td');
     this.summaryElement.className = 'summary';
+    this.summaryElement.style.minWidth = '550px';
+    this.summaryElement.style.maxWidth = '550px';
     this.summaryElement.textContent = commit?.summary?.substr(0, 100) || '';
     this.element.appendChild(this.summaryElement);
 
@@ -66,11 +69,14 @@ class CommitElement {
     this.authorElement = document.createElement('td');
     this.authorElement.className = 'author';
     this.authorElement.textContent = commit?.author?.name || '';
+    this.authorElement.style.width = '100px';
     this.element.appendChild(this.authorElement);
 
     const dateTime = new Date((commit!.commitTime!.seconds as any).low * 1000);
     this.dateElement = document.createElement('td');
     this.dateElement.className = 'date';
+    this.dateElement.style.minWidth = '68px';
+    this.dateElement.style.maxWidth = '68px';
     this.dateElement.textContent = dateFormat.format(dateTime);
     this.element.appendChild(this.dateElement);
 

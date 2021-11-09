@@ -6,12 +6,7 @@ import GraphView from './ui/GraphView';
 import Repository from './git/Repository';
 import RepositoryStore from './git/RepositoryStore';
 import GraphStore from './graph/GraphStore';
-
-const stats = new Stats();
-stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-document.body.appendChild(stats.dom);
-stats.dom.style.left = 'unset';
-stats.dom.style.right = '0';
+import './index.css';
 
 CommitManager.on('selected', (data) => {
   console.log(data);

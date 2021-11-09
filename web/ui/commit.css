@@ -1,0 +1,25 @@
+.commit {
+  cursor: default;
+}
+
+.commit.selected {
+  background-color: #3875af;
+  color: white;
+}
+
+.commit .summary {
+  max-width: 500px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.commit .author {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.commit .hash {
+  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  max-width: 80px;
+}
