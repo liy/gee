@@ -8,8 +8,7 @@ main table {
   table-layout: fixed;
 }
 
-table,
-td {
+table td {
   border: 0;
   white-space: nowrap;
   table-layout: fixed;

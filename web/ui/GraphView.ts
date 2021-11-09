@@ -55,6 +55,8 @@ class GraphView {
     const canvas = mainElement.querySelector<HTMLCanvasElement>('.graph')!;
     const graph = mainElement.querySelector<HTMLElement>('.graph')!;
 
+    const smoothScroll = false;
+
     if (!this.initialized) {
       this.lineGraphics = new Graphics();
       this.nodeContainer = new Container();
@@ -92,24 +94,24 @@ class GraphView {
       this.container.addChild(this.strap);
       this.container.addChild(this.lineGraphics);
       this.container.addChild(this.nodeContainer);
-      // this.container.scale.x = -1;
-      // this.container.x = this.canvasWidth;
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       mainElement.addEventListener('scroll', (e) => {
         this.container.y = -mainElement.scrollTop;
       });
 
-      document.addEventListener(
-        'wheel',
-        (e) => {
-          e.preventDefault();
+      if (!smoothScroll) {
+        document.addEventListener(
+          'wheel',
+          (e) => {
+            e.preventDefault();
 
-          mainElement.scrollTop += Math.sign(e.deltaY) * 3 * this.sliceHeight;
-          this.container.y = -mainElement.scrollTop;
-        },
-        { passive: false }
-      );
+            mainElement.scrollTop += Math.sign(e.deltaY) * 3 * this.sliceHeight;
+            this.container.y = -mainElement.scrollTop;
+          },
+          { passive: false }
+        );
+      }
 
       graph.style.height = window.innerHeight + 'px';
       mainElement.style.height = window.innerHeight + 'px';
@@ -140,37 +142,6 @@ class GraphView {
     }
 
     this.update(layoutResult);
-
-    // const commitCanvas = document.getElementById('commit-canvas') as HTMLCanvasElement;
-    // commitCanvas.width = 300;
-    // commitCanvas.height = window.innerHeight;
-    // const ctx = commitCanvas.getContext('2d')!;
-    // ctx.font = '14px serif';
-    // for (let i = 0; i < repo.commits.length; ++i) {
-    //   const commit = repo.commits[i];
-    //   ctx.fillText(commit.summary, 0, 24 * i + 18);
-    // }
-
-    // const scrollContent = document.getElementById('scroll-content')!;
-    // scrollContent.style.height = 24 * repo.commits.length + 'px';
-
-    // const n = Math.ceil(window.innerHeight / 24);
-    // mainElement.addEventListener('scroll', (e) => {
-    //   ctx.clearRect(0, 0, commitCanvas.width, commitCanvas.height);
-    //   // this.container.y = -mainElement.scrollTop;
-    //   // ctx.font = '14px serif';
-    //   // for (let i = 0; i < repo.commits.length; ++i) {
-    //   //   const commit = repo.commits[i];
-    //   //   ctx.fillText(commit.summary, 0, 24 * i - 24 * mainElement.scrollTop);
-    //   // }
-    //   let s = Math.ceil(Math.abs(mainElement.scrollTop / 24));
-    //   let t = 0;
-    //   console.log(s);
-    //   for (let i = s, t = 0; i < s + n; ++i, ++t) {
-    //     const commit = repo.commits[i];
-    //     ctx.fillText(commit.summary, 0, 24 * t + 18);
-    //   }
-    // });
   }
 
   update(layoutResult: LayoutResult): void {
@@ -193,11 +164,11 @@ class GraphView {
         this.lineGraphics.lineStyle(thickness[i], colour, simType === SimType.ADD ? 0.3 : alphas[i]);
         if (vertices.length === 2) {
           this.lineGraphics.moveTo(
-            vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[0].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
           );
           this.lineGraphics.lineTo(
-            vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
           );
         }
@@ -210,21 +181,22 @@ class GraphView {
           // __| |__
           if (vertices[0].x === vertices[1].x) {
             this.lineGraphics.moveTo(
-              vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              this.canvasWidth - (vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
               vertices[0].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
             );
             this.lineGraphics.arcTo(
-              vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              this.canvasWidth - (vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
               vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
-              vertices[1].x * this.laneWidth +
-                this.laneWidth * 0.5 +
-                this.px +
-                this.radius * Math.sign(vertices[2].x - vertices[1].x),
+              this.canvasWidth -
+                (vertices[1].x * this.laneWidth +
+                  this.laneWidth * 0.5 +
+                  this.px +
+                  this.radius * Math.sign(vertices[2].x - vertices[1].x)),
               vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
               this.radius
             );
             this.lineGraphics.lineTo(
-              vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              this.canvasWidth - (vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
               vertices[2].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
             );
           }
@@ -232,45 +204,46 @@ class GraphView {
           //   | |
           else {
             this.lineGraphics.moveTo(
-              vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              this.canvasWidth - (vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
               vertices[0].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
             );
             this.lineGraphics.arcTo(
-              vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              this.canvasWidth - (vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
               vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
-              vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              this.canvasWidth - (vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
               vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py + this.radius,
               this.radius
             );
             this.lineGraphics.lineTo(
-              vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+              this.canvasWidth - (vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
               vertices[2].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
             );
           }
         } else if (vertices.length == 4) {
           this.lineGraphics.moveTo(
-            vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[0].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
           );
           this.lineGraphics.arcTo(
-            vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
-            vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py + this.radius,
             this.radius
           );
           this.lineGraphics.arcTo(
-            vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[2].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
-            vertices[2].x * this.laneWidth +
-              this.laneWidth * 0.5 +
-              this.px +
-              this.radius * Math.sign(vertices[3].x - vertices[2].x),
+            this.canvasWidth -
+              (vertices[2].x * this.laneWidth +
+                this.laneWidth * 0.5 +
+                this.px +
+                this.radius * Math.sign(vertices[3].x - vertices[2].x)),
             vertices[2].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
             this.radius
           );
           this.lineGraphics.lineTo(
-            vertices[3].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[3].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[3].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
           );
         }
@@ -288,44 +261,45 @@ class GraphView {
         this.lineGraphics.lineStyle(thickness[i], colour, simType === SimType.ADD ? 0.3 : alphas[i]);
         if (vertices.length === 3) {
           this.lineGraphics.moveTo(
-            vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[0].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
           );
           this.lineGraphics.arcTo(
-            vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
-            vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py + this.radius,
             this.radius
           );
           this.lineGraphics.lineTo(
-            vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[2].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
           );
         } else if (vertices.length == 4) {
           this.lineGraphics.moveTo(
-            vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[0].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[0].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
           );
           this.lineGraphics.arcTo(
-            vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
-            vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[1].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[1].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py + this.radius,
             this.radius
           );
           this.lineGraphics.arcTo(
-            vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[2].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[2].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
-            vertices[2].x * this.laneWidth +
-              this.laneWidth * 0.5 +
-              this.px +
-              this.radius * Math.sign(vertices[3].x - vertices[2].x),
+            this.canvasWidth -
+              (vertices[2].x * this.laneWidth +
+                this.laneWidth * 0.5 +
+                this.px +
+                this.radius * Math.sign(vertices[3].x - vertices[2].x)),
             vertices[2].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py,
             this.radius
           );
           this.lineGraphics.lineTo(
-            vertices[3].x * this.laneWidth + this.laneWidth * 0.5 + this.px,
+            this.canvasWidth - (vertices[3].x * this.laneWidth + this.laneWidth * 0.5 + this.px),
             vertices[3].y * this.sliceHeight + this.sliceHeight * 0.5 + this.py
           );
         }
@@ -335,7 +309,7 @@ class GraphView {
     for (const node of nodes) {
       const sprite = new Sprite(this.nodeTexture);
       this.nodeContainer.addChild(sprite);
-      sprite.x = node.x * this.laneWidth + this.laneWidth * 0.5 + this.px;
+      sprite.x = this.canvasWidth - (node.x * this.laneWidth + this.laneWidth * 0.5 + this.px);
       sprite.y = node.y * this.sliceHeight + this.sliceHeight * 0.5 + this.py;
       sprite.anchor.set(0.5, 0.5);
       sprite.tint = laneColours[node.x % laneColours.length];
