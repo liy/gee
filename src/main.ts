@@ -4,15 +4,18 @@ import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron
 import path from 'path';
 import GeeApp from 'app';
 import { debugMsg } from './debugUtils';
+import RPC from 'RPC';
 
 const argv = require('minimist')(process.argv.slice(2));
 
 // Avoid GC causing tray icon disappers.
 let tray = null;
 
-require('electron-reload')(__dirname, {
-  electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
-});
+if (process.env.NODE_ENV !== 'production') {
+  require('electron-reload')(__dirname, {
+    electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
+  });
+}
 
 function createMainWindow() {
   console.log('__dirname', __dirname);
@@ -32,8 +35,10 @@ function createMainWindow() {
 
   // and load the index.html of the app.
   const indexPath = path.join(__dirname, '../index.html');
-  console.log('indexPath', indexPath);
-  browserWindow.loadFile(indexPath);
+  browserWindow.loadFile(indexPath).then(async () => {
+    const d = await RPC.getRepository('../repos/topo-sort');
+    browserWindow.webContents.send('openRepository', d);
+  });
 
   // Open the DevTools.
   browserWindow.webContents.openDevTools();
@@ -68,20 +73,13 @@ function createTray(mainWindow: BrowserWindow) {
 }
 
 if (app.requestSingleInstanceLock()) {
-  // TODO: parse command line arguments
-  console.log('launch from command line', argv, process.defaultApp);
-
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', async (event, commandLine, workingDirectory) => {
     // TODO: pass the directory to application
-    console.log('second-instance', commandLine, workingDirectory);
+    // console.log('second-instance', commandLine, workingDirectory);
 
-    getMainWindow().webContents.send('notification', {
-      title: 'second-instance',
-      message: {
-        commandLine,
-        workingDirectory,
-      },
-    });
+    // debugMsg(`${commandLine} cwd: ${workingDirectory}`);
+
+    getMainWindow().webContents.send('openRepository', await RPC.getRepository(workingDirectory));
   });
 
   app.on('ready', async () => {
@@ -107,43 +105,3 @@ if (app.requestSingleInstanceLock()) {
   console.log('single instance lock, exiting');
   app.quit();
 }
-
-dialog.showErrorBox = function (title, content) {
-  // TODO: log
-  console.log(`${title}\n${content}`);
-};
-
-// const { app } = require('electron');
-// const process = require('process');
-// const args = process.argv;
-
-// let myWindow: BrowserWindow | null = null;
-
-// const gotTheLock = app.requestSingleInstanceLock();
-
-// if (!gotTheLock) {
-//   app.quit();
-// } else {
-//   app.on('second-instance', (event, commandLine, workingDirectory) => {
-//     // Someone tried to run a second instance, we should focus our window.
-//     if (myWindow) {
-//       if (myWindow.isMinimized()) myWindow.restore();
-//       myWindow.focus();
-//     }
-//     console.log('???', args, commandLine);
-//   });
-
-//   // Create myWindow, load the rest of the app, etc...
-//   app.whenReady().then(() => {
-//     myWindow = new BrowserWindow({
-//       width: 1100,
-//       height: 768,
-//       autoHideMenuBar: true,
-//       webPreferences: {
-//         nodeIntegration: false,
-//         contextIsolation: true,
-//       },
-//     });
-//     console.log('!!!', args);
-//   });
-// }

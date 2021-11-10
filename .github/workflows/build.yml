@@ -1,7 +1,0 @@
-name: Build
-on: [push, pull_request]
-
-jobs:
-  windows:
-    runs-on: windows-latest
-    steps:

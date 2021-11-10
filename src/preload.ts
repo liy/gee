@@ -1,6 +1,7 @@
 // All of the Node.js APIs are available in the preload process.
 
 import { contextBridge, ipcRenderer } from 'electron';
+import { Repository__Output } from 'protobuf/pb/Repository';
 import { Notification } from '../web/@types/window';
 import { REPOSITORY_OPEN } from '../web/constants';
 
@@ -26,7 +27,12 @@ contextBridge.exposeInMainWorld('api', {
   openRepository: async (path: string) => {
     return await ipcRenderer.invoke(REPOSITORY_OPEN, path);
   },
+
   onNotification: (callback: (_: Notification) => void) => {
     ipcRenderer.on('notification', (event: Electron.IpcRendererEvent, n: Notification) => callback(n));
+  },
+
+  onOpenRepository: (callback: (data: Repository__Output) => void) => {
+    ipcRenderer.on('openRepository', (event: Electron.IpcRendererEvent, data: Repository__Output) => callback(data));
   },
 });

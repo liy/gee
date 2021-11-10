@@ -9,8 +9,11 @@ declare global {
     api: {
       // Ask main to open a repository
       openRepository: (path: string) => Promise<Repository__Output>;
+
       // Main send a notification message
       onNotification: (callback: (data: Notification) => void) => void;
+      // Triggered when user open repository from command line
+      onOpenRepository: (callback: (data: Repository__Output) => void) => void;
     };
   }
 }

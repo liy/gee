@@ -15,6 +15,14 @@ require('esbuild')
         else console.log('electron updated');
       },
     },
+    loader: {
+      '.proto': 'file',
+      '.crt': 'file',
+      '.key': 'file',
+    },
+    define: {
+      'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+    },
   })
   .then(() => {
     console.log('Electron successfully built.');

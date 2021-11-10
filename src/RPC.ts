@@ -5,19 +5,20 @@ import fs from 'fs';
 import grpc from '@grpc/grpc-js';
 import { Repository, Repository__Output } from 'protobuf/pb/Repository';
 import { Head, Head__Output } from 'protobuf/pb/Head';
+const path = require('path');
 
 class RPC {
   private client: RepositoryServiceClient;
   constructor() {
-    const packageDefinition = loader.loadSync('./protobuf/messages.proto', {
+    const packageDefinition = loader.loadSync(path.join(__dirname, require('../protobuf/messages.proto')), {
       // empty array in grpc will be retained as [], not undefined
       arrays: true,
     });
     const pkg = grpc.loadPackageDefinition(packageDefinition) as unknown as ProtoGrpcType;
     //   const Client  = pkg.pb.RepositoryService;
-    const cacert = fs.readFileSync('./certificates/ca.crt');
-    const cert = fs.readFileSync('./certificates/client.crt');
-    const key = fs.readFileSync('./certificates/client.key');
+    const cacert = fs.readFileSync(path.join(__dirname, require('../certificates/ca.crt')));
+    const cert = fs.readFileSync(path.join(__dirname, require('../certificates/client.crt')));
+    const key = fs.readFileSync(path.join(__dirname, require('../certificates/client.key')));
     const kvpair = {
       private_key: key,
       cert_chain: cert,
@@ -29,9 +30,9 @@ class RPC {
     });
   }
 
-  getRepository(path: string) {
+  getRepository(repoPath: string) {
     const md = new grpc.Metadata();
-    md.add('path', path || '../repos/checkout');
+    md.add('path', repoPath || '../repos/checkout');
 
     return new Promise<Repository__Output | null | undefined>((resolve, reject) => {
       this.client.getRepository({}, md, (err, response) => {

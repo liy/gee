@@ -3,12 +3,16 @@
   "version": "0.0.1",
   "description": "My Electron application description",
   "main": "dist/main.js",
+  "build": {
+    "extraResources": [
+      "./dist/**"
+    ]
+  },
   "scripts": {
-    "start": "npx concurrently --kill-others --names \"electron,web\" --prefix-colors \"green,yellow,grey\" \"npm run start-electron\" \"npm run watch-web\"",
     "start-electron": "node esbuild-electron.js && electron .",
     "watch-web": "node esbuild-web.js --watch",
     "watch-electron": "node esbuild-electron.js --watch",
-    "watch": "npx concurrently --kill-others --names \"electron,web\" --prefix-colors \"green,yellow,grey\" \"npm run watch-electron\" \"npm run watch-web\"",
+    "start": "npx concurrently --kill-others --names \"electron,web\" --prefix-colors \"green,yellow,grey\" \"npm run watch-electron\" \"npm run watch-web\"",
     "typecheck": "tsc -p ./tsconfig.json",
     "package": "electron-forge package",
     "make": "electron-forge make",
