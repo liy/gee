@@ -45,7 +45,7 @@ class CommitManager extends EventEmitter {
     const scrollElement = mainElement.querySelector<HTMLElement>('.scroll-content')!;
 
     if (!this.initialized) {
-      const numRows = Math.ceil(window.innerHeight / 24);
+      const numRows = Math.ceil(window.innerHeight / 24) + 1;
 
       for (let i = 0; i < repo.commits.length; ++i) {
         this.commits.set(repo.commits[i].hash, repo.commits[i]);
@@ -68,8 +68,10 @@ class CommitManager extends EventEmitter {
 
           let startIndex = Math.floor(mainElement.scrollTop / 24);
           for (let i = 0; i < numRows; ++i, ++startIndex) {
-            const commitElement = this.elements[i];
-            commitElement.update(this.repository.commits[startIndex]);
+            if (i < this.elements.length - 1) {
+              const commitElement = this.elements[i];
+              commitElement.update(this.repository.commits[startIndex]);
+            }
           }
         },
         { passive: false }

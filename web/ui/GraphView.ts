@@ -55,7 +55,7 @@ class GraphView {
     const canvas = mainElement.querySelector<HTMLCanvasElement>('.graph')!;
     const graph = mainElement.querySelector<HTMLElement>('.graph')!;
 
-    const smoothScroll = false;
+    const smoothScroll = true;
 
     if (!this.initialized) {
       this.lineGraphics = new Graphics();
