@@ -8,6 +8,7 @@ require('esbuild')
     platform: 'node',
     external: ['nodegit', 'electron', 'electron-reload', 'node-pty'],
     outdir: 'dist',
+    minify: process.env.NODE_ENV === 'production',
     watch: argv.watch && {
       onRebuild(error, result) {
         if (error) console.error('electron build failed:', error);
