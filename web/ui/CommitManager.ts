@@ -53,8 +53,10 @@ class CommitManager extends EventEmitter {
 
       for (let i = 0; i < numRows; ++i) {
         const node = this.nodes[i];
-        const element = this.append(node, this.commits.get(node.hash));
-        this.elements.push(element);
+        if (node) {
+          const element = this.append(node, this.commits.get(node.hash));
+          this.elements.push(element);
+        }
       }
 
       scrollElement.style.height = 24 * repo.commits.length + 'px';

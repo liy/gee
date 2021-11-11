@@ -32,7 +32,14 @@ function openRepository(data: Repository__Output) {
   GraphView.init(result, repo);
 }
 
-window.api.onOpenRepository(openRepository);
+window.api.onOpenRepository((data) => {
+  // Prevent errors escape to main process which won't give full stacktrace
+  try {
+    openRepository(data);
+  } catch (err) {
+    console.error(err);
+  }
+});
 window.api.onNotification((notification) => {
   console.log(notification);
 });
