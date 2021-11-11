@@ -8,9 +8,7 @@ import RPC from 'RPC';
 
 const argv = require('minimist')(process.argv.slice(2));
 
-// Avoid GC causing tray icon disappers.
-let tray = null;
-
+// If dev mode then allow reload electron main and renderer on source file changes
 if (process.env.NODE_ENV !== 'production') {
   require('electron-reload')(__dirname, {
     electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
@@ -18,9 +16,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 function createMainWindow() {
-  console.log('__dirname', __dirname);
   const preloadPath = path.join(__dirname, './preload.js');
-  console.log('preloadPath', preloadPath);
   // Create the browser window.
   const browserWindow = new BrowserWindow({
     width: 1100,
@@ -30,65 +26,38 @@ function createMainWindow() {
       preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true,
+      devTools: true,
+      additionalArguments: [],
     },
   });
-
-  // and load the index.html of the app.
-  const indexPath = path.join(__dirname, '../index.html');
-  browserWindow.loadFile(indexPath).then(async () => {
-    const d = await RPC.getRepository('../repos/topo-sort');
-    browserWindow.webContents.send('openRepository', d);
-  });
-
-  // Open the DevTools.
-  browserWindow.webContents.openDevTools();
 
   return browserWindow;
 }
 
-let mainWindow: BrowserWindow;
-export function getMainWindow(): BrowserWindow {
-  if (mainWindow) return mainWindow;
-  mainWindow = createMainWindow();
-  return mainWindow;
-}
-
-function createTray(mainWindow: BrowserWindow) {
-  const iconPath = path.join(__dirname, '../images/git.png');
-  console.log('iconPath', iconPath);
-  tray = new Tray(iconPath);
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'exit',
-      click: () => mainWindow.destroy(),
-    }, //We need to have a real exit here (direct forced exit here)
-  ]);
-  tray.setToolTip('Gee');
-  tray.setContextMenu(contextMenu);
-  tray.on('click', () => {
-    //We simulate the desktop program here to click the notification area icon to achieve the function of opening and closing the application
-    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
-    mainWindow.isVisible() ? mainWindow.setSkipTaskbar(false) : mainWindow.setSkipTaskbar(true);
-  });
-}
+// Avoid GC causing tray icon disappers.
+let tray = null;
 
 if (app.requestSingleInstanceLock()) {
-  app.on('second-instance', async (event, commandLine, workingDirectory) => {
-    // TODO: pass the directory to application
-    // console.log('second-instance', commandLine, workingDirectory);
-
-    // debugMsg(`${commandLine} cwd: ${workingDirectory}`);
-
-    getMainWindow().webContents.send('openRepository', await RPC.getRepository(workingDirectory));
-  });
-
   app.on('ready', async () => {
-    const mainWindow = getMainWindow();
-    globalShortcut.register('Shift+Alt+E', () => {
+    const mainWindow = createMainWindow();
+
+    // Loading the application
+    const indexPath = path.join(__dirname, '../index.html');
+    mainWindow.loadFile(indexPath).then(async () => {
+      const p = process.env.NODE_ENV !== 'production' ? '../repos/git' : process.cwd();
+      mainWindow.webContents.send('openRepository', await RPC.getRepository(p));
+      mainWindow.title = p;
+    });
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools();
+
+    // Second instance is passing the arguments to this first instance.
+    // Simply open repository at second instance working directory
+    app.on('second-instance', async (event, commandLine, workingDirectory) => {
+      mainWindow.webContents.send('openRepository', await RPC.getRepository(workingDirectory));
+      mainWindow.title = workingDirectory;
       mainWindow.show();
     });
-
-    // debugMsg(`${JSON.stringify(argv)} cwd: ${process.cwd()}`);
 
     // Close to the tray
     mainWindow.on('close', (event) => {
@@ -97,11 +66,37 @@ if (app.requestSingleInstanceLock()) {
       mainWindow.setSkipTaskbar(true);
     });
 
-    createTray(mainWindow);
+    // Setup tray
+    const iconPath = path.join(__dirname, '../images/git.png');
+    console.log('iconPath', iconPath);
+    tray = new Tray(iconPath);
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: 'exit',
+        click: () => mainWindow.destroy(),
+      }, //We need to have a real exit here (direct forced exit here)
+    ]);
+    tray.setToolTip('Gee');
+    tray.setContextMenu(contextMenu);
+    tray.on('click', () => {
+      //We simulate the desktop program here to click the notification area icon to achieve the function of opening and closing the application
+      mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
+      mainWindow.isVisible() ? mainWindow.setSkipTaskbar(false) : mainWindow.setSkipTaskbar(true);
+    });
+
+    // Setup shortcuts
+    globalShortcut.register('Shift+Alt+E', () => {
+      mainWindow.show();
+    });
 
     GeeApp.init();
   });
 } else {
-  console.log('single instance lock, exiting');
-  app.quit();
+  console.log('single instance lock, exiting.');
+  app.exit();
 }
+
+// Disable error dialogs
+dialog.showErrorBox = function (title, content) {
+  console.log(`${title}\n${content}`);
+};

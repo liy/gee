@@ -18,6 +18,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+console.log(process.argv);
+
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 //

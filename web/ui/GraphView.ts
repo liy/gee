@@ -72,7 +72,7 @@ class GraphView {
       this.px = 4;
       this.py = 0;
       this.radius = Math.min(this.laneWidth, this.sliceHeight) * 0.5;
-      this.canvasWidth = this.px * 2 + this.laneWidth * layoutResult.maxLanes;
+      this.canvasWidth = Math.min(this.px * 2 + this.laneWidth * layoutResult.maxLanes, 120);
 
       this.strap.beginFill(0x3875af, 0.2);
       this.strap.drawRect(0, -this.sliceHeight / 2, this.canvasWidth, this.sliceHeight);
