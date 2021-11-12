@@ -48,7 +48,7 @@ class GraphView {
     this.initialized = false;
   }
 
-  init(layoutResult: LayoutResult, repo: Repository) {
+  display(layoutResult: LayoutResult, repo: Repository) {
     this.layoutResult = layoutResult;
 
     const mainElement = document.getElementById('main')!;
@@ -65,7 +65,7 @@ class GraphView {
       stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
       document.body.appendChild(stats.dom);
       stats.dom.style.left = 'unset';
-      stats.dom.style.right = '40px';
+      stats.dom.style.right = '80px';
 
       this.laneWidth = 14;
       this.sliceHeight = 24;

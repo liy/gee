@@ -11,16 +11,16 @@ export interface RepositoryData {
 }
 
 export default class Repository {
-  readonly id: string;
   readonly commits: Array<Commit__Output>;
   readonly references: Array<Reference__Output>;
   readonly head: Head__Output;
 
   private commitMap = new Map<Hash, Commit__Output>();
   private referenceMap = new Map<Hash, Array<Reference__Output>>();
+  readonly path: string;
 
-  constructor(id: string, commits: Array<Commit__Output>, references: Array<Reference__Output>, head: Head__Output) {
-    this.id = id;
+  constructor(path: string, commits: Array<Commit__Output>, references: Array<Reference__Output>, head: Head__Output) {
+    this.path = path;
     this.commits = commits;
     this.references = references;
     this.head = head;

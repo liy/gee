@@ -44,7 +44,8 @@ if (app.requestSingleInstanceLock()) {
     // Loading the application
     const indexPath = path.join(__dirname, '../index.html');
     mainWindow.loadFile(indexPath).then(async () => {
-      const p = process.env.NODE_ENV !== 'production' ? '../repos/git' : process.cwd();
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      const p = process.env.NODE_ENV !== 'production' ? '../repos/checkout' : process.cwd();
       mainWindow.webContents.send('openRepository', await RPC.getRepository(p));
       mainWindow.title = p;
     });

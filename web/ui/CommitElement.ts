@@ -35,7 +35,6 @@ class CommitElement {
   element: HTMLElement;
   commit: Commit | undefined;
   hash: string | undefined;
-  node: Node;
 
   private _selected: boolean;
 
@@ -45,10 +44,7 @@ class CommitElement {
   private dateElement: HTMLElement;
   private timeElement: HTMLElement;
 
-  constructor(node: Node, commit?: Commit__Output, references?: Array<Reference__Output>) {
-    this.node = node;
-    this.commit = commit;
-    this.hash = commit?.hash;
+  constructor() {
     this._selected = false;
 
     this.element = document.createElement('tr');
@@ -58,46 +54,39 @@ class CommitElement {
     this.summaryElement.className = 'summary';
     this.summaryElement.style.minWidth = '550px';
     this.summaryElement.style.maxWidth = '550px';
-    this.summaryElement.textContent = commit?.summary?.substr(0, 100) || '';
     this.element.appendChild(this.summaryElement);
 
     this.hashElement = document.createElement('td');
     this.hashElement.className = 'hash';
-    this.hashElement.textContent = commit?.hash?.substr(0, 7) || '';
     this.element.appendChild(this.hashElement);
 
     this.authorElement = document.createElement('td');
     this.authorElement.className = 'author';
-    this.authorElement.textContent = commit?.author?.name || '';
     this.authorElement.style.width = '100px';
     this.element.appendChild(this.authorElement);
 
-    const dateTime = new Date((commit!.commitTime!.seconds as any).low * 1000);
     this.dateElement = document.createElement('td');
     this.dateElement.className = 'date';
     this.dateElement.style.minWidth = '68px';
     this.dateElement.style.maxWidth = '68px';
-    this.dateElement.textContent = dateFormat.format(dateTime);
     this.element.appendChild(this.dateElement);
 
     this.timeElement = document.createElement('td');
     this.timeElement.className = 'time';
-    this.timeElement.textContent = timeFormat.format(dateTime);
     this.element.appendChild(this.timeElement);
+  }
 
-    // if (references) {
-    //   const index = this.node.x % laneColours.length;
-    //   for (const ref of references) {
-    //     const refElm = new RefLabel(ref, laneColours[index]);
-    //     this.element.firstChild?.insertBefore(refElm.element, this.element.firstChild?.firstChild);
-    //   }
-    // }
+  update(commit: Commit__Output) {
+    this.summaryElement.textContent = commit.summary?.substr(0, 100) || '';
 
-    if (Simulator.isSimulated(node.hash)) {
-      this.element.style.opacity = '0.5';
-    }
+    this.hashElement.textContent = commit.hash?.substr(0, 7) || '';
 
-    this.element.addEventListener('click', this.onSelect.bind(this));
+    this.authorElement.textContent = commit.author?.name || '';
+
+    const dateTime = new Date((commit!.commitTime!.seconds as any).low * 1000);
+    this.dateElement.textContent = dateFormat.format(dateTime);
+
+    this.timeElement.textContent = timeFormat.format(dateTime);
   }
 
   set selected(value: boolean) {
@@ -113,29 +102,12 @@ class CommitElement {
     return this._selected;
   }
 
-  onSelect(e: MouseEvent): void {
-    CommitManager.selectCommit(this);
-  }
-
-  getParent(index: number): CommitElement | undefined {
-    const parentHash = this.node.parents[index];
-    if (parentHash) {
-      return CommitManager.getCommitElement(parentHash);
-    }
-    return undefined;
-  }
-
-  update(commit: Commit__Output) {
-    this.summaryElement.textContent = commit.summary?.substr(0, 100) || '';
-
-    this.hashElement.textContent = commit.hash?.substr(0, 7) || '';
-
-    this.authorElement.textContent = commit.author?.name || '';
-
-    const dateTime = new Date((commit!.commitTime!.seconds as any).low * 1000);
-    this.dateElement.textContent = dateFormat.format(dateTime);
-
-    this.timeElement.textContent = timeFormat.format(dateTime);
+  clear() {
+    this.summaryElement.textContent = '';
+    this.hashElement.textContent = '';
+    this.authorElement.textContent = '';
+    this.dateElement.textContent = '';
+    this.timeElement.textContent = '';
   }
 }
 

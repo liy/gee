@@ -6,7 +6,7 @@ class RepositoryStore {
   private _current!: Repository;
 
   addRepository(repo: Repository): void {
-    this.map.set(repo.id, repo);
+    this.map.set(repo.path, repo);
   }
 
   getRepository(id: string): Repository | undefined {

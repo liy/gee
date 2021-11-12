@@ -15,21 +15,32 @@ CommitManager.on('selected', (data) => {
 
 function openRepository(data: Repository__Output) {
   // Setup repository
-  const repo = new Repository(data.path, data.commits as any, data.references as any, data.head as any);
-  RepositoryStore.addRepository(repo);
-  RepositoryStore.use(repo.id);
+  let repo = RepositoryStore.getRepository(data.path);
+  if (!repo) {
+    repo = new Repository(data.path, data.commits as any, data.references as any, data.head as any);
+    RepositoryStore.addRepository(repo);
+  }
+  RepositoryStore.use(repo.path);
 
-  // Setup graph
-  const graph = GraphStore.createGraph(repo.id);
+  // Setup graph data
+  let graph = GraphStore.getGraph(data.path);
+  if (!graph) {
+    graph = GraphStore.createGraph(data.path);
+  } else {
+    graph.reset();
+  }
+  // Populate graph with commit nodes
   for (const commit of repo.commits) {
     graph.createNode(commit.hash, commit.parents);
   }
 
+  // Layout
   const layout = new StraightLayout(graph);
   const result = layout.process();
 
-  CommitManager.init(result, repo);
-  GraphView.init(result, repo);
+  // Display commits and visual graph
+  GraphView.display(result, repo);
+  CommitManager.display(result, repo);
 }
 
 window.api.onOpenRepository((data) => {
