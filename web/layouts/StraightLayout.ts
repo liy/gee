@@ -1,5 +1,5 @@
 /* eslint-disable no-constant-condition */
-import { Hash } from '../@types/gee';
+import { Hash } from '../@types/window';
 import { LineArray } from '../draw';
 import Graph from '../graph/Graph';
 import Node from '../graph/Node';
@@ -8,7 +8,7 @@ export interface LayoutResult {
   syncLines: LineArray;
   nodes: Array<Node>;
   branchLines: LineArray;
-  maxLanes: number;
+  totalLanes: number;
 }
 
 class LaneAllocator {
@@ -320,6 +320,6 @@ export default class StraightLayout {
       }
     }
 
-    return { nodes: this.graph.nodes, branchLines, syncLines, maxLanes: laneAllocator.activeBranches.length };
+    return { nodes: this.graph.nodes, branchLines, syncLines, totalLanes: laneAllocator.activeBranches.length };
   }
 }

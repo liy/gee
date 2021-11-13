@@ -6,26 +6,7 @@ import Repository from '../git/Repository';
 import { Hash } from '../@types/window';
 import { Commit__Output } from 'protobuf/pb/Commit';
 import './table.css';
-
-// class CommitElementPool {
-//   private pool: Array<CommitElement>;
-
-//   constructor() {
-//     this.pool = new Array<CommitElement>();
-//   }
-
-//   getElement() {
-//     if (this.pool.length === 0) {
-//       return new CommitElement();
-//     }
-
-//     return this.pool.pop()!;
-//   }
-
-//   putElement(element: CommitElement) {
-//     this.pool.push(element);
-//   }
-// }
+import GraphStyle from './GraphStyle';
 
 class CommitManager extends EventEmitter {
   elements: Array<CommitElement>;
@@ -33,8 +14,6 @@ class CommitManager extends EventEmitter {
   tableBody: HTMLElement;
 
   selectedCommit: CommitElement | undefined;
-
-  map: Map<string, CommitElement>;
 
   repository!: Repository;
 
@@ -48,14 +27,9 @@ class CommitManager extends EventEmitter {
 
   startIndex: number = 0;
 
-  // pool: CommitElementPool;
-
   constructor() {
     super();
 
-    // this.pool = new CommitElementPool();
-
-    this.map = new Map<string, CommitElement>();
     this.elements = new Array<CommitElement>();
 
     this.mainElement = document.getElementById('main')!;
@@ -64,34 +38,31 @@ class CommitManager extends EventEmitter {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.tableBody = document.querySelector('#main table tbody')!;
 
-    this.mainElement.addEventListener('scroll', this.onScroll.bind(this), { passive: false });
-
-    this.startIndex = Math.floor(this.mainElement.scrollTop / 24);
-
-    window.addEventListener('resize', this.onResize.bind(this));
+    this.onScroll = this.onScroll.bind(this);
+    this.onResize = this.onResize.bind(this);
   }
 
   display(layoutResult: LayoutResult, repo: Repository) {
     this.repository = repo;
-    const nodes = layoutResult.nodes;
     // 2 extra rows for top and bottom, so smooth scroll display commit outside of the viewport
     this.numRows = Math.floor(window.innerHeight / 24) + 2;
     this.scrollElement.style.height = 24 * this.repository.commits.length + 'px';
 
-    const canvas = this.mainElement.querySelector<HTMLCanvasElement>('.graph')!;
-    this.table.style.left = canvas.width + 'px';
+    this.table.style.left = GraphStyle.getGraphWidth(layoutResult.totalLanes) + 'px';
 
     this.clear();
     this.layout();
+    this.update();
 
-    for (let i = 0, ii = this.startIndex; i < this.numRows; ++i, ++ii) {
-      if (i < this.elements.length - 1) {
-        const commitElement = this.elements[i];
-        commitElement.update(this.repository.commits[ii]);
-      }
-    }
+    this.mainElement.removeEventListener('scroll', this.onScroll);
+    this.mainElement.addEventListener('scroll', this.onScroll, { passive: true });
+    window.removeEventListener('resize', this.onResize);
+    window.addEventListener('resize', this.onResize, { passive: true });
   }
 
+  /**
+   * Layout commit elements
+   */
   layout() {
     this.numRows = Math.floor(window.innerHeight / 24) + 2;
 
@@ -102,29 +73,49 @@ class CommitManager extends EventEmitter {
         this.elements.push(ce);
         this.tableBody.appendChild(ce.element);
       }
+
+      if (i >= this.numRows) {
+        const ce = this.elements.pop();
+        ce?.element.remove();
+      }
     }
   }
 
-  onResize() {
-    // this.layout();
+  /**
+   * Update elements with commit data
+   */
+  update() {
+    this.startIndex = Math.floor(this.mainElement.scrollTop / 24);
+    for (let i = 0, ii = this.startIndex; i < this.numRows; ++i, ++ii) {
+      if (i < this.elements.length - 1) {
+        const commitElement = this.elements[i];
+        if (ii < this.repository.commits.length) commitElement.update(this.repository.commits[ii]);
+      }
+    }
   }
 
+  /**
+   * Clear all commit information from the elements
+   */
   clear() {
+    // scroll back to the top
+    this.mainElement.scrollTop = 0;
+
     for (const element of this.elements) {
       element.clear();
     }
   }
 
-  onScroll(e: Event) {
-    e.preventDefault();
+  onResize() {
+    this.layout();
+    this.update();
+  }
 
+  onScroll(e: Event) {
+    // Update table position to fake scrolling
     this.table.style.top = -(this.mainElement.scrollTop % 24) + 'px';
 
-    this.startIndex = Math.floor(this.mainElement.scrollTop / 24);
-    for (let i = 0, ii = this.startIndex; i < this.numRows; ++i, ++ii) {
-      const commitElement = this.elements[i];
-      if (this.repository.commits[ii]) commitElement.update(this.repository.commits[ii]);
-    }
+    this.update();
   }
 }
 
