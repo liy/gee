@@ -19,9 +19,7 @@ class GraphView {
 
   private nodeContainer!: Container;
 
-  private px!: number;
-  private py!: number;
-  private radius!: number;
+  private arcRadius!: number;
   private canvasWidth!: number;
 
   private nodeTexture!: Texture;
@@ -56,7 +54,7 @@ class GraphView {
       stats.dom.style.left = 'unset';
       stats.dom.style.right = '80px';
 
-      this.radius = Math.min(GraphStyle.laneWidth, GraphStyle.sliceHeight) * 0.5;
+      this.arcRadius = GraphStyle.getArcRadius();
       this.canvasWidth = GraphStyle.getGraphWidth(layoutResult.totalLanes);
 
       this.strap.beginFill(0x3875af, 0.2);
@@ -69,7 +67,8 @@ class GraphView {
         width: this.canvasWidth,
         height: window.innerHeight,
         backgroundAlpha: 0,
-        antialias: true,
+        antialias: false,
+        autoDensity: true,
       });
 
       const stage = new Container();
@@ -118,9 +117,15 @@ class GraphView {
       ticker.start();
 
       const nodeGraphics = new Graphics();
-      nodeGraphics.lineStyle(GraphStyle.node.outline);
+      // nodeGraphics.lineStyle(GraphStyle.node.outline);
       nodeGraphics.beginFill(0xffffff, 1);
-      nodeGraphics.drawCircle(0, 0, GraphStyle.node.radius);
+      // nodeGraphics.drawCircle(0, 0, GraphStyle.node.radius);
+      nodeGraphics.drawRect(
+        -GraphStyle.node.radius,
+        -GraphStyle.node.radius,
+        GraphStyle.node.radius * 2,
+        GraphStyle.node.radius * 2
+      );
       nodeGraphics.endFill();
       this.nodeTexture = renderer.generateTexture(nodeGraphics);
 
@@ -144,12 +149,9 @@ class GraphView {
     const alphas = GraphStyle.alphas;
     for (const { vertices, simType } of branchLines) {
       for (let i = 0; i < 2; ++i) {
-        let colour = 0x292a2d;
-        if (i === 1) {
-          const index = vertices[1].x % GraphStyle.laneColours.length;
-          colour = GraphStyle.laneColours[index];
-        }
-        this.lineGraphics.lineStyle(thickness[i], colour, simType === SimType.ADD ? 0.3 : alphas[i]);
+        let lineColour = GraphStyle.getLineColour(vertices[1].x, i === 0);
+
+        this.lineGraphics.lineStyle(thickness[i], lineColour, simType === SimType.ADD ? 0.3 : alphas[i]);
         if (vertices.length === 2) {
           this.lineGraphics.moveTo(
             this.canvasWidth -
@@ -183,9 +185,9 @@ class GraphView {
                 (vertices[1].x * GraphStyle.laneWidth +
                   GraphStyle.laneWidth * 0.5 +
                   GraphStyle.padding.right +
-                  this.radius * Math.sign(vertices[2].x - vertices[1].x)),
+                  this.arcRadius * Math.sign(vertices[2].x - vertices[1].x)),
               vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
-              this.radius
+              this.arcRadius
             );
             this.lineGraphics.lineTo(
               this.canvasWidth -
@@ -210,8 +212,8 @@ class GraphView {
               vertices[1].y * GraphStyle.sliceHeight +
                 GraphStyle.sliceHeight * 0.5 +
                 GraphStyle.padding.top +
-                this.radius,
-              this.radius
+                this.arcRadius,
+              this.arcRadius
             );
             this.lineGraphics.lineTo(
               this.canvasWidth -
@@ -234,8 +236,8 @@ class GraphView {
             vertices[1].y * GraphStyle.sliceHeight +
               GraphStyle.sliceHeight * 0.5 +
               GraphStyle.padding.top +
-              this.radius,
-            this.radius
+              this.arcRadius,
+            this.arcRadius
           );
           this.lineGraphics.arcTo(
             this.canvasWidth -
@@ -245,9 +247,9 @@ class GraphView {
               (vertices[2].x * GraphStyle.laneWidth +
                 GraphStyle.laneWidth * 0.5 +
                 GraphStyle.padding.right +
-                this.radius * Math.sign(vertices[3].x - vertices[2].x)),
+                this.arcRadius * Math.sign(vertices[3].x - vertices[2].x)),
             vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
-            this.radius
+            this.arcRadius
           );
           this.lineGraphics.lineTo(
             this.canvasWidth -
@@ -260,13 +262,15 @@ class GraphView {
 
     for (const { vertices, simType } of syncLines) {
       for (let i = 0; i < 2; ++i) {
-        let colour = 0x292a2d;
-        if (i === 1) {
-          const index = vertices[vertices.length - 1].x % GraphStyle.laneColours.length;
-          colour = GraphStyle.laneColours[index];
-        }
+        // let laneColour = 0x292a2d;
+        // if (i === 0) {
+        //   const index = vertices[vertices.length - 1].x % GraphStyle.laneColours.length;
+        //   laneColour = GraphStyle.laneColours[index];
+        // }
 
-        this.lineGraphics.lineStyle(thickness[i], colour, simType === SimType.ADD ? 0.3 : alphas[i]);
+        let lineColour = GraphStyle.getLineColour(vertices[vertices.length - 1].x, i === 0);
+
+        this.lineGraphics.lineStyle(thickness[i], lineColour, simType === SimType.ADD ? 0.3 : alphas[i]);
         if (vertices.length === 3) {
           this.lineGraphics.moveTo(
             this.canvasWidth -
@@ -282,8 +286,8 @@ class GraphView {
             vertices[1].y * GraphStyle.sliceHeight +
               GraphStyle.sliceHeight * 0.5 +
               GraphStyle.padding.top +
-              this.radius,
-            this.radius
+              this.arcRadius,
+            this.arcRadius
           );
           this.lineGraphics.lineTo(
             this.canvasWidth -
@@ -305,8 +309,8 @@ class GraphView {
             vertices[1].y * GraphStyle.sliceHeight +
               GraphStyle.sliceHeight * 0.5 +
               GraphStyle.padding.top +
-              this.radius,
-            this.radius
+              this.arcRadius,
+            this.arcRadius
           );
           this.lineGraphics.arcTo(
             this.canvasWidth -
@@ -316,9 +320,9 @@ class GraphView {
               (vertices[2].x * GraphStyle.laneWidth +
                 GraphStyle.laneWidth * 0.5 +
                 GraphStyle.padding.right +
-                this.radius * Math.sign(vertices[3].x - vertices[2].x)),
+                this.arcRadius * Math.sign(vertices[3].x - vertices[2].x)),
             vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
-            this.radius
+            this.arcRadius
           );
           this.lineGraphics.lineTo(
             this.canvasWidth -
@@ -336,7 +340,8 @@ class GraphView {
         this.canvasWidth - (node.x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right);
       sprite.y = node.y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top;
       sprite.anchor.set(0.5, 0.5);
-      sprite.tint = GraphStyle.laneColours[node.x % GraphStyle.laneColours.length];
+      // sprite.tint = GraphStyle.laneColours[node.x % GraphStyle.laneColours.length];
+      sprite.tint = GraphStyle.getLineColour(node.x, false);
 
       if (Simulator.isSimulated(node.hash)) {
         sprite.alpha = 0.5;
@@ -349,7 +354,8 @@ class GraphView {
     const { nodes } = this.layoutResult;
     const lastSprite = this.nodeContainer.getChildAt(previousIndex) as Sprite;
     if (lastSprite) {
-      lastSprite.tint = GraphStyle.laneColours[nodes[previousIndex].x % GraphStyle.laneColours.length];
+      // lastSprite.tint = GraphStyle.laneColours[nodes[previousIndex].x % GraphStyle.laneColours.length];
+      lastSprite.tint = GraphStyle.getLineColour(nodes[previousIndex].x, false);
     }
 
     const sprite = this.nodeContainer.getChildAt(index) as Sprite;
