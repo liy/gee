@@ -20,7 +20,7 @@ function createMainWindow() {
   // Create the browser window.
   const browserWindow = new BrowserWindow({
     width: 1100,
-    height: 768,
+    height: 768 + 39,
     autoHideMenuBar: true,
     webPreferences: {
       preload: preloadPath,

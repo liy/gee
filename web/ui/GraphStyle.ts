@@ -1,8 +1,8 @@
 import { ILineStyleOptions } from 'pixi.js';
 
 const GraphStyle = {
-  laneWidth: 9,
-  sliceHeight: 24,
+  laneWidth: 14,
+  sliceHeight: 32,
   maxLanes: 10,
   padding: {
     top: 0,

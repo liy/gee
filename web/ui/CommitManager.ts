@@ -45,8 +45,8 @@ class CommitManager extends EventEmitter {
   display(layoutResult: LayoutResult, repo: Repository) {
     this.repository = repo;
     // 2 extra rows for top and bottom, so smooth scroll display commit outside of the viewport
-    this.numRows = Math.floor(window.innerHeight / 24) + 2;
-    this.scrollElement.style.height = 24 * this.repository.commits.length + 'px';
+    this.numRows = Math.floor(window.innerHeight / GraphStyle.sliceHeight) + 2;
+    this.scrollElement.style.height = GraphStyle.sliceHeight * this.repository.commits.length + 'px';
 
     this.table.style.left = GraphStyle.getGraphWidth(layoutResult.totalLanes) + 'px';
 
@@ -64,7 +64,7 @@ class CommitManager extends EventEmitter {
    * Layout commit elements
    */
   layout() {
-    this.numRows = Math.floor(window.innerHeight / 24) + 2;
+    this.numRows = Math.floor(window.innerHeight / GraphStyle.sliceHeight) + 2;
 
     const limit = Math.max(this.numRows, this.elements.length);
     for (let i = 0; i < limit; ++i) {
@@ -85,7 +85,7 @@ class CommitManager extends EventEmitter {
    * Update elements with commit data
    */
   update() {
-    this.startIndex = Math.floor(this.mainElement.scrollTop / 24);
+    this.startIndex = Math.floor(this.mainElement.scrollTop / GraphStyle.sliceHeight);
     for (let i = 0, ii = this.startIndex; i < this.numRows; ++i, ++ii) {
       if (i < this.elements.length - 1) {
         const commitElement = this.elements[i];
@@ -113,7 +113,7 @@ class CommitManager extends EventEmitter {
 
   onScroll(e: Event) {
     // Update table position to fake scrolling
-    this.table.style.top = -(this.mainElement.scrollTop % 24) + 'px';
+    this.table.style.top = -(this.mainElement.scrollTop % GraphStyle.sliceHeight) + 'px';
 
     this.update();
   }

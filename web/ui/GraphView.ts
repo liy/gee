@@ -1,6 +1,6 @@
 /* eslint-disable no-constant-condition */
 import { Container, Graphics, Ticker, Renderer, Texture, Sprite, BitmapFont, BitmapText } from 'pixi.js';
-import * as PIXI from '@pixi/core';
+import * as PIXI from 'pixi.js';
 import { install } from '@pixi/unsafe-eval';
 // Apply the patch to PIXI
 install(PIXI);
@@ -12,6 +12,11 @@ import CommitManager from './CommitManager';
 import Simulator, { SimType } from '../Simulator';
 import Repository from '../git/Repository';
 import GraphStyle from './GraphStyle';
+
+PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+PIXI.settings.ROUND_PIXELS = true;
+PIXI.settings.RESOLUTION = window.devicePixelRatio;
+
 class GraphView {
   private layoutResult!: LayoutResult;
 
@@ -91,7 +96,7 @@ class GraphView {
             e.preventDefault();
 
             // snap to the row
-            mainElement.scrollTop -= mainElement.scrollTop % 24;
+            mainElement.scrollTop -= mainElement.scrollTop % GraphStyle.sliceHeight;
             // scroll 3 rows per delta
             mainElement.scrollTop += Math.sign(e.deltaY) * 3 * GraphStyle.sliceHeight;
             this.container.y = -mainElement.scrollTop;
@@ -151,17 +156,15 @@ class GraphView {
       for (let i = 0; i < 2; ++i) {
         let lineColour = GraphStyle.getLineColour(vertices[1].x, i === 0);
 
-        this.lineGraphics.lineStyle(thickness[i], lineColour, simType === SimType.ADD ? 0.3 : alphas[i]);
+        this.lineGraphics.lineStyle(thickness[i], lineColour, simType === SimType.ADD ? 0.3 : alphas[i], 0, true);
         if (vertices.length === 2) {
           this.lineGraphics.moveTo(
-            this.canvasWidth -
-              (vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+            vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
           );
           this.lineGraphics.lineTo(
-            this.canvasWidth -
-              (vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+            vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
           );
         }
         // either be :
@@ -173,88 +176,80 @@ class GraphView {
           // __| |__
           if (vertices[0].x === vertices[1].x) {
             this.lineGraphics.moveTo(
-              this.canvasWidth -
-                (vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-              vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+              vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+              vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
             );
             this.lineGraphics.arcTo(
-              this.canvasWidth -
-                (vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-              vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
-              this.canvasWidth -
-                (vertices[1].x * GraphStyle.laneWidth +
-                  GraphStyle.laneWidth * 0.5 +
-                  GraphStyle.padding.right +
-                  this.arcRadius * Math.sign(vertices[2].x - vertices[1].x)),
-              vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
+              vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+              vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5,
+
+              vertices[1].x * GraphStyle.laneWidth +
+                GraphStyle.laneWidth * 0.5 +
+                GraphStyle.padding.right +
+                this.arcRadius * Math.sign(vertices[2].x - vertices[1].x - 0.5),
+              vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5,
               this.arcRadius
             );
             this.lineGraphics.lineTo(
-              this.canvasWidth -
-                (vertices[2].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-              vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+              vertices[2].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+              vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
             );
           }
           // __   __
           //   | |
           else {
             this.lineGraphics.moveTo(
-              this.canvasWidth -
-                (vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-              vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+              vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+              vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
             );
             this.lineGraphics.arcTo(
-              this.canvasWidth -
-                (vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-              vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
-              this.canvasWidth -
-                (vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
+              vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+              vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5,
+
+              vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
               vertices[1].y * GraphStyle.sliceHeight +
                 GraphStyle.sliceHeight * 0.5 +
                 GraphStyle.padding.top +
-                this.arcRadius,
+                this.arcRadius -
+                0.5,
               this.arcRadius
             );
             this.lineGraphics.lineTo(
-              this.canvasWidth -
-                (vertices[2].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-              vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+              vertices[2].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+              vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
             );
           }
         } else if (vertices.length == 4) {
           this.lineGraphics.moveTo(
-            this.canvasWidth -
-              (vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+            vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
           );
           this.lineGraphics.arcTo(
-            this.canvasWidth -
-              (vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
-            this.canvasWidth -
-              (vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
+            vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5,
+
+            vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
             vertices[1].y * GraphStyle.sliceHeight +
               GraphStyle.sliceHeight * 0.5 +
               GraphStyle.padding.top +
-              this.arcRadius,
+              this.arcRadius -
+              0.5,
             this.arcRadius
           );
           this.lineGraphics.arcTo(
-            this.canvasWidth -
-              (vertices[2].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
-            this.canvasWidth -
-              (vertices[2].x * GraphStyle.laneWidth +
-                GraphStyle.laneWidth * 0.5 +
-                GraphStyle.padding.right +
-                this.arcRadius * Math.sign(vertices[3].x - vertices[2].x)),
-            vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
+            vertices[2].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5,
+
+            vertices[2].x * GraphStyle.laneWidth +
+              GraphStyle.laneWidth * 0.5 +
+              GraphStyle.padding.right +
+              this.arcRadius * Math.sign(vertices[3].x - vertices[2].x - 0.5),
+            vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5,
             this.arcRadius
           );
           this.lineGraphics.lineTo(
-            this.canvasWidth -
-              (vertices[3].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[3].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+            vertices[3].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[3].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
           );
         }
       }
@@ -270,64 +265,60 @@ class GraphView {
 
         let lineColour = GraphStyle.getLineColour(vertices[vertices.length - 1].x, i === 0);
 
-        this.lineGraphics.lineStyle(thickness[i], lineColour, simType === SimType.ADD ? 0.3 : alphas[i]);
+        this.lineGraphics.lineStyle(thickness[i], lineColour, simType === SimType.ADD ? 0.3 : alphas[i], 0, true);
         if (vertices.length === 3) {
           this.lineGraphics.moveTo(
-            this.canvasWidth -
-              (vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+            vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
           );
           this.lineGraphics.arcTo(
-            this.canvasWidth -
-              (vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
-            this.canvasWidth -
-              (vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
+            vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5,
+
+            vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
             vertices[1].y * GraphStyle.sliceHeight +
               GraphStyle.sliceHeight * 0.5 +
               GraphStyle.padding.top +
-              this.arcRadius,
+              this.arcRadius -
+              0.5,
             this.arcRadius
           );
           this.lineGraphics.lineTo(
-            this.canvasWidth -
-              (vertices[2].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+            vertices[2].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
           );
         } else if (vertices.length == 4) {
           this.lineGraphics.moveTo(
-            this.canvasWidth -
-              (vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+            vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[0].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
           );
           this.lineGraphics.arcTo(
-            this.canvasWidth -
-              (vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
-            this.canvasWidth -
-              (vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
+            vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[1].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5,
+
+            vertices[1].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
             vertices[1].y * GraphStyle.sliceHeight +
               GraphStyle.sliceHeight * 0.5 +
               GraphStyle.padding.top +
-              this.arcRadius,
+              this.arcRadius -
+              0.5,
             this.arcRadius
           );
           this.lineGraphics.arcTo(
-            this.canvasWidth -
-              (vertices[2].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
-            this.canvasWidth -
-              (vertices[2].x * GraphStyle.laneWidth +
-                GraphStyle.laneWidth * 0.5 +
-                GraphStyle.padding.right +
-                this.arcRadius * Math.sign(vertices[3].x - vertices[2].x)),
-            vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top,
+            vertices[2].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5,
+
+            vertices[2].x * GraphStyle.laneWidth +
+              GraphStyle.laneWidth * 0.5 +
+              GraphStyle.padding.right +
+              this.arcRadius * Math.sign(vertices[3].x - vertices[2].x) -
+              0.5,
+            vertices[2].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5,
             this.arcRadius
           );
           this.lineGraphics.lineTo(
-            this.canvasWidth -
-              (vertices[3].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right),
-            vertices[3].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top
+            vertices[3].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
+            vertices[3].y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top - 0.5
           );
         }
       }
@@ -336,8 +327,7 @@ class GraphView {
     for (const node of nodes) {
       const sprite = new Sprite(this.nodeTexture);
       this.nodeContainer.addChild(sprite);
-      sprite.x =
-        this.canvasWidth - (node.x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right);
+      sprite.x = node.x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right;
       sprite.y = node.y * GraphStyle.sliceHeight + GraphStyle.sliceHeight * 0.5 + GraphStyle.padding.top;
       sprite.anchor.set(0.5, 0.5);
       // sprite.tint = GraphStyle.laneColours[node.x % GraphStyle.laneColours.length];

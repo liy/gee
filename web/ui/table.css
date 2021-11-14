@@ -16,6 +16,6 @@ table td {
   padding: 0px 4px;
 }
 
-table tr {
-  line-height: 24px;
+main canvas {
+  image-rendering: pixelated;
 }

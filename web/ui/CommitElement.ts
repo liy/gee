@@ -5,6 +5,7 @@ import Simulator from '../Simulator';
 import { Commit, Commit__Output } from 'protobuf/pb/Commit';
 import { Reference__Output } from 'protobuf/pb/Reference';
 import './commit.css';
+import GraphStyle from './GraphStyle';
 
 const laneColours = [
   '#f44336',
@@ -48,6 +49,7 @@ class CommitElement {
     this._selected = false;
 
     this.element = document.createElement('tr');
+    this.element.style.height = GraphStyle.sliceHeight + 'px';
     this.element.className = 'commit';
 
     this.summaryElement = document.createElement('td');
