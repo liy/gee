@@ -1,8 +1,8 @@
 import { ILineStyleOptions } from 'pixi.js';
 
 const GraphStyle = {
-  laneWidth: 14,
-  sliceHeight: 32,
+  laneWidth: 12,
+  sliceHeight: 24,
   maxLanes: 10,
   padding: {
     top: 0,
@@ -11,14 +11,14 @@ const GraphStyle = {
     right: 2,
   },
   thicknesses: [3, 1],
-  alphas: [0.6, 1],
+  alphas: [0.8, 1],
   node: {
     outline: {
       width: 2,
       color: 0,
       alpha: 0.6,
       alignment: 1,
-      native: false,
+      native: true,
     },
     radius: 2.5,
   },
@@ -43,7 +43,7 @@ const GraphStyle = {
   },
 
   getArcRadius() {
-    return Math.min(GraphStyle.laneWidth, GraphStyle.sliceHeight) * 0.5;
+    return Math.min(GraphStyle.laneWidth, GraphStyle.sliceHeight) * 0.6;
   },
 };
 

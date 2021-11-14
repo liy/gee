@@ -122,7 +122,7 @@ class GraphView {
       ticker.start();
 
       const nodeGraphics = new Graphics();
-      // nodeGraphics.lineStyle(GraphStyle.node.outline);
+      nodeGraphics.lineStyle(GraphStyle.node.outline);
       nodeGraphics.beginFill(0xffffff, 1);
       // nodeGraphics.drawCircle(0, 0, GraphStyle.node.radius);
       nodeGraphics.drawRect(
@@ -156,7 +156,9 @@ class GraphView {
       for (let i = 0; i < 2; ++i) {
         let lineColour = GraphStyle.getLineColour(vertices[1].x, i === 0);
 
-        this.lineGraphics.lineStyle(thickness[i], lineColour, simType === SimType.ADD ? 0.3 : alphas[i], 0, true);
+        console.log(thickness[i], alphas[i]);
+
+        this.lineGraphics.lineStyle(thickness[i], lineColour, simType === SimType.ADD ? 0.3 : alphas[i], 0.5, i !== 0);
         if (vertices.length === 2) {
           this.lineGraphics.moveTo(
             vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
@@ -265,7 +267,7 @@ class GraphView {
 
         let lineColour = GraphStyle.getLineColour(vertices[vertices.length - 1].x, i === 0);
 
-        this.lineGraphics.lineStyle(thickness[i], lineColour, simType === SimType.ADD ? 0.3 : alphas[i], 0, true);
+        this.lineGraphics.lineStyle(thickness[i], lineColour, simType === SimType.ADD ? 0.3 : alphas[i], 0.5, i !== 0);
         if (vertices.length === 3) {
           this.lineGraphics.moveTo(
             vertices[0].x * GraphStyle.laneWidth + GraphStyle.laneWidth * 0.5 + GraphStyle.padding.right - 0.5,
