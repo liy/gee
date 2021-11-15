@@ -20,7 +20,7 @@ function createMainWindow() {
   // Create the browser window.
   const browserWindow = new BrowserWindow({
     width: 1100,
-    height: 768 + 39,
+    height: 768,
     autoHideMenuBar: true,
     webPreferences: {
       preload: preloadPath,
@@ -45,7 +45,7 @@ if (app.requestSingleInstanceLock()) {
     const indexPath = path.join(__dirname, '../index.html');
     mainWindow.loadFile(indexPath).then(async () => {
       await new Promise((resolve) => setTimeout(resolve, 3000));
-      const p = process.env.NODE_ENV !== 'production' ? '../repos/checkout' : process.cwd();
+      const p = process.env.NODE_ENV !== 'production' ? '../repos/git' : process.cwd();
       mainWindow.webContents.send('openRepository', await RPC.getRepository(p));
       mainWindow.title = p;
     });

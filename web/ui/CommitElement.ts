@@ -39,7 +39,9 @@ class CommitElement {
 
   private _selected: boolean;
 
+  private contentElement: HTMLElement;
   private summaryElement: HTMLElement;
+  private metaElement: HTMLElement;
   private hashElement: HTMLElement;
   private authorElement: HTMLElement;
   private dateElement: HTMLElement;
@@ -52,36 +54,53 @@ class CommitElement {
     this.element.style.height = GraphStyle.sliceHeight + 'px';
     this.element.className = 'commit';
 
-    this.summaryElement = document.createElement('td');
+    this.contentElement = document.createElement('td');
+    this.contentElement.className = 'content';
+    this.contentElement.style.minWidth = '550px';
+    this.contentElement.style.maxWidth = '550px';
+    this.element.appendChild(this.contentElement);
+
+    this.summaryElement = document.createElement('div');
     this.summaryElement.className = 'summary';
-    this.summaryElement.style.minWidth = '550px';
-    this.summaryElement.style.maxWidth = '550px';
-    this.element.appendChild(this.summaryElement);
+    this.contentElement.appendChild(this.summaryElement);
 
-    this.hashElement = document.createElement('td');
+    this.metaElement = document.createElement('div');
+    this.metaElement.className = 'meta';
+    this.metaElement.style.marginTop = '2px';
+    this.metaElement.style.color = '#777';
+    this.metaElement.style.fontSize = '11px';
+    this.contentElement.appendChild(this.metaElement);
+
+    this.hashElement = document.createElement('span');
     this.hashElement.className = 'hash';
-    this.element.appendChild(this.hashElement);
+    this.hashElement.style.marginRight = '4px';
+    this.metaElement.appendChild(this.hashElement);
 
-    this.authorElement = document.createElement('td');
+    this.authorElement = document.createElement('span');
     this.authorElement.className = 'author';
-    this.authorElement.style.width = '100px';
-    this.element.appendChild(this.authorElement);
+    this.metaElement.appendChild(this.authorElement);
 
     this.dateElement = document.createElement('td');
     this.dateElement.className = 'date';
     this.dateElement.style.minWidth = '68px';
     this.dateElement.style.maxWidth = '68px';
+    this.dateElement.style.fontSize = '11px';
     this.element.appendChild(this.dateElement);
 
     this.timeElement = document.createElement('td');
     this.timeElement.className = 'time';
+    this.timeElement.style.fontSize = '11px';
     this.element.appendChild(this.timeElement);
   }
 
   update(commit: Commit__Output) {
     this.summaryElement.textContent = commit.summary?.substr(0, 100) || '';
+    // this.summaryElement.innerHTML = `<div>${
+    //   commit.summary?.substr(0, 100) || ''
+    // }</div><div style="margin-top:2px; color: #777; font-size: 11px">${(this.authorElement.textContent =
+    //   commit.author?.name || '')}</div>`;
 
-    this.hashElement.textContent = commit.hash?.substr(0, 7) || '';
+    this.hashElement.textContent = (commit.hash?.substr(0, 7) || '').toUpperCase();
 
     this.authorElement.textContent = commit.author?.name || '';
 
