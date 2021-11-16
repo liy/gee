@@ -1,25 +1,46 @@
 .commit {
+  white-space: nowrap;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
   cursor: default;
 }
 
-.commit.selected {
-  background-color: #3875af;
-  color: white;
+.commit .top {
+  display: flex;
+  justify-content: space-between;
+}
+
+.commit .bottom {
+  margin-top: 2px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .commit .summary {
-  max-width: 500px;
+  width: 500px;
+
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .commit .author {
-  max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  color: #777;
+  font-size: 11px;
 }
 
 .commit .hash {
   font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
-  max-width: 80px;
+}
+
+.commit .date {
+  font-size: 11px;
+
+  color: #777;
+  font-size: 11px;
 }

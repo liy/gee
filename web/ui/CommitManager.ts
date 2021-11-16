@@ -11,15 +11,13 @@ import GraphStyle from './GraphStyle';
 class CommitManager extends EventEmitter {
   elements: Array<CommitElement>;
 
-  tableBody: HTMLElement;
-
   selectedCommit: CommitElement | undefined;
 
   repository!: Repository;
 
   mainElement: HTMLElement;
 
-  table: HTMLTableElement;
+  table: HTMLElement;
 
   scrollElement: HTMLElement;
 
@@ -33,10 +31,8 @@ class CommitManager extends EventEmitter {
     this.elements = new Array<CommitElement>();
 
     this.mainElement = document.getElementById('main')!;
-    this.table = this.mainElement.getElementsByTagName('table')[0];
+    this.table = document.getElementById('commit-table')!;
     this.scrollElement = this.mainElement.querySelector<HTMLElement>('.scroll-content')!;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this.tableBody = document.querySelector('#main table tbody')!;
 
     this.onScroll = this.onScroll.bind(this);
     this.onResize = this.onResize.bind(this);
@@ -48,7 +44,8 @@ class CommitManager extends EventEmitter {
     this.numRows = Math.floor(window.innerHeight / GraphStyle.sliceHeight) + 2;
     this.scrollElement.style.height = GraphStyle.sliceHeight * this.repository.commits.length + 'px';
 
-    this.table.style.left = GraphStyle.getGraphWidth(layoutResult.totalLanes) + 'px';
+    this.table.style.transform = `translateY(${-window.innerHeight}px)`;
+    this.table.style.marginLeft = `${GraphStyle.getGraphWidth(layoutResult.totalLanes)}px`;
 
     this.clear();
     this.layout();
@@ -71,7 +68,7 @@ class CommitManager extends EventEmitter {
       if (i >= this.elements.length) {
         const ce = new CommitElement();
         this.elements.push(ce);
-        this.tableBody.appendChild(ce.element);
+        this.table.appendChild(ce.element);
       }
 
       if (i >= this.numRows) {
@@ -113,7 +110,9 @@ class CommitManager extends EventEmitter {
 
   onScroll(e: Event) {
     // Update table position to fake scrolling
-    this.table.style.top = -(this.mainElement.scrollTop % GraphStyle.sliceHeight) + 'px';
+    this.table.style.transform = `translateY(${
+      -window.innerHeight - (this.mainElement.scrollTop % GraphStyle.sliceHeight)
+    }px)`;
 
     this.update();
   }

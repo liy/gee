@@ -1,19 +1,13 @@
-main table {
-  position: absolute;
+#commit-table {
+  /* position: absolute;
+  z-index: -1; */
   z-index: -1;
 
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
 
-table td {
-  border: 0;
-  white-space: nowrap;
-  table-layout: fixed;
-
-  padding: 0px 4px;
+  margin-left: 4px;
+  margin-right: 18px;
 }
 
 main canvas {
