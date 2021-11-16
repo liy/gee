@@ -1,5 +1,15 @@
 /* eslint-disable no-constant-condition */
-import { Container, Graphics, Ticker, Renderer, Texture, Sprite, BitmapFont, BitmapText } from 'pixi.js';
+import {
+  Container,
+  Graphics,
+  Ticker,
+  Renderer,
+  Texture,
+  Sprite,
+  BitmapFont,
+  BitmapText,
+  ParticleContainer,
+} from 'pixi.js';
 import * as PIXI from 'pixi.js';
 import { install } from '@pixi/unsafe-eval';
 // Apply the patch to PIXI
@@ -22,7 +32,7 @@ class GraphView {
 
   private lineGraphics!: Graphics;
 
-  private nodeContainer!: Container;
+  private nodeContainer!: ParticleContainer;
 
   private arcRadius!: number;
   private canvasWidth!: number;
@@ -51,7 +61,6 @@ class GraphView {
 
     if (!this.initialized) {
       this.lineGraphics = new Graphics();
-      this.nodeContainer = new Container();
 
       const stats = new Stats();
       stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -82,7 +91,6 @@ class GraphView {
 
       this.container.addChild(this.strap);
       this.container.addChild(this.lineGraphics);
-      this.container.addChild(this.nodeContainer);
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       mainElement.addEventListener('scroll', (e) => {
@@ -147,7 +155,6 @@ class GraphView {
     const { syncLines, nodes, branchLines } = layoutResult;
 
     this.lineGraphics.clear();
-    this.nodeContainer.removeChildren();
 
     // Draw outline of the lines
     const thickness = GraphStyle.thicknesses;
@@ -349,6 +356,18 @@ class GraphView {
         }
       }
     }
+
+    if (this.nodeContainer) {
+      this.container.removeChild(this.nodeContainer);
+      this.nodeContainer.destroy({ children: true });
+    }
+    this.nodeContainer = new ParticleContainer(
+      layoutResult.nodes.length,
+      { tint: true },
+      layoutResult.nodes.length,
+      false
+    );
+    this.container.addChild(this.nodeContainer);
 
     for (const node of nodes) {
       const sprite = new Sprite(this.nodeTexture);
