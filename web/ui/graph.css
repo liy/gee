@@ -1,4 +1,5 @@
-main .graph {
+.graph {
   position: sticky;
   top: 0;
+  image-rendering: pixelated;
 }

@@ -53,9 +53,8 @@ class GraphView {
   display(layoutResult: LayoutResult, repo: Repository) {
     this.layoutResult = layoutResult;
 
-    const mainElement = document.getElementById('main')!;
-    const canvas = mainElement.querySelector<HTMLCanvasElement>('.graph')!;
-    const graph = mainElement.querySelector<HTMLElement>('.graph')!;
+    const scrollbar = document.querySelector<HTMLElement>('.scrollbar-y')!;
+    const canvas = document.querySelector<HTMLCanvasElement>('.graph')!;
 
     const smoothScroll = false;
 
@@ -93,8 +92,8 @@ class GraphView {
       this.container.addChild(this.lineGraphics);
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      mainElement.addEventListener('scroll', (e) => {
-        this.container.y = -mainElement.scrollTop;
+      scrollbar.addEventListener('scroll', (e) => {
+        this.container.y = -scrollbar.scrollTop;
       });
 
       if (!smoothScroll) {
@@ -104,21 +103,21 @@ class GraphView {
             e.preventDefault();
 
             // snap to the row
-            mainElement.scrollTop -= mainElement.scrollTop % GraphStyle.sliceHeight;
+            scrollbar.scrollTop -= scrollbar.scrollTop % GraphStyle.sliceHeight;
             // scroll 3 rows per delta
-            mainElement.scrollTop += Math.sign(e.deltaY) * 3 * GraphStyle.sliceHeight;
-            this.container.y = -mainElement.scrollTop;
+            scrollbar.scrollTop += Math.sign(e.deltaY) * 3 * GraphStyle.sliceHeight;
+            this.container.y = -scrollbar.scrollTop;
           },
           { passive: false }
         );
       }
 
-      graph.style.height = window.innerHeight + 'px';
-      mainElement.style.height = window.innerHeight + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      scrollbar.style.height = window.innerHeight + 'px';
       window.addEventListener('resize', (e) => {
-        graph.style.height = window.innerHeight + 'px';
+        canvas.style.height = window.innerHeight + 'px';
         renderer.resize(this.canvasWidth, window.innerHeight);
-        mainElement.style.height = window.innerHeight + 'px';
+        scrollbar.style.height = window.innerHeight + 'px';
       });
 
       const ticker = new Ticker();

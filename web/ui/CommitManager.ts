@@ -15,7 +15,7 @@ class CommitManager extends EventEmitter {
 
   repository!: Repository;
 
-  mainElement: HTMLElement;
+  scrollbar: HTMLElement;
 
   table: HTMLElement;
 
@@ -30,9 +30,9 @@ class CommitManager extends EventEmitter {
 
     this.elements = new Array<CommitElement>();
 
-    this.mainElement = document.getElementById('main')!;
+    this.scrollbar = document.querySelector('.scrollbar-y')!;
     this.table = document.getElementById('commit-table')!;
-    this.scrollElement = this.mainElement.querySelector<HTMLElement>('.scroll-content')!;
+    this.scrollElement = this.scrollbar.querySelector<HTMLElement>('.scroll-content')!;
 
     this.onScroll = this.onScroll.bind(this);
     this.onResize = this.onResize.bind(this);
@@ -44,15 +44,12 @@ class CommitManager extends EventEmitter {
     this.numRows = Math.floor(window.innerHeight / GraphStyle.sliceHeight) + 2;
     this.scrollElement.style.height = GraphStyle.sliceHeight * this.repository.commits.length + 'px';
 
-    this.table.style.transform = `translateY(${-window.innerHeight}px)`;
-    this.table.style.marginLeft = `${GraphStyle.getGraphWidth(layoutResult.totalLanes)}px`;
-
     this.clear();
     this.layout();
     this.update();
 
-    this.mainElement.removeEventListener('scroll', this.onScroll);
-    this.mainElement.addEventListener('scroll', this.onScroll, { passive: true });
+    this.scrollbar.removeEventListener('scroll', this.onScroll);
+    this.scrollbar.addEventListener('scroll', this.onScroll, { passive: true });
     window.removeEventListener('resize', this.onResize);
     window.addEventListener('resize', this.onResize, { passive: true });
   }
@@ -82,7 +79,7 @@ class CommitManager extends EventEmitter {
    * Update elements with commit data
    */
   update() {
-    this.startIndex = Math.floor(this.mainElement.scrollTop / GraphStyle.sliceHeight);
+    this.startIndex = Math.floor(this.scrollbar.scrollTop / GraphStyle.sliceHeight);
     for (let i = 0, ii = this.startIndex; i < this.numRows; ++i, ++ii) {
       if (i < this.elements.length - 1) {
         const commitElement = this.elements[i];
@@ -96,7 +93,7 @@ class CommitManager extends EventEmitter {
    */
   clear() {
     // scroll back to the top
-    this.mainElement.scrollTop = 0;
+    this.scrollbar.scrollTop = 0;
 
     for (const element of this.elements) {
       element.clear();
@@ -110,9 +107,10 @@ class CommitManager extends EventEmitter {
 
   onScroll(e: Event) {
     // Update table position to fake scrolling
-    this.table.style.transform = `translateY(${
-      -window.innerHeight - (this.mainElement.scrollTop % GraphStyle.sliceHeight)
-    }px)`;
+    // this.table.style.transform = `translateY(${
+    //   -window.innerHeight - (this.scrollbar.scrollTop % GraphStyle.sliceHeight)
+    // }px)`;
+    this.table.style.transform = `translateY(${-(this.scrollbar.scrollTop % GraphStyle.sliceHeight)}px)`;
 
     this.update();
   }
