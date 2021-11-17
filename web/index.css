@@ -23,3 +23,28 @@ body {
   align-items: flex-start;
   justify-content: flex-start;
 }
+
+/* width of the scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: rgba(41, 42, 45, 255);
+}
+
+::-webkit-scrollbar-track:hover {
+  background: rgb(54, 56, 60, 255);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(100, 100, 100);
+}
