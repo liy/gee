@@ -20,7 +20,9 @@
 }
 
 .commit .summary {
-  width: 500px;
+  min-width: 100px;
+  /* hardcode max width for 50 character summary */
+  max-width: 290px;
 
   overflow: hidden;
   text-overflow: ellipsis;

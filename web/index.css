@@ -12,11 +12,6 @@ body {
 .scrollbar-y {
   overflow-x: hidden;
   overflow-y: auto;
-
-  position: absolute;
-  width: 100%;
-  /* very important, needs to be lower than commit table z index this ensures commit table text can be selected */
-  z-index: 0;
 }
 
 .scrollbar-y.scroll-content {

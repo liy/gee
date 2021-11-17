@@ -32,6 +32,7 @@ class CommitManager extends EventEmitter {
 
     this.scrollbar = document.querySelector('.scrollbar-y')!;
     this.table = document.getElementById('commit-table')!;
+    this.table.style.transform = 'translate(0px)';
     this.scrollElement = this.scrollbar.querySelector<HTMLElement>('.scroll-content')!;
 
     this.onScroll = this.onScroll.bind(this);
@@ -41,7 +42,7 @@ class CommitManager extends EventEmitter {
   display(layoutResult: LayoutResult, repo: Repository) {
     this.repository = repo;
     // 2 extra rows for top and bottom, so smooth scroll display commit outside of the viewport
-    this.numRows = Math.floor(window.innerHeight / GraphStyle.sliceHeight) + 2;
+    this.numRows = Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1;
     this.scrollElement.style.height = GraphStyle.sliceHeight * this.repository.commits.length + 'px';
 
     this.clear();
@@ -58,7 +59,7 @@ class CommitManager extends EventEmitter {
    * Layout commit elements
    */
   layout() {
-    this.numRows = Math.floor(window.innerHeight / GraphStyle.sliceHeight) + 2;
+    this.numRows = Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1;
 
     const limit = Math.max(this.numRows, this.elements.length);
     for (let i = 0; i < limit; ++i) {
@@ -79,9 +80,11 @@ class CommitManager extends EventEmitter {
    * Update elements with commit data
    */
   update() {
-    this.startIndex = Math.floor(this.scrollbar.scrollTop / GraphStyle.sliceHeight);
+    this.startIndex = Math.floor(
+      (this.scrollbar.scrollTop + this.table.getBoundingClientRect().y) / GraphStyle.sliceHeight
+    );
     for (let i = 0, ii = this.startIndex; i < this.numRows; ++i, ++ii) {
-      if (i < this.elements.length - 1) {
+      if (i < this.elements.length) {
         const commitElement = this.elements[i];
         if (ii < this.repository.commits.length) commitElement.update(this.repository.commits[ii]);
       }
@@ -106,11 +109,7 @@ class CommitManager extends EventEmitter {
   }
 
   onScroll(e: Event) {
-    // Update table position to fake scrolling
-    // this.table.style.transform = `translateY(${
-    //   -window.innerHeight - (this.scrollbar.scrollTop % GraphStyle.sliceHeight)
-    // }px)`;
-    this.table.style.transform = `translateY(${-(this.scrollbar.scrollTop % GraphStyle.sliceHeight)}px)`;
+    this.table.style.top = `${-(this.scrollbar.scrollTop % GraphStyle.sliceHeight)}px`;
 
     this.update();
   }
