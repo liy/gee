@@ -41,13 +41,15 @@ if (app.requestSingleInstanceLock()) {
   app.on('ready', async () => {
     const mainWindow = createMainWindow();
 
+    const wd = process.env.NODE_ENV !== 'production' ? '../repos/checkout' : process.cwd();
+
     // Loading the application
     const indexPath = path.join(__dirname, '../index.html');
     mainWindow.loadFile(indexPath).then(async () => {
       await new Promise((resolve) => setTimeout(resolve, 3000));
-      const p = process.env.NODE_ENV !== 'production' ? '../repos/topo-sort' : process.cwd();
-      mainWindow.webContents.send('openRepository', await RPC.getRepository(p));
-      mainWindow.title = p;
+
+      mainWindow.webContents.send('openRepository', await RPC.getRepository(wd));
+      mainWindow.title = wd;
     });
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
@@ -55,6 +57,7 @@ if (app.requestSingleInstanceLock()) {
     // Second instance is passing the arguments to this first instance.
     // Simply open repository at second instance working directory
     app.on('second-instance', async (event, commandLine, workingDirectory) => {
+      GeeApp.workingDirectory = workingDirectory;
       mainWindow.webContents.send('openRepository', await RPC.getRepository(workingDirectory));
       mainWindow.title = workingDirectory;
       mainWindow.show();
@@ -90,7 +93,7 @@ if (app.requestSingleInstanceLock()) {
       mainWindow.show();
     });
 
-    GeeApp.init();
+    GeeApp.init(wd);
   });
 } else {
   console.log('single instance lock, exiting.');

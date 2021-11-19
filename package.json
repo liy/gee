@@ -111,6 +111,7 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.4.3",
     "@grpc/proto-loader": "^0.6.6",
+    "chalk": "^4.1.2",
     "chokidar": "^3.5.2",
     "electron-squirrel-startup": "^1.0.0",
     "minimist": "^1.2.5",

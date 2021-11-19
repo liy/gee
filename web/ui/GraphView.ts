@@ -97,7 +97,7 @@ class GraphView {
       });
 
       if (!smoothScroll) {
-        document.addEventListener(
+        scrollbar.addEventListener(
           'wheel',
           (e) => {
             e.preventDefault();

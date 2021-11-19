@@ -3,7 +3,9 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { Repository__Output } from 'protobuf/pb/Repository';
 import { Notification } from '../web/@types/window';
-import { REPOSITORY_OPEN } from '../web/constants';
+// Routes the commmand output to the correct callback
+import CommandRoute, { OutputCallback, OutputRouteId } from '../web/CommandRoute';
+import { COMMAND_SUBMIT, REPOSITORY_OPEN } from '../web/constants';
 
 // It has the same sandbox as a Chrome extension.
 window.addEventListener('DOMContentLoaded', async () => {
@@ -30,6 +32,15 @@ contextBridge.exposeInMainWorld('api', {
     return await ipcRenderer.invoke(REPOSITORY_OPEN, path);
   },
 
+  invokeCommand: async (args: Array<string>): Promise<string> => {
+    return await ipcRenderer.invoke(COMMAND_SUBMIT, args);
+  },
+
+  submitCommand: (args: Array<string>, callback: OutputCallback) => {
+    const routeId = CommandRoute.add(callback);
+    ipcRenderer.send(COMMAND_SUBMIT, args, routeId);
+  },
+
   onNotification: (callback: (_: Notification) => void) => {
     ipcRenderer.on('notification', (event: Electron.IpcRendererEvent, n: Notification) => callback(n));
   },
@@ -37,4 +48,13 @@ contextBridge.exposeInMainWorld('api', {
   onOpenRepository: (callback: (data: Repository__Output) => void) => {
     ipcRenderer.on('openRepository', (event: Electron.IpcRendererEvent, data: Repository__Output) => callback(data));
   },
+});
+
+// Route
+ipcRenderer.on('command.output.line', (_, line: string, routeId: OutputRouteId) => {
+  CommandRoute.route(routeId, line);
+});
+// Remove the route if command output is closed
+ipcRenderer.on('command.output.close', (_, routeId: OutputRouteId) => {
+  CommandRoute.remove(routeId);
 });

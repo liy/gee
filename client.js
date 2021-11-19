@@ -18,7 +18,7 @@ const kvpair = {
 };
 const creds = grpc.credentials.createSsl(cacert, key, cert);
 
-const client = new pkg.pb.RepositoryService(`Perceptron-PC:${8888}`, creds, {
+const client = new pkg.pb.RepositoryService(`localhost:${8888}`, creds, {
   'grpc.max_receive_message_length': 100 * 1024 * 1024,
 });
 
