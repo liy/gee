@@ -1,9 +1,9 @@
 import { ipcMain } from 'electron';
 import EventEmitter from '../web/EventEmitter';
-import RPC from 'RPC';
+import RPC from './RPC';
 import { spawn, execFile } from 'child_process';
 import { COMMAND_INVOKE, COMMAND_SUBMIT, COMMIT_SELECTED, REPOSITORY_OPEN } from '../web/constants';
-import readline from 'readline';
+import * as readline from 'readline';
 import { OutputRouteId } from '../web/CommandRoute';
 
 class GeeApp extends EventEmitter {

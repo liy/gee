@@ -1,10 +1,10 @@
 // #!/usr/bin/env node
 
 import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron';
-import path from 'path';
-import GeeApp from 'app';
+import * as path from 'path';
+import GeeApp from './app';
 import { debugMsg } from './debugUtils';
-import RPC from 'RPC';
+import RPC from './RPC';
 
 const argv = require('minimist')(process.argv.slice(2));
 
