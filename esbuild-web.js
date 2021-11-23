@@ -10,7 +10,7 @@ require('esbuild')
     watch: argv.watch && {
       onRebuild(error, result) {
         if (error) console.error('web build failed:', error);
-        else console.log('web updated');
+        else console.log('web build successs');
       },
     },
     format: 'esm',

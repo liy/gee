@@ -7,6 +7,8 @@ import { Hash } from '../@types/window';
 import { Commit__Output } from 'protobuf/pb/Commit';
 import './table.css';
 import GraphStyle from './GraphStyle';
+import { TagData } from '../commands/tag';
+import Graph from '../graph/Graph';
 
 class CommitManager extends EventEmitter {
   elements: Array<CommitElement>;
@@ -25,6 +27,8 @@ class CommitManager extends EventEmitter {
 
   startIndex: number = 0;
 
+  consoleElement: HTMLElement;
+
   constructor() {
     super();
 
@@ -35,11 +39,13 @@ class CommitManager extends EventEmitter {
     this.table.style.transform = 'translate(0px)';
     this.scrollElement = this.scrollbar.querySelector<HTMLElement>('.scroll-content')!;
 
+    this.consoleElement = document.getElementById('console')!;
+
     this.onScroll = this.onScroll.bind(this);
     this.onResize = this.onResize.bind(this);
   }
 
-  display(layoutResult: LayoutResult, repo: Repository) {
+  display(layoutResult: LayoutResult, repo: Repository, graph: Graph) {
     this.repository = repo;
     // 2 extra rows for top and bottom, so smooth scroll display commit outside of the viewport
     this.numRows = Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1;
@@ -53,6 +59,11 @@ class CommitManager extends EventEmitter {
     this.scrollbar.addEventListener('scroll', this.onScroll, { passive: true });
     window.removeEventListener('resize', this.onResize);
     window.addEventListener('resize', this.onResize, { passive: true });
+
+    document.addEventListener('tag-click', (e: CustomEvent<TagData>) => {
+      const node = graph.getNode(e.detail.targetHash);
+      this.scroll(node.y);
+    });
   }
 
   /**
@@ -112,6 +123,10 @@ class CommitManager extends EventEmitter {
     this.table.style.top = `${-(this.scrollbar.scrollTop % GraphStyle.sliceHeight)}px`;
 
     this.update();
+  }
+
+  scroll(index: number) {
+    this.scrollbar.scrollTop = GraphStyle.sliceHeight * index;
   }
 }
 

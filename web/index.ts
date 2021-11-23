@@ -8,11 +8,11 @@ import RepositoryStore from './git/RepositoryStore';
 import GraphStore from './graph/GraphStore';
 import './index.css';
 import { Repository__Output } from 'protobuf/pb/Repository';
-import CommandRoute from './CommandRoute';
 
-CommitManager.on('selected', (data) => {
-  console.log(data);
-});
+import './elements/Tag';
+
+import './elements/CommandInput';
+import CommandManager from './CommandManager';
 
 function openRepository(data: Repository__Output) {
   // Setup repository
@@ -41,23 +41,12 @@ function openRepository(data: Repository__Output) {
 
   // Display commits and visual graph
   GraphView.display(result, repo);
-  CommitManager.display(result, repo);
-}
+  CommitManager.display(result, repo, graph);
 
-const consoleContentElement = document.querySelector('#console .console-content')! as HTMLElement;
-console.log(consoleContentElement);
-const cmdInput = document.getElementById('cmd-input') as HTMLInputElement;
-cmdInput?.addEventListener('keydown', async (e) => {
-  if (e.key == 'Enter') {
-    consoleContentElement.textContent = '';
-    CommandRoute.submit(cmdInput.value, (line) => {
-      const node = document.createElement('div');
-      node.textContent = line;
-      consoleContentElement.appendChild(node);
-    });
-    cmdInput.value = '';
-  }
-});
+  CommandManager.on('command.tag', (data) => {
+    console.log(data);
+  });
+}
 
 window.api.onOpenRepository((data) => {
   // Prevent errors escape to main process which won't give full stacktrace

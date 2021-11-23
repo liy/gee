@@ -58,7 +58,12 @@ aside {
 }
 
 .console-content {
-  width: 100%;
+  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 11px;
+
   height: 100vh;
   overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
 }

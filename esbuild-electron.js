@@ -12,7 +12,7 @@ require('esbuild')
     watch: argv.watch && {
       onRebuild(error, result) {
         if (error) console.error('electron build failed:', error);
-        else console.log('electron updated');
+        else console.log('electron build successs');
       },
     },
     loader: {

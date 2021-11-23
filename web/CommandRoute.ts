@@ -1,38 +1,48 @@
-export type OutputCallback = (line: string) => void;
+export interface CommandCallback {
+  onReadLine: (line: string) => void;
+  onClose?: () => void;
+  onError?: (err: Error) => void;
+}
 
 export type OutputRouteId = number;
 
 let counter = 0;
 
 class CommandRoute {
-  private map: Map<OutputRouteId, OutputCallback>;
+  private map: Map<OutputRouteId, CommandCallback>;
 
   constructor() {
     this.map = new Map();
   }
 
-  submit(input: string, callback: OutputCallback): void {
-    let args = input.split(' ');
-    if (args[0] === 'git') {
-      args = args.slice(1);
-    }
-
+  submit(args: Array<string>, callback: CommandCallback): void {
     window.api.submitCommand(args, callback);
   }
 
-  add(callback: OutputCallback): OutputRouteId {
+  add(callback: CommandCallback): OutputRouteId {
     this.map.set(++counter, callback);
     return counter;
   }
 
-  route(id: OutputRouteId, line: string) {
+  readline(id: OutputRouteId, line: string) {
     const callback = this.map.get(id);
     if (callback) {
-      callback(line);
+      callback.onReadLine(line);
     }
   }
 
-  remove(id: OutputRouteId) {
+  error(id: OutputRouteId, err: Error) {
+    const callback = this.map.get(id);
+    if (callback && callback.onError) {
+      callback.onError(err);
+    }
+  }
+
+  close(id: OutputRouteId) {
+    const callback = this.map.get(id);
+    if (callback && callback.onClose) {
+      callback.onClose();
+    }
     this.map.delete(id);
   }
 }

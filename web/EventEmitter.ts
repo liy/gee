@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Listener {
-  fn: (data: any, type: string) => void;
+  fn: (data: any, type: any) => void;
   context: any;
-  once?: (data: any, type: string) => void;
+  once?: (data: any, type: any) => void;
 }
 
-export default class EventEmitter {
+export default class EventEmitter<EM> {
   private listeners: Map<string, Array<Listener>>;
   constructor() {
     this.listeners = new Map<string, Array<Listener>>();
@@ -21,7 +22,7 @@ export default class EventEmitter {
    * @param {[type]} type       [description]
    * @param {[type]} listener   [description]
    */
-  on(type: string, fn: (data: any, type: string) => void, context: any = fn): void {
+  on<K extends keyof EM & string, T extends EM[K]>(type: K, fn: (data: T, type: K) => void, context: any = fn): void {
     const listeners = this.listeners.get(type) || [];
     listeners.push({
       fn,
@@ -75,7 +76,7 @@ export default class EventEmitter {
    * @param  {string} type  The type of the event.
    * @param  {Any} data  You can add extra custom properties into the event object using the object ma
    */
-  emit(type: string, data?: any): void {
+  emit<K extends keyof EM & string, T extends EM[K]>(type: K, data?: T): void {
     let listeners = this.listeners.get(type);
     if (listeners) {
       // Avoid looping issues when listener is removed during the dispatching process.

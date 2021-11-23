@@ -4,7 +4,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { Repository__Output } from 'protobuf/pb/Repository';
 import { Notification } from '../web/@types/window';
 // Routes the commmand output to the correct callback
-import CommandRoute, { OutputCallback, OutputRouteId } from '../web/CommandRoute';
+import CommandRoute, { OutputRouteId, CommandCallback } from '../web/CommandRoute';
 import { COMMAND_SUBMIT, REPOSITORY_OPEN } from '../web/constants';
 
 // It has the same sandbox as a Chrome extension.
@@ -36,7 +36,7 @@ contextBridge.exposeInMainWorld('api', {
     return await ipcRenderer.invoke(COMMAND_SUBMIT, args);
   },
 
-  submitCommand: (args: Array<string>, callback: OutputCallback) => {
+  submitCommand: (args: Array<string>, callback: CommandCallback) => {
     const routeId = CommandRoute.add(callback);
     ipcRenderer.send(COMMAND_SUBMIT, args, routeId);
   },
@@ -52,9 +52,13 @@ contextBridge.exposeInMainWorld('api', {
 
 // Route
 ipcRenderer.on('command.output.line', (_, line: string, routeId: OutputRouteId) => {
-  CommandRoute.route(routeId, line);
+  CommandRoute.readline(routeId, line);
+});
+// error
+ipcRenderer.on('command.output.error', (_, err: Error, routeId: OutputRouteId) => {
+  CommandRoute.error(routeId, err);
 });
 // Remove the route if command output is closed
 ipcRenderer.on('command.output.close', (_, routeId: OutputRouteId) => {
-  CommandRoute.remove(routeId);
+  CommandRoute.close(routeId);
 });

@@ -1,8 +1,21 @@
 import { Repository__Output } from 'protobuf/pb/Repository';
+import { CommandCallback } from '../CommandRoute';
+import { TagData } from '../commands/tag';
 
 export type Hash = string;
 
 type Notification = { title: string; data: any };
+
+// Maps custom event data with event name
+interface ListenerMap {
+  'tag-click': CustomEvent<TagData>;
+}
+
+// Custom element that include data
+interface DataElement<T> {
+  set data(data: T);
+  get data(): T;
+}
 
 // type SubmitCommandContext = {};
 
@@ -21,7 +34,18 @@ declare global {
       invokeCommand: (cmd: Array<string>) => Promise<string>;
 
       // Submit a comand and listens on the command output line by line
-      submitCommand: (args: Array<string>, callback: (line: string) => void) => void;
+      submitCommand: (args: Array<string>, callback: CommandCallback) => void;
     };
+  }
+
+  interface Document {
+    //adds definition to Document, but you can do the same with HTMLElement
+    addEventListener<K extends keyof ListenerMap>(
+      type: K,
+      listener: (this: Document, ev: ListenerMap[K]) => void
+    ): void;
+
+    // For easy creating custom component
+    createElement<T>(tagName: string): T;
   }
 }

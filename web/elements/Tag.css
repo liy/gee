@@ -1,0 +1,12 @@
+commit-tag {
+  padding: 2px 8px;
+  border-radius: 8px;
+  background-color: rgb(67, 160, 223);
+  margin: 2px;
+  transition: background-color 0.3s ease;
+}
+
+commit-tag:hover {
+  cursor: pointer;
+  background-color: rgb(57, 141, 197);
+}
