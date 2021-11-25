@@ -8,7 +8,7 @@ export class Branch extends HTMLElement {
   }
 
   update(data: BranchData) {
-    this.classList.add('reference');
+    this.classList.add('reference', 'branch');
 
     this._data = data;
     this.textContent = data.shorthand;

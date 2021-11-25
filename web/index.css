@@ -9,6 +9,12 @@ body {
   overflow: hidden;
 }
 
+#root {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
 .scrollbar-y {
   overflow-x: hidden;
   overflow-y: auto;
@@ -50,11 +56,13 @@ body {
 }
 
 main {
-  flex: 3;
+  grid-column: 1;
+  overflow: hidden;
 }
 
 aside {
-  flex: 1;
+  grid-column: 2;
+  overflow: hidden;
 }
 
 #console {

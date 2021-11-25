@@ -1,17 +1,21 @@
 import { BranchData } from '../commands/branch';
 import { Branch } from '../elements/Branch';
+import { ViewBase } from './ViewBase';
 
-export class BranchView extends HTMLElement {
+export class BranchView extends ViewBase {
   constructor() {
     super();
+
+    this.title = 'branch';
+    this.heading.textContent = this.title;
+    this.content.classList.add('content-flex');
   }
 
   update(data: BranchData[]) {
-    this.classList.add('flex-view', 'view');
     for (const d of data) {
       const branch = document.createElement('git-branch') as Branch;
       branch.update(d);
-      this.appendChild(branch);
+      this.content.appendChild(branch);
     }
   }
 
@@ -20,4 +24,4 @@ export class BranchView extends HTMLElement {
   disconnectedCallback() {}
 }
 
-customElements.define('branch-view', BranchView);
+customElements.define('branch-view', BranchView, { extends: 'div' });

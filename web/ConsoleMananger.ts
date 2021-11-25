@@ -26,12 +26,12 @@ class ConsoleManager extends EventEmitter<EventMap> {
   async process(cmd: string) {
     switch (cmd.toLowerCase()) {
       case 'tag':
-        const tagView = document.createElement('tag-view') as TagView;
+        const tagView = document.createElement('div', { is: 'tag-view' }) as TagView;
         tagView.update(await tag());
         this.consoleElement.appendChild(tagView);
         break;
       case 'branch':
-        const branchView = document.createElement('branch-view') as BranchView;
+        const branchView = document.createElement('div', { is: 'branch-view' }) as BranchView;
         branchView.update(await allBranches());
         this.consoleElement.appendChild(branchView);
         break;
