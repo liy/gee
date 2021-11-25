@@ -1,27 +1,20 @@
-import { DataElement } from '../@types/window';
 import { TagData } from '../commands/tag';
-import './Tag.css';
 
-export class CommitTag<T extends TagData> extends HTMLElement implements DataElement<T> {
-  _data!: T;
+export class CommitTag extends HTMLElement {
+  _data!: TagData;
 
   constructor() {
     super();
   }
 
-  set data(data: T) {
+  update(data: TagData) {
+    this.classList.add('reference');
     this._data = data;
-    // this.setAttribute('target-hash', data.targetHash);
-    // this.setAttribute('hash', data.hash);
     this.textContent = data.shorthand;
   }
 
-  get data(): T {
-    return this._data;
-  }
-
   onClick(e: MouseEvent) {
-    this.dispatchEvent(new CustomEvent<T>('tag-click', { bubbles: true, detail: { ...this._data } }));
+    this.dispatchEvent(new CustomEvent('commit.focus', { bubbles: true, detail: this._data.targetHash }));
   }
 
   connectedCallback() {

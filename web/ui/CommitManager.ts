@@ -1,16 +1,13 @@
 import { LayoutResult } from '../layouts/StraightLayout';
-import Node from '../graph/Node';
 import CommitElement from './CommitElement';
-import EventEmitter from '../EventEmitter';
 import Repository from '../git/Repository';
-import { Hash } from '../@types/window';
-import { Commit__Output } from 'protobuf/pb/Commit';
 import './table.css';
 import GraphStyle from './GraphStyle';
-import { TagData } from '../commands/tag';
 import Graph from '../graph/Graph';
+import EventEmitter from '../EventEmitter';
+import { EventMap } from '../@types/event';
 
-class CommitManager extends EventEmitter {
+class CommitManager extends EventEmitter<EventMap> {
   elements: Array<CommitElement>;
 
   selectedCommit: CommitElement | undefined;
@@ -27,8 +24,6 @@ class CommitManager extends EventEmitter {
 
   startIndex: number = 0;
 
-  consoleElement: HTMLElement;
-
   constructor() {
     super();
 
@@ -38,8 +33,6 @@ class CommitManager extends EventEmitter {
     this.table = document.getElementById('commit-table')!;
     this.table.style.transform = 'translate(0px)';
     this.scrollElement = this.scrollbar.querySelector<HTMLElement>('.scroll-content')!;
-
-    this.consoleElement = document.getElementById('console')!;
 
     this.onScroll = this.onScroll.bind(this);
     this.onResize = this.onResize.bind(this);
@@ -60,8 +53,8 @@ class CommitManager extends EventEmitter {
     window.removeEventListener('resize', this.onResize);
     window.addEventListener('resize', this.onResize, { passive: true });
 
-    document.addEventListener('tag-click', (e: CustomEvent<TagData>) => {
-      const node = graph.getNode(e.detail.targetHash);
+    document.addEventListener('commit.focus', (e) => {
+      const node = graph.getNode(e.detail);
       this.scroll(node.y);
     });
   }

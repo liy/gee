@@ -1,0 +1,9 @@
+.view {
+  margin-top: 4px;
+}
+
+.flex-view {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}

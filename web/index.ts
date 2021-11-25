@@ -1,4 +1,3 @@
-import Stats from 'stats.js';
 import StraightLayout from './layouts/StraightLayout';
 
 import CommitManager from './ui/CommitManager';
@@ -7,12 +6,14 @@ import Repository from './git/Repository';
 import RepositoryStore from './git/RepositoryStore';
 import GraphStore from './graph/GraphStore';
 import './index.css';
-import { Repository__Output } from 'protobuf/pb/Repository';
-
-import './elements/Tag';
+import { Repository__Output } from '../src/protobuf/pb/Repository';
 
 import './elements/CommandInput';
-import CommandManager from './CommandManager';
+import './ConsoleMananger';
+
+// Always import elements and views
+import './elements';
+import './views';
 
 function openRepository(data: Repository__Output) {
   // Setup repository
@@ -42,10 +43,6 @@ function openRepository(data: Repository__Output) {
   // Display commits and visual graph
   GraphView.display(result, repo);
   CommitManager.display(result, repo, graph);
-
-  CommandManager.on('command.tag', (data) => {
-    console.log(data);
-  });
 }
 
 window.api.onOpenRepository((data) => {

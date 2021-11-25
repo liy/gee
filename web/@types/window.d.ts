@@ -1,15 +1,10 @@
-import { Repository__Output } from 'protobuf/pb/Repository';
+import { Repository__Output } from '../../src/protobuf/pb/Repository';
 import { CommandCallback } from '../CommandRoute';
-import { TagData } from '../commands/tag';
+import { EventMap } from './event';
 
 export type Hash = string;
 
 type Notification = { title: string; data: any };
-
-// Maps custom event data with event name
-interface ListenerMap {
-  'tag-click': CustomEvent<TagData>;
-}
 
 // Custom element that include data
 interface DataElement<T> {
@@ -40,12 +35,9 @@ declare global {
 
   interface Document {
     //adds definition to Document, but you can do the same with HTMLElement
-    addEventListener<K extends keyof ListenerMap>(
+    addEventListener<K extends keyof EventMap>(
       type: K,
-      listener: (this: Document, ev: ListenerMap[K]) => void
+      listener: (this: Document, ev: CustomEvent<EventMap[K]>) => void
     ): void;
-
-    // For easy creating custom component
-    createElement<T>(tagName: string): T;
   }
 }

@@ -29,3 +29,8 @@ export function createThrottle(milliseconds: number) {
     };
   }
 }
+
+const parser = new DOMParser();
+export function createNode(html: string): Node {
+  return parser.parseFromString(html, 'text/html').body.firstChild!;
+}

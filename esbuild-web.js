@@ -20,6 +20,9 @@ require('esbuild')
       'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
     },
     plugins: [sassPlugin()],
+    loader: {
+      '.html': 'text',
+    },
   })
   .then(() => {
     argv.watch && console.log('Watching web folder changes...');
