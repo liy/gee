@@ -1,4 +1,7 @@
 .commit {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+
   white-space: nowrap;
 
   display: flex;
@@ -14,6 +17,10 @@
 }
 
 .commit .bottom {
+  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  color: #777;
+  font-size: 11px;
+
   margin-top: 2px;
   display: flex;
   justify-content: space-between;
@@ -29,6 +36,7 @@
 }
 
 .commit .author {
+  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
   overflow: hidden;
   text-overflow: ellipsis;
 
@@ -37,7 +45,7 @@
 }
 
 .commit .hash {
-  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  margin-right: '4px';
 }
 
 .commit .date {

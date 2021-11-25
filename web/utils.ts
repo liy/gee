@@ -31,6 +31,9 @@ export function createThrottle(milliseconds: number) {
 }
 
 const parser = new DOMParser();
-export function createNode(html: string): Node {
-  return parser.parseFromString(html, 'text/html').body.firstChild!;
+export function createNodeFactory(html: string): (deepClone: boolean) => Node {
+  const node = parser.parseFromString(html, 'text/html').body;
+  return (deepClone: boolean) => {
+    return node.cloneNode(deepClone);
+  };
 }

@@ -9,7 +9,8 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "noEmit": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "baseUrl": "./src"
   },
   "include": ["./src/**/*", "./web/**/*", "bin/RepositoryReaderProcess.ts"]
 }

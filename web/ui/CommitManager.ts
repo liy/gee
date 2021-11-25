@@ -1,16 +1,17 @@
 import { LayoutResult } from '../layouts/StraightLayout';
-import CommitElement from './CommitElement';
+// import CommitElement from './CommitElement';
 import Repository from '../git/Repository';
 import './table.css';
 import GraphStyle from './GraphStyle';
 import Graph from '../graph/Graph';
 import EventEmitter from '../EventEmitter';
 import { EventMap } from '../@types/event';
+import { Commit } from '../elements/Commit';
 
 class CommitManager extends EventEmitter<EventMap> {
-  elements: Array<CommitElement>;
+  elements: Array<Commit>;
 
-  selectedCommit: CommitElement | undefined;
+  selectedCommit: Commit | undefined;
 
   repository!: Repository;
 
@@ -27,7 +28,7 @@ class CommitManager extends EventEmitter<EventMap> {
   constructor() {
     super();
 
-    this.elements = new Array<CommitElement>();
+    this.elements = new Array<Commit>();
 
     this.scrollbar = document.querySelector('.scrollbar-y')!;
     this.table = document.getElementById('commit-table')!;
@@ -68,14 +69,14 @@ class CommitManager extends EventEmitter<EventMap> {
     const limit = Math.max(this.numRows, this.elements.length);
     for (let i = 0; i < limit; ++i) {
       if (i >= this.elements.length) {
-        const ce = new CommitElement();
+        const ce = document.createElement('div', { is: 'git-commit' }) as Commit;
         this.elements.push(ce);
-        this.table.appendChild(ce.element);
+        this.table.appendChild(ce);
       }
 
       if (i >= this.numRows) {
         const ce = this.elements.pop();
-        ce?.element.remove();
+        ce?.remove();
       }
     }
   }
