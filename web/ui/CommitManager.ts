@@ -9,6 +9,7 @@ import { EventMap } from '../@types/event';
 import { Commit } from '../elements/Commit';
 import { Tag__Output } from 'protobuf/pb/Tag';
 import { Reference__Output } from 'protobuf/pb/Reference';
+import { Hash } from '../@types/window';
 
 class CommitManager extends EventEmitter<EventMap> {
   elements: Array<Commit>;
@@ -129,6 +130,14 @@ class CommitManager extends EventEmitter<EventMap> {
 
   scroll(index: number) {
     this.scrollbar.scrollTop = GraphStyle.sliceHeight * index;
+  }
+
+  getCommitColor(hash: Hash): number {
+    const node = this.graph.getNode(hash);
+    if (node) {
+      return GraphStyle.getLineColour(node.x, false);
+    }
+    return 0;
   }
 }
 

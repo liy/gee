@@ -51,9 +51,7 @@ export class Commit extends HTMLDivElement {
       const node = document.createElement('span');
       node.classList.add('ref');
       node.textContent = branch.shorthand;
-      const c = '#' + GraphStyle.getLineColour(graphNode.x, false).toString(16).padStart(6, 0);
-      console.log(branch.shorthand, c);
-      node.style.color = c;
+      node.style.color = '#' + GraphStyle.getLineColour(graphNode.x, false).toString(16).padStart(6, '0');
       this.refsNode.appendChild(node);
     }
 
@@ -61,7 +59,7 @@ export class Commit extends HTMLDivElement {
       const node = document.createElement('span');
       node.classList.add('ref', 'tag');
       node.textContent = '🏷️' + tag.name;
-      node.style.color = '#FF9900';
+      node.style.color = '#e9a948';
       this.refsNode.appendChild(node);
     }
   }

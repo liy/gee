@@ -1,8 +1,8 @@
 .reference {
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 8px;
-  background-color: rgb(67, 160, 223);
-  transition: background-color 0.3s ease;
+  /* background-color: rgb(67, 160, 223); */
+  transition: background-color 0.2s ease;
   max-width: 300px;
   white-space: nowrap;
   overflow: hidden;
@@ -11,13 +11,9 @@
 
 .reference:hover {
   cursor: pointer;
-  background-color: rgb(57, 141, 197);
+  background-color: rgb(73, 76, 82);
 }
 
-.branch {
-  background-color: rgb(85, 93, 191);
-}
-
-.branch:hover {
-  background-color: rgb(71, 79, 170);
+commit-tag.reference {
+  color: #e9a948;
 }
