@@ -7,6 +7,8 @@ import Graph from '../graph/Graph';
 import EventEmitter from '../EventEmitter';
 import { EventMap } from '../@types/event';
 import { Commit } from '../elements/Commit';
+import { Tag__Output } from 'protobuf/pb/Tag';
+import { Reference__Output } from 'protobuf/pb/Reference';
 
 class CommitManager extends EventEmitter<EventMap> {
   elements: Array<Commit>;
@@ -25,6 +27,8 @@ class CommitManager extends EventEmitter<EventMap> {
 
   startIndex: number = 0;
 
+  private graph!: Graph;
+
   constructor() {
     super();
 
@@ -41,6 +45,7 @@ class CommitManager extends EventEmitter<EventMap> {
 
   display(layoutResult: LayoutResult, repo: Repository, graph: Graph) {
     this.repository = repo;
+    this.graph = graph;
     // 2 extra rows for top and bottom, so smooth scroll display commit outside of the viewport
     this.numRows = Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1;
     this.scrollElement.style.height = GraphStyle.sliceHeight * this.repository.commits.length + 'px';
@@ -90,8 +95,11 @@ class CommitManager extends EventEmitter<EventMap> {
     );
     for (let i = 0, ii = this.startIndex; i < this.numRows; ++i, ++ii) {
       if (i < this.elements.length) {
-        const commitElement = this.elements[i];
-        if (ii < this.repository.commits.length) commitElement.update(this.repository.commits[ii]);
+        const node = this.elements[i];
+        const commit = this.repository.commits[ii];
+        const branches = this.repository.getReferences(commit.hash)?.filter((ref) => ref.isBranch) || [];
+        const tags = this.repository.getTags(commit.hash) || [];
+        if (ii < this.repository.commits.length) node.update(commit, branches, tags, this.graph.getNode(commit.hash));
       }
     }
   }

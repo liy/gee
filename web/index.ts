@@ -19,7 +19,7 @@ function openRepository(data: Repository__Output) {
   // Setup repository
   let repo = RepositoryStore.getRepository(data.path);
   if (!repo) {
-    repo = new Repository(data.path, data.commits as any, data.references as any, data.head as any);
+    repo = new Repository(data.path, data.commits, data.references, data.head!, data.tags);
     RepositoryStore.addRepository(repo);
   }
   RepositoryStore.use(repo.path);

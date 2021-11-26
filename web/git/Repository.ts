@@ -1,6 +1,7 @@
 import { Commit__Output } from 'protobuf/pb/Commit';
 import { Head__Output } from 'protobuf/pb/Head';
 import { Reference__Output } from 'protobuf/pb/Reference';
+import { Tag__Output } from 'protobuf/pb/Tag';
 import { Hash } from '../@types/window';
 
 export interface RepositoryData {
@@ -8,33 +9,56 @@ export interface RepositoryData {
   commits: Array<Commit__Output>;
   references: Array<Reference__Output>;
   head: Head__Output;
+  tags: Array<Tag__Output>;
 }
 
 export default class Repository {
   readonly commits: Array<Commit__Output>;
   readonly references: Array<Reference__Output>;
   readonly head: Head__Output;
+  readonly tags: Array<Tag__Output>;
 
   private commitMap = new Map<Hash, Commit__Output>();
   private referenceMap = new Map<Hash, Array<Reference__Output>>();
+  private tagMap = new Map<Hash, Array<Tag__Output>>();
   readonly path: string;
 
-  constructor(path: string, commits: Array<Commit__Output>, references: Array<Reference__Output>, head: Head__Output) {
+  constructor(
+    path: string,
+    commits: Array<Commit__Output>,
+    references: Array<Reference__Output>,
+    head: Head__Output,
+    tags: Array<Tag__Output>
+  ) {
     this.path = path;
     this.commits = commits;
     this.references = references;
     this.head = head;
+    this.tags = tags;
 
     for (const commit of commits) {
       this.commitMap.set(commit.hash, commit);
     }
 
     for (const ref of references) {
-      const refs = this.referenceMap.get(ref.hash) || [];
+      const refs = this.referenceMap.get(ref.hash);
       if (refs) {
         refs.push(ref);
+      } else {
+        this.referenceMap.set(ref.hash, [ref]);
       }
-      this.referenceMap.set(ref.hash, refs);
+    }
+
+    // Note that the tag map has both tag hash and the target object hash as key
+    for (const t of tags) {
+      this.tagMap.set(t.hash, [t]);
+
+      const v = this.tagMap.get(t.target);
+      if (v) {
+        v.push(t);
+      } else {
+        this.tagMap.set(t.target, [t]);
+      }
     }
   }
 
@@ -121,5 +145,14 @@ export default class Repository {
     // Could be tag or branch
     const ref = this.references.find((ref) => ref.name === value || ref.shorthand === value);
     return ref?.hash;
+  }
+
+  /**
+   *
+   * @param hash Can be hash of the tag or the hash of the target object
+   * @returns Array of hashes. If parameter is tag hash then it should be only one tag returned
+   */
+  getTags(hash: Hash): Array<Tag__Output> | undefined {
+    return this.tagMap.get(hash);
   }
 }
