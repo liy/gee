@@ -2,10 +2,17 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 import { Repository__Output } from 'protobuf/pb/Repository';
-import { Notification } from '../web/@types/window';
+import { Notification } from '../../web/@types/window';
 // Routes the commmand output to the correct callback
-import CommandRoute, { OutputRouteId, CommandCallback } from '../web/CommandRoute';
-import { COMMAND_SUBMIT, REPOSITORY_OPEN } from '../web/constants';
+import CallbackStore from './CallbackStore';
+import {
+  CommandCallback,
+  COMMAND_KILL,
+  COMMAND_SUBMIT,
+  GitProcess,
+  OutputRouteId,
+  REPOSITORY_OPEN,
+} from '../../web/constants';
 
 // It has the same sandbox as a Chrome extension.
 window.addEventListener('DOMContentLoaded', async () => {
@@ -20,7 +27,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-console.log(process.argv);
+// console.log(process.argv);
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
@@ -32,15 +39,6 @@ contextBridge.exposeInMainWorld('api', {
     return await ipcRenderer.invoke(REPOSITORY_OPEN, path);
   },
 
-  invokeCommand: async (args: Array<string>): Promise<string> => {
-    return await ipcRenderer.invoke(COMMAND_SUBMIT, args);
-  },
-
-  submitCommand: (args: Array<string>, callback: CommandCallback) => {
-    const routeId = CommandRoute.add(callback);
-    ipcRenderer.send(COMMAND_SUBMIT, args, routeId);
-  },
-
   onNotification: (callback: (_: Notification) => void) => {
     ipcRenderer.on('notification', (event: Electron.IpcRendererEvent, n: Notification) => callback(n));
   },
@@ -50,15 +48,38 @@ contextBridge.exposeInMainWorld('api', {
   },
 });
 
-// Route
-ipcRenderer.on('command.output.line', (_, line: string, routeId: OutputRouteId) => {
-  CommandRoute.readline(routeId, line);
+const callbacks = new CallbackStore();
+contextBridge.exposeInMainWorld('command', {
+  invoke: async (args: Array<string>): Promise<string> => {
+    return await ipcRenderer.invoke(COMMAND_SUBMIT, args);
+  },
+
+  kill: (routeId: OutputRouteId): void => {
+    ipcRenderer.invoke(COMMAND_KILL, routeId);
+  },
+
+  submit: (args: Array<string>, callback: CommandCallback) => {
+    const routeId = callbacks.add(callback);
+    console.log('submitCommand', routeId);
+    ipcRenderer.send(COMMAND_SUBMIT, args, routeId);
+  },
 });
+
+// read line
+ipcRenderer.on(GitProcess.ReadLine, (_, line: string, routeId: OutputRouteId) => {
+  callbacks.onReadline(routeId, line);
+});
+
 // error
-ipcRenderer.on('command.output.error', (_, err: Error, routeId: OutputRouteId) => {
-  CommandRoute.error(routeId, err);
+ipcRenderer.on(GitProcess.Error, (_, err: Error, routeId: OutputRouteId) => {
+  callbacks.onError(routeId, err);
 });
+
 // Remove the route if command output is closed
-ipcRenderer.on('command.output.close', (_, routeId: OutputRouteId) => {
-  CommandRoute.close(routeId);
+ipcRenderer.on(GitProcess.Close, (_, routeId: OutputRouteId) => {
+  callbacks.onClose(routeId);
 });
+
+// ipcRenderer.on(GitProcess.Exit, (_, routeId: OutputRouteId) => {
+//   callbacks.onExit(routeId);
+// });

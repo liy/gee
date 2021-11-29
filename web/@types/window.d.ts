@@ -1,5 +1,5 @@
 import { Repository__Output } from '../../src/protobuf/pb/Repository';
-import { CommandCallback } from '../CommandRoute';
+import { CommandCallback, OutputRouteId } from '../constants';
 import { EventMap } from './event';
 
 export type Hash = string;
@@ -19,17 +19,18 @@ declare global {
     api: {
       // Ask main to open a repository
       openRepository: (path: string) => Promise<Repository__Output>;
-
       // Main send a notification message
       onNotification: (callback: (data: Notification) => void) => void;
       // Triggered when user open repository from command line
       onOpenRepository: (callback: (data: Repository__Output) => void) => void;
-
+    };
+    command: {
       // Directly invoke a command and expect the whole output in a promise. Suitable for small output.
-      invokeCommand: (cmd: Array<string>) => Promise<string>;
-
+      invoke: (cmd: Array<string>) => Promise<string>;
       // Submit a comand and listens on the command output line by line
-      submitCommand: (args: Array<string>, callback: CommandCallback) => void;
+      submit: (args: Array<string>, callback: CommandCallback) => void;
+      // Force kill a git command process
+      kill: (routeId: OutputRouteId) => void;
     };
   }
 

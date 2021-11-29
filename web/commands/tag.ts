@@ -1,5 +1,3 @@
-import CommandRoute from '../CommandRoute';
-
 export interface TagData {
   name: string;
   shorthand: string;
@@ -14,7 +12,7 @@ export const tag = () => {
     const entries = new Array<TagData>();
     // tag name -> annotated tag object hash
     const annoated = new Map<string, string>();
-    CommandRoute.submit(args, {
+    window.command.submit(args, {
       onReadLine: (line: string) => {
         const [hash, name] = line.split(' ');
         const tagName = name.replace(/\^\{\}$/, '');
@@ -35,6 +33,7 @@ export const tag = () => {
         }
       },
       onClose: () => {
+        console.log('close');
         resolve(entries);
       },
       onError: () => {

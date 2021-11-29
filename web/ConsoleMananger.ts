@@ -1,5 +1,6 @@
 import { EventMap } from './@types/event';
 import { allBranches } from './commands/branch';
+import { rebase } from './commands/rebase';
 import { tag } from './commands/tag';
 import EventEmitter from './EventEmitter';
 import { BranchView } from './views/BranchView';
@@ -34,6 +35,9 @@ class ConsoleManager extends EventEmitter<EventMap> {
         const branchView = document.createElement('div', { is: 'branch-view' }) as BranchView;
         branchView.update(await allBranches());
         this.consoleElement.prepend(branchView);
+        break;
+      case 'rebase':
+        await rebase();
         break;
     }
   }

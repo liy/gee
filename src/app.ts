@@ -1,17 +1,21 @@
 import { ipcMain } from 'electron';
-import EventEmitter from '../web/EventEmitter';
 import RPC from './RPC';
-import { spawn, execFile } from 'child_process';
-import { COMMAND_INVOKE, COMMAND_SUBMIT, COMMIT_SELECTED, REPOSITORY_OPEN } from '../web/constants';
+import { ChildProcess, spawn, execFile } from 'child_process';
+import {
+  COMMAND_INVOKE,
+  COMMAND_KILL,
+  COMMAND_SUBMIT,
+  COMMIT_SELECTED,
+  GitProcess,
+  OutputRouteId,
+  REPOSITORY_OPEN,
+} from '../web/constants';
 import * as readline from 'readline';
-import { OutputRouteId } from '../web/CommandRoute';
 
-class GeeApp extends EventEmitter {
+class GeeApp {
   workingDirectory: string | undefined;
 
-  constructor() {
-    super();
-  }
+  constructor() {}
 
   init(workingDirectory: string) {
     this.workingDirectory = workingDirectory;
@@ -43,17 +47,39 @@ class GeeApp extends EventEmitter {
       });
     });
 
+    const cliMap = new Map<OutputRouteId, [readline.Interface, ChildProcess]>();
+
     // Command, FIXME: reuse child process
-    ipcMain.on(COMMAND_SUBMIT, (event, args: Array<string>, routeId: OutputRouteId) => {
+    ipcMain.on(COMMAND_SUBMIT, (event, args: Array<string>, id: OutputRouteId) => {
       const cli = spawn('git', args, { cwd: this.workingDirectory });
       const rl = readline.createInterface({ input: cli.stdout });
+      cliMap.set(id, [rl, cli]);
       rl.on('line', (line) => {
-        event.sender.send('command.output.line', line, routeId);
+        event.sender.send(GitProcess.ReadLine, line, id);
       });
-      // When command output is closed, CommandRoute will remove the callback
+
+      // cli.on('exit', () => {
+      //   console.log('exit');
+      //   event.sender.send(GitProcess.Exit, id);
+      // });
       rl.on('close', () => {
-        event.sender.send('command.output.close', routeId);
+        console.log('close');
+        event.sender.send(GitProcess.Close, id);
       });
+    });
+
+    ipcMain.handle(COMMAND_KILL, (_, id: OutputRouteId) => {
+      if (cliMap.has(id)) {
+        console.log('kill', id);
+        const [rl, cli] = cliMap.get(id)!;
+        if (cli.kill()) {
+          rl.close();
+          cliMap.delete(id);
+          console.log('successfully killed, close rl');
+        } else {
+          // TODO: log that the process can't be killed
+        }
+      }
     });
   }
 }

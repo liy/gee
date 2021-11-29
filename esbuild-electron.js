@@ -2,7 +2,7 @@ const argv = require('minimist')(process.argv.slice(2));
 /* eslint-disable @typescript-eslint/no-var-requires */
 require('esbuild')
   .build({
-    entryPoints: ['src/main.ts', 'src/preload.ts'],
+    entryPoints: ['src/main.ts', 'src/context/preload.ts'],
     bundle: true,
     sourcemap: true,
     platform: 'node',

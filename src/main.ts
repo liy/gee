@@ -16,7 +16,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 function createMainWindow() {
-  const preloadPath = path.join(__dirname, './preload.js');
+  const preloadPath = path.join(__dirname, './context/preload.js');
   // Create the browser window.
   const browserWindow = new BrowserWindow({
     width: 1100,
