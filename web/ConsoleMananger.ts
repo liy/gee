@@ -5,6 +5,7 @@ import { tag } from './commands/tag';
 import EventEmitter from './EventEmitter';
 import { BranchView } from './views/BranchView';
 import { RebaseView } from './views/RebaseView';
+import { StatusView } from './views/StatusView';
 
 import { TagView } from './views/TagView';
 
@@ -41,6 +42,10 @@ class ConsoleManager extends EventEmitter<EventMap> {
         const rebaseView = document.createElement('div', { is: 'rebase-view' }) as RebaseView;
         rebaseView.update(await rebase());
         this.consoleElement.prepend(rebaseView);
+        break;
+      case 'status':
+        const statusView = document.createElement('div', { is: 'status-view' }) as StatusView;
+        this.consoleElement.prepend(statusView);
         break;
     }
   }

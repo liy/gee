@@ -1,4 +1,3 @@
-import { CommitTag } from '../elements/Tag';
 import { TagData } from '../commands/tag';
 import { ViewBase } from './ViewBase';
 import { Todo } from '../commands/rebase';
