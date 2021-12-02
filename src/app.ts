@@ -6,11 +6,13 @@ import {
   COMMAND_KILL,
   COMMAND_SUBMIT,
   COMMIT_SELECTED,
-  GitProcess,
-  OutputRouteId,
+  CommandProcess,
+  CallbackID,
   REPOSITORY_OPEN,
 } from '../web/constants';
 import * as readline from 'readline';
+import * as fs from 'fs';
+import * as path from 'path';
 
 class GeeApp {
   workingDirectory: string | undefined;
@@ -26,6 +28,22 @@ class GeeApp {
 
     ipcMain.handle(COMMIT_SELECTED, () => {
       return 'test';
+    });
+
+    ipcMain.handle('file.read', async (event, filePath: string, id: CallbackID) => {
+      const fileStream = fs.createReadStream(path.resolve(this.workingDirectory!, filePath));
+      const rl = readline.createInterface({
+        input: fileStream,
+        crlfDelay: Infinity,
+      });
+
+      rl.on('line', (line) => {
+        event.sender.send(CommandProcess.ReadLine, line, id);
+      });
+      rl.on('close', () => {
+        console.log('close');
+        event.sender.send(CommandProcess.Close, id);
+      });
     });
 
     ipcMain.handle(COMMAND_INVOKE, (_, args: Array<string>) => {
@@ -47,35 +65,30 @@ class GeeApp {
       });
     });
 
-    const cliMap = new Map<OutputRouteId, [readline.Interface, ChildProcess]>();
+    const cliMap = new Map<CallbackID, [readline.Interface, ChildProcess]>();
 
     // Command, FIXME: reuse child process
-    ipcMain.on(COMMAND_SUBMIT, (event, args: Array<string>, id: OutputRouteId) => {
-      const cli = spawn('git', args, { cwd: this.workingDirectory });
+    ipcMain.on(COMMAND_SUBMIT, (event, args: Array<string>, id: CallbackID) => {
+      const cli = spawn(args[0], args.slice(1), { cwd: this.workingDirectory });
       const rl = readline.createInterface({ input: cli.stdout });
       cliMap.set(id, [rl, cli]);
       rl.on('line', (line) => {
-        event.sender.send(GitProcess.ReadLine, line, id);
+        event.sender.send(CommandProcess.ReadLine, line, id);
       });
-
-      // cli.on('exit', () => {
-      //   console.log('exit');
-      //   event.sender.send(GitProcess.Exit, id);
-      // });
       rl.on('close', () => {
         console.log('close');
-        event.sender.send(GitProcess.Close, id);
+        event.sender.send(CommandProcess.Close, id);
       });
     });
 
-    ipcMain.handle(COMMAND_KILL, (_, id: OutputRouteId) => {
+    ipcMain.handle(COMMAND_KILL, (_, id: CallbackID) => {
       if (cliMap.has(id)) {
         console.log('kill', id);
         const [rl, cli] = cliMap.get(id)!;
         if (cli.kill()) {
-          rl.close();
           cliMap.delete(id);
-          console.log('successfully killed, close rl');
+          console.log('process successfully killed, closing readline');
+          rl.close();
         } else {
           // TODO: log that the process can't be killed
         }

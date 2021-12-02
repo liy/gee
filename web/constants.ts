@@ -10,25 +10,19 @@ export const COMMAND_KILL = 'command.kill';
 /**
  * Events from git processwhich is spawned.
  */
-export enum GitProcess {
+export enum CommandProcess {
   // When a line is read
-  ReadLine = 'git.process.readline',
+  ReadLine = 'commandProcess.readline',
   // When git process errors out
-  Error = 'git.process.error',
+  Error = 'commandProcess.error',
   // When git process closes
-  Close = 'git.process.close',
-  // When git process exits
-  Exit = 'git.process.exit',
+  Close = 'commandProcess.close',
 }
 
-export type OutputRouteId = number;
+export type CallbackID = number;
 
 export interface CommandCallback {
-  onReadLine?: (line: string, id: OutputRouteId) => void;
-  onError?: (err: Error, id: OutputRouteId) => void;
-  // /**
-  //  * If onExit returns true, command callback routing will be removed, so the onClose will not be called
-  //  */
-  // onExit?: (id: OutputRouteId) => boolean | void;
-  onClose?: (id: OutputRouteId) => void;
+  onReadLine?: (line: string, id: CallbackID) => void;
+  onError?: (err: Error, id: CallbackID) => void;
+  onClose?: (id: CallbackID) => void;
 }

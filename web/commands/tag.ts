@@ -6,7 +6,7 @@ export interface TagData {
 }
 
 export const tag = () => {
-  const args = ['show-ref', '--tags', '-d'];
+  const args = ['git', 'show-ref', '--tags', '-d'];
   return new Promise<Array<TagData>>((resolve, reject) => {
     // tag name -> tag
     const entries = new Array<TagData>();
@@ -33,7 +33,6 @@ export const tag = () => {
         }
       },
       onClose: () => {
-        console.log('close');
         resolve(entries);
       },
       onError: () => {

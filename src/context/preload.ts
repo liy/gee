@@ -9,8 +9,8 @@ import {
   CommandCallback,
   COMMAND_KILL,
   COMMAND_SUBMIT,
-  GitProcess,
-  OutputRouteId,
+  CommandProcess,
+  CallbackID,
   REPOSITORY_OPEN,
 } from '../../web/constants';
 
@@ -46,6 +46,11 @@ contextBridge.exposeInMainWorld('api', {
   onOpenRepository: (callback: (data: Repository__Output) => void) => {
     ipcRenderer.on('openRepository', (event: Electron.IpcRendererEvent, data: Repository__Output) => callback(data));
   },
+
+  readFile: (path: string, callback: CommandCallback) => {
+    const routeId = callbacks.add(callback);
+    ipcRenderer.invoke('file.read', path, routeId);
+  },
 });
 
 const callbacks = new CallbackStore();
@@ -54,32 +59,30 @@ contextBridge.exposeInMainWorld('command', {
     return await ipcRenderer.invoke(COMMAND_SUBMIT, args);
   },
 
-  kill: (routeId: OutputRouteId): void => {
+  kill: (routeId: CallbackID): void => {
     ipcRenderer.invoke(COMMAND_KILL, routeId);
   },
 
   submit: (args: Array<string>, callback: CommandCallback) => {
     const routeId = callbacks.add(callback);
-    console.log('submitCommand', routeId);
+    console.log(COMMAND_SUBMIT, routeId);
     ipcRenderer.send(COMMAND_SUBMIT, args, routeId);
   },
 });
 
 // read line
-ipcRenderer.on(GitProcess.ReadLine, (_, line: string, routeId: OutputRouteId) => {
+ipcRenderer.on(CommandProcess.ReadLine, (_, line: string, routeId: CallbackID) => {
   callbacks.onReadline(routeId, line);
 });
 
 // error
-ipcRenderer.on(GitProcess.Error, (_, err: Error, routeId: OutputRouteId) => {
+ipcRenderer.on(CommandProcess.Error, (_, err: Error, routeId: CallbackID) => {
+  console.log('error', err);
   callbacks.onError(routeId, err);
 });
 
 // Remove the route if command output is closed
-ipcRenderer.on(GitProcess.Close, (_, routeId: OutputRouteId) => {
+ipcRenderer.on(CommandProcess.Close, (_, routeId: CallbackID) => {
+  console.log('close', routeId);
   callbacks.onClose(routeId);
 });
-
-// ipcRenderer.on(GitProcess.Exit, (_, routeId: OutputRouteId) => {
-//   callbacks.onExit(routeId);
-// });
