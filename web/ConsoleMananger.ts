@@ -1,6 +1,7 @@
 import { EventMap } from './@types/event';
 import { allBranches } from './commands/branch';
 import { rebase } from './commands/rebase';
+import { status } from './commands/status';
 import { tag } from './commands/tag';
 import EventEmitter from './EventEmitter';
 import { BranchView } from './views/BranchView';
@@ -45,8 +46,11 @@ class ConsoleManager extends EventEmitter<EventMap> {
         break;
       case 'status':
         const statusView = document.createElement('div', { is: 'status-view' }) as StatusView;
+        statusView.update(await status());
         this.consoleElement.prepend(statusView);
         break;
+      case 'clear':
+        this.consoleElement.innerHTML = '';
     }
   }
 }

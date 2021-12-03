@@ -12,6 +12,7 @@ import {
   CommandProcess,
   CallbackID,
   REPOSITORY_OPEN,
+  COMMAND_INVOKE,
 } from '../../web/constants';
 
 // It has the same sandbox as a Chrome extension.
@@ -47,16 +48,20 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.on('openRepository', (event: Electron.IpcRendererEvent, data: Repository__Output) => callback(data));
   },
 
-  readFile: (path: string, callback: CommandCallback) => {
+  readFileLine: (path: string, callback: CommandCallback) => {
     const routeId = callbacks.add(callback);
-    ipcRenderer.invoke('file.read', path, routeId);
+    ipcRenderer.invoke('fileLine.read', path, routeId);
+  },
+
+  readFile: (path: string): Promise<ArrayBuffer> => {
+    return ipcRenderer.invoke('file.read', path);
   },
 });
 
 const callbacks = new CallbackStore();
 contextBridge.exposeInMainWorld('command', {
   invoke: async (args: Array<string>): Promise<string> => {
-    return await ipcRenderer.invoke(COMMAND_SUBMIT, args);
+    return await ipcRenderer.invoke(COMMAND_INVOKE, args);
   },
 
   kill: (routeId: CallbackID): void => {

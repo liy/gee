@@ -37,3 +37,7 @@ export function createNodeFactory(html: string): (deepClone: boolean) => Node {
     return node.cloneNode(deepClone);
   };
 }
+
+export function createElement<T extends HTMLElement>(tagName: string, is: string): T {
+  return document.createElement(tagName, { is }) as unknown as T;
+}

@@ -30,7 +30,7 @@ class GeeApp {
       return 'test';
     });
 
-    ipcMain.handle('file.read', async (event, filePath: string, id: CallbackID) => {
+    ipcMain.handle('fileLine.read', async (event, filePath: string, id: CallbackID) => {
       const fileStream = fs.createReadStream(path.resolve(this.workingDirectory!, filePath));
       const rl = readline.createInterface({
         input: fileStream,
@@ -46,11 +46,23 @@ class GeeApp {
       });
     });
 
+    ipcMain.handle('file.read', async (event, filePath: string) => {
+      return new Promise((resolve, reject) => {
+        fs.readFile(path.resolve(this.workingDirectory!, filePath), (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data);
+          }
+        });
+      });
+    });
+
     ipcMain.handle(COMMAND_INVOKE, (_, args: Array<string>) => {
       return new Promise((resolve, reject) => {
         execFile(
-          'git',
-          args,
+          args[0],
+          args.slice(1),
           {
             cwd: this.workingDirectory,
           },

@@ -24,7 +24,9 @@ declare global {
       // Triggered when user open repository from command line
       onOpenRepository: (callback: (data: Repository__Output) => void) => void;
       //
-      readFile: (path: string, callback: CommandCallback) => void;
+      readFileLine: (path: string, callback: CommandCallback) => void;
+
+      readFile: (path: string) => Promise<ArrayBuffer>;
     };
     command: {
       // Directly invoke a command and expect the whole output in a promise. Suitable for small output.

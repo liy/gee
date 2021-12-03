@@ -41,7 +41,7 @@ if (app.requestSingleInstanceLock()) {
   app.on('ready', async () => {
     const mainWindow = createMainWindow();
 
-    const wd = process.env.NODE_ENV !== 'production' ? '../repos/checkout' : process.cwd();
+    const wd = process.env.NODE_ENV !== 'production' ? './' : process.cwd();
 
     // Loading the application
     const indexPath = path.join(__dirname, '../index.html');

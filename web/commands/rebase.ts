@@ -49,7 +49,7 @@ export interface Todo {
 function readTodos() {
   return new Promise<Array<Todo>>((resolve) => {
     const todos = new Array<Todo>();
-    window.api.readFile('./.git/rebase-merge/git-rebase-todo', {
+    window.api.readFileLine('./.git/rebase-merge/git-rebase-todo', {
       onReadLine: (line: string, id: CallbackID) => {
         line = line.trim();
         if (line === '' || line.startsWith('#')) return;
