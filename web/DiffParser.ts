@@ -2,11 +2,16 @@ const hunkHeaderRegex = /@@ -(\d+),(\d+) \+(\d+),(\d+) @@ ?(.*)?/;
 
 const linePrefixes = new Set([' ', '-', '+']);
 
+type LineNo = [number | typeof NaN, number | typeof NaN];
+
 interface Hunk {
-  header: string;
-  before: [number, number];
-  after: [number, number];
-  lines: string[];
+  header: {
+    text: string;
+    before: [number, number];
+    after: [number, number];
+  };
+  content: [number, number];
+  lineNo: LineNo[];
 }
 
 interface Diff {
@@ -78,20 +83,47 @@ export class DiffParser {
 
     // hunk header
     const lines = new Array<string>();
-    const header = result[5];
+    const text = result[5];
     const before: [number, number] = [parseInt(result[1]), parseInt(result[2])];
     const after: [number, number] = [parseInt(result[3]), parseInt(result[4])];
 
+    const lineNo = new Array<LineNo>();
+
+    this.nextLine();
+    const start = this.lineStart;
+    let end = this.lineEnd;
+    let b = before[0];
+    let a = after[0];
     while (this.isValidLine(this.peek())) {
-      const line = this.readLine()!;
-      lines.push(line);
+      end = this.lineEnd;
+
+      const no = [];
+      if (this.lineStartWith('-')) {
+        no[0] = b;
+        no[1] = NaN;
+        b++;
+      } else if (this.lineStartWith('+')) {
+        no[0] = NaN;
+        no[1] = a;
+        a++;
+      } else {
+        no[0] = b;
+        no[1] = a;
+        b++;
+        a++;
+      }
+      lineNo.push(no as LineNo);
+      this.nextLine();
     }
 
     return {
-      header,
-      before,
-      after,
-      lines,
+      header: {
+        text,
+        before,
+        after,
+      },
+      content: [start, end] as [number, number],
+      lineNo,
     };
   }
 
