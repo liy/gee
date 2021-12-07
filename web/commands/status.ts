@@ -21,10 +21,9 @@ export interface StatusData {
   file: string;
 }
 
-export const status = async () => {
+export const statusOneline = async () => {
   const args = ['git', 'status', '--porcelain'];
   const outputs = await window.command.invoke(args);
-  console.log(outputs);
   const lines = outputs.split('\n');
   const statusResults = new Array<StatusData>();
   lines.forEach((line) => {
@@ -39,4 +38,8 @@ export const status = async () => {
   });
 
   return statusResults;
+};
+
+export const status = async () => {
+  const args = ['git', 'status', '-vv'];
 };

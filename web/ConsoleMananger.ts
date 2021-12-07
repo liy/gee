@@ -1,10 +1,11 @@
 import { EventMap } from './@types/event';
 import { allBranches } from './commands/branch';
 import { rebase } from './commands/rebase';
-import { status } from './commands/status';
+import { status, statusOneline } from './commands/status';
 import { tag } from './commands/tag';
 import EventEmitter from './EventEmitter';
 import { BranchView } from './views/BranchView';
+import { DiffView } from './views/DiffView';
 import { RebaseView } from './views/RebaseView';
 import { StatusView } from './views/StatusView';
 
@@ -25,6 +26,9 @@ class ConsoleManager extends EventEmitter<EventMap> {
         input.value = '';
       }
     });
+
+    const diffView = document.createElement('div', { is: 'diff-view' }) as DiffView;
+    this.consoleElement.prepend(diffView);
   }
 
   async process(cmd: string) {
@@ -46,7 +50,7 @@ class ConsoleManager extends EventEmitter<EventMap> {
         break;
       case 'status':
         const statusView = document.createElement('div', { is: 'status-view' }) as StatusView;
-        statusView.update(await status());
+        statusView.update(await statusOneline());
         this.consoleElement.prepend(statusView);
         break;
       case 'clear':
