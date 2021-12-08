@@ -5,6 +5,11 @@ import { gutter, GutterMarker, highlightActiveLineGutter, lineNumbers } from '@c
 
 import { Diff } from '../DiffParser';
 import { diffExtension } from '../defaultExtension';
+import './DiffFile.css';
+import { Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@codemirror/view';
+import { Extension, Facet } from '@codemirror/state';
+import { RangeSetBuilder } from '@codemirror/rangeset';
+import { gray, grey } from 'chalk';
 
 const customTheme = EditorView.theme({
   '&.cm-editor': {
@@ -15,7 +20,66 @@ const customTheme = EditorView.theme({
     textAlign: 'right',
     minInlineSize: '3ch',
   },
+  '.cm-line.hunk-heading': {
+    backgroundColor: '#333333',
+    lineHeight: '3em',
+    fontSize: '11px',
+  },
 });
+
+const hunkHeadingHeight = Facet.define<number, string>({
+  combine(values) {
+    return values.length ? Math.min(...values) + 'px' : '32px';
+  },
+});
+
+export function hunkHeading(options: { hunkHeight: number }): Extension {
+  return [options.hunkHeight ? [] : hunkHeadingHeight.of(options.hunkHeight), showHunkHeading];
+}
+
+const hunkLine = Decoration.line({
+  attributes: {
+    class: 'hunk-heading',
+  },
+});
+
+function decorate(view: EditorView) {
+  const height = view.state.facet(hunkHeadingHeight);
+  let builder = new RangeSetBuilder<Decoration>();
+  for (let { from, to } of view.visibleRanges) {
+    for (let pos = from; pos <= to; ) {
+      let line = view.state.doc.lineAt(pos);
+      if (line.text.startsWith('@@')) {
+        builder.add(line.from, line.from, hunkLine);
+      }
+      pos = line.to + 1;
+    }
+  }
+
+  return builder.finish();
+}
+
+const showHunkHeading = ViewPlugin.fromClass(
+  class {
+    decorations: DecorationSet;
+
+    constructor(view: EditorView) {
+      this.decorations = decorate(view);
+    }
+
+    update(update: ViewUpdate) {
+      console.log('update');
+      if (update.docChanged || update.viewportChanged) {
+        this.decorations = decorate(update.view);
+      }
+    }
+  },
+  {
+    decorations(v) {
+      return v.decorations;
+    },
+  }
+);
 
 export class DiffFile extends HTMLDivElement {
   private heading: HTMLDivElement;
@@ -25,7 +89,11 @@ export class DiffFile extends HTMLDivElement {
   constructor() {
     super();
     this.collapsed = true;
+
+    this.classList.add('diff-file');
+
     this.heading = document.createElement('div');
+    this.heading.classList.add('heading');
     this.appendChild(this.heading);
 
     this.toggle = this.toggle.bind(this);
@@ -46,6 +114,7 @@ export class DiffFile extends HTMLDivElement {
       state: EditorState.create({
         doc: doc,
         extensions: [
+          hunkHeading({ hunkHeight: 40 }),
           gutter({
             class: 'before lineNo',
             lineMarker(view, lineInfo) {
@@ -81,7 +150,7 @@ export class DiffFile extends HTMLDivElement {
 
     this.heading.textContent = diff.header.from + ' ' + diff.header.to;
     this.appendChild(this.editor.dom);
-    this.collapsed = true;
+    this.collapsed = false;
   }
 
   set collapsed(collapse: boolean) {
