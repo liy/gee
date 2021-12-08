@@ -2,7 +2,7 @@ const hunkHeaderRegex = /@@ -(\d+),(\d+) \+(\d+),(\d+) @@ ?(.*)?/;
 
 const linePrefixes = new Set([' ', '-', '+']);
 
-type LineNo = [number | typeof NaN, number | typeof NaN];
+type LineNo = [string, string];
 
 interface Hunk {
   header: {
@@ -14,11 +14,25 @@ interface Hunk {
   lineNo: LineNo[];
 }
 
+interface DiffHeader {
+  from: string;
+  to: string;
+  index: [string, string];
+  // True if change is adding a new file
+  new: boolean;
+  // True if change is file renaming
+  rename: boolean;
+  // If it is rename, then this will give similarity in percentage
+  similarity: string;
+  // True if file is a binary file
+  binary: boolean;
+  // True if file is deleted
+  deleted: boolean;
+}
+
 interface Diff {
-  header: {
-    before: string;
-    after: string;
-  };
+  header: DiffHeader;
+  // The detail changes
   hunks: Hunk[];
 }
 
@@ -28,10 +42,10 @@ export class DiffParser {
   // line end
   public lineEnd: number = -1;
 
-  constructor(private text: string) {
-    if (!this.text.startsWith('diff --git')) {
-      throw new Error('invalid diff');
-    }
+  constructor(private text: string) {}
+
+  eof(): boolean {
+    return this.lineEnd + 1 >= this.text.length;
   }
 
   nextLine(): boolean {
@@ -64,15 +78,59 @@ export class DiffParser {
     return this.text[this.lineEnd + 1];
   }
 
-  isValidLine(char: string) {
+  private isValidHunkLine(char: string) {
     return linePrefixes.has(char);
   }
 
+  /**
+   *
+   * @returns diff title
+   */
   parseHeader() {
-    // TODO: diff header is ignored
-    while (this.nextLine()) {
-      if (this.lineStartWith('+++')) return;
+    const header: DiffHeader = {
+      from: '',
+      to: '',
+      index: ['0000000', '0000000'],
+      deleted: false,
+      binary: false,
+      new: false,
+      rename: false,
+      similarity: '0%',
+    };
+
+    const result = /^diff --git (?:[ia]\/(.*)) (?:[wb]\/(.*))/.exec(this.currentLine);
+    if (result) {
+      header.from = result[1];
+      header.to = result[2];
     }
+
+    // other stuff
+    while (this.nextLine()) {
+      if (this.lineStartWith('index')) {
+        const result = /^index ([\da-zA-Z]+)..([\da-zA-Z]+)/.exec(this.currentLine);
+        if (result) {
+          header.index = [result[1], result[2]];
+        }
+      } else if (this.lineStartWith('deleted file mode')) {
+        header.deleted = true;
+      } else if (this.lineStartWith('new file mode')) {
+        header.new = true;
+      } else if (this.lineStartWith('similarity index ')) {
+        header.rename = true;
+        const result = /^.+ (\d+%)/.exec(this.currentLine);
+        if (result) {
+          header.similarity = result[1];
+        }
+      } else if (this.lineStartWith('Binary files ') && this.lineEndWith('differ')) {
+        header.binary = true;
+        break;
+      } else if (this.lineStartWith('+++')) {
+        header.binary = false;
+        break;
+      }
+    }
+
+    return header;
   }
 
   parseHunk() {
@@ -82,7 +140,6 @@ export class DiffParser {
     }
 
     // hunk header
-    const lines = new Array<string>();
     const text = result[5];
     const before: [number, number] = [parseInt(result[1]), parseInt(result[2])];
     const after: [number, number] = [parseInt(result[3]), parseInt(result[4])];
@@ -94,21 +151,19 @@ export class DiffParser {
     let end = this.lineEnd;
     let b = before[0];
     let a = after[0];
-    while (this.isValidLine(this.peek())) {
+    while (this.isValidHunkLine(this.peek())) {
       end = this.lineEnd;
 
-      const no = [];
+      const no: LineNo = ['', ''];
       if (this.lineStartWith('-')) {
-        no[0] = b;
-        no[1] = NaN;
+        no[0] = b.toString();
         b++;
       } else if (this.lineStartWith('+')) {
-        no[0] = NaN;
-        no[1] = a;
+        no[1] = a.toString();
         a++;
       } else {
-        no[0] = b;
-        no[1] = a;
+        no[0] = b.toString();
+        no[1] = a.toString();
         b++;
         a++;
       }
@@ -138,11 +193,17 @@ export class DiffParser {
   }
 
   parse() {
-    const diffs = new Array<Hunk[]>();
-    while (this.nextLine()) {
-      this.parseHeader();
+    // Invalid diff
+    if (!this.text.startsWith('diff --git')) {
+      return [];
+    }
+
+    const diffs = new Array<Diff>();
+    this.nextLine();
+    while (!this.eof()) {
+      const header = this.parseHeader();
       const hunks = this.parseHunks();
-      diffs.push(hunks);
+      diffs.push({ header, hunks });
     }
     return diffs;
   }
