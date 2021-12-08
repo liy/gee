@@ -1,15 +1,22 @@
 import { ViewBase } from './ViewBase';
-import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup';
+import { EditorState, EditorView } from '@codemirror/basic-setup';
 import { javascript } from '@codemirror/lang-javascript';
 import { oneDarkHighlightStyle, oneDarkTheme } from '@codemirror/theme-one-dark';
-import { gutter, GutterMarker, lineNumbers } from '@codemirror/gutter';
-import { EditorSelection, SelectionRange } from '@codemirror/state';
-import { DiffParser } from '../diff';
-import { localChanges, stagedChanges } from '../commands/changes';
+import { gutter, GutterMarker, highlightActiveLineGutter, lineNumbers } from '@codemirror/gutter';
+
+import { Diff, DiffParser } from '../DiffParser';
+import { stagedChanges } from '../commands/changes';
+import { diffExtension } from '../defaultExtension';
+import { DiffFile } from '../elements/DiffFile';
 
 const customTheme = EditorView.theme({
   '&.cm-editor': {
     fontSize: '12px',
+  },
+  '.lineNo': {
+    margin: '0 3px ',
+    textAlign: 'right',
+    minInlineSize: '3ch',
   },
 });
 
@@ -24,39 +31,34 @@ export class DiffView extends ViewBase {
     this.title = 'diff';
     this.heading.textContent = this.title;
     this.content.classList.add('content-flex');
-
-    localChanges().then((result) => {
-      console.log(result);
-    });
   }
 
-  update(workspaceDiff: string, indexDiff: string) {
-    const workspaceView = new EditorView({
-      state: EditorState.create({
-        doc: workspaceDiff,
-        extensions: [
-          gutter({
-            class: 'diff-lineNo',
-            lineMarker(view, line) {
-              return new (class extends GutterMarker {
-                toDOM() {
-                  const l = view.state.doc.lineAt(line.from);
-                  return document.createTextNode(line.bottom + '');
-                }
-              })();
-            },
-          }),
-          basicSetup,
-          javascript(),
-          oneDarkTheme,
-          oneDarkHighlightStyle,
-          customTheme,
-          EditorView.lineWrapping,
-          EditorView.editable.of(false),
-        ],
-      }),
-      parent: this,
-    });
+  update(localDiffText: string, stagedDiffText: string) {
+    const localDiffs = new DiffParser(localDiffText).parse();
+    for (const diff of localDiffs) {
+      const doc = diff.hunks
+        .map((hunk) => {
+          return localDiffText.substring(hunk.range[0], hunk.range[1]);
+        })
+        .join('\n');
+
+      const elm = document.createElement('div', { is: 'diff-file' }) as DiffFile;
+      elm.update(doc, diff);
+      this.appendChild(elm);
+    }
+
+    const stagedDiffs = new DiffParser(stagedDiffText).parse();
+    for (const diff of stagedDiffs) {
+      const doc = diff.hunks
+        .map((hunk) => {
+          return stagedDiffText.substring(hunk.range[0], hunk.range[1]);
+        })
+        .join('\n');
+
+      const elm = document.createElement('div', { is: 'diff-file' }) as DiffFile;
+      elm.update(doc, diff);
+      this.appendChild(elm);
+    }
   }
 
   connectedCallback() {}

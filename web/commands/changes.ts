@@ -1,17 +1,11 @@
 import { DiffParser } from '../DiffParser';
 
-export const localChanges = async () => {
+export const localChanges = () => {
   const args = ['git', 'diff', '--full-index'];
-  const outputs = await window.command.invoke(args);
-
-  const parser = new DiffParser(outputs);
-  return parser.parse();
+  return window.command.invoke(args);
 };
 
-export const stagedChanges = async () => {
+export const stagedChanges = () => {
   const args = ['git', 'diff', '--cached', '--full-index'];
-  const outputs = await window.command.invoke(args);
-
-  const parser = new DiffParser(outputs);
-  return parser.parse();
+  return window.command.invoke(args);
 };
