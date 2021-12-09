@@ -20,10 +20,13 @@ const customTheme = EditorView.theme({
     textAlign: 'right',
     minInlineSize: '3ch',
   },
-  '.cm-line.hunk-heading': {
-    backgroundColor: '#333333',
-    lineHeight: '3em',
+  '.hunk-heading': {
     fontSize: '11px',
+    lineHeight: '2em',
+    color: 'grey',
+  },
+  '.hunk-heading *': {
+    color: 'grey',
   },
 });
 
@@ -68,7 +71,6 @@ const showHunkHeading = ViewPlugin.fromClass(
     }
 
     update(update: ViewUpdate) {
-      console.log('update');
       if (update.docChanged || update.viewportChanged) {
         this.decorations = decorate(update.view);
       }
