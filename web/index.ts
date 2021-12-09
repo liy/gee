@@ -14,6 +14,7 @@ import './ConsoleMananger';
 // Always import elements and views
 import './elements';
 import './views';
+import { ActionBase, Signal, Store, ValueOf } from './vase/vase';
 
 function openRepository(data: Repository__Output) {
   // Setup repository
@@ -57,3 +58,54 @@ window.api.onOpenRepository((data) => {
 window.api.onNotification((notification) => {
   console.log(notification);
 });
+
+// type testAction = {
+//   type: string;
+//   payload: string;
+// };
+
+// Maps event type to event data
+// interface ActionMap {
+//   update: typeof updateAction;
+//   test: typeof testAction;
+// }
+
+// type ActionType = typeof testAction | typeof updateAction
+
+const initialState = {
+  data: 0,
+};
+
+type AddAction = {
+  type: 'add';
+  data: 'data';
+};
+
+type DeleteAction = {
+  type: 'delete';
+  id: string;
+};
+
+interface Mapping {
+  add: AddAction;
+  delete: DeleteAction;
+}
+
+interface Subscriptions {
+  add?: (action: AddAction, state: typeof initialState) => void;
+  update?: () => void;
+}
+
+const store = new Store<Subscriptions, typeof initialState>(initialState, {
+  add: (state, action) => {
+    return state;
+  },
+});
+
+store.on({
+  add: (action, state) => {
+    console.log('state updated', action, state);
+  },
+});
+
+store.operate({ type: 'add' });
