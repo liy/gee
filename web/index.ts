@@ -66,7 +66,7 @@ const initialState = {
 };
 
 type WrongAction = {
-  type: 'wrong';
+  type: 'ddd-ddd';
   wrong: 'missing type';
 };
 
@@ -82,17 +82,10 @@ interface Mapping {
   dog: {
     type: 'dog';
   };
+  'ddd-ddd': WrongAction;
 }
 
 // const transform: Transform<Mapping, typeof initialState> = ;
-
-const middleware: Middleware<Mapping, typeof initialState> = (action, state) => {
-  console.log('1', JSON.stringify(action), state);
-  if (action.type === 'add') {
-    action.obj.name = 'modified';
-  }
-  return action;
-};
 
 const SubOperation: Transform<Mapping, typeof initialState> = {
   wood: (action, state) => {
@@ -103,11 +96,21 @@ const SubOperation: Transform<Mapping, typeof initialState> = {
   },
 };
 
+const middleware: Middleware<Mapping, typeof initialState, Store> = (action, store) => {
+  console.log('1', JSON.stringify(action), store);
+  if (action.type === 'add') {
+    action.obj.name = 'modified';
+  }
+  return action;
+};
+
 const store = new Store<Mapping, typeof initialState>(
   initialState,
   {
     add: (action, state) => {
-      return state;
+      return {
+        data: state.data + 1,
+      };
     },
     delete: (action, state) => {
       return state;
@@ -120,16 +123,16 @@ const store = new Store<Mapping, typeof initialState>(
   },
   [
     middleware,
-    (action, state) => {
-      console.log('2', action, state);
+    (action, store) => {
+      console.log('2', action, store);
       return action;
     },
   ]
 );
 
 const cleanup = store.on({
-  add: (action, state) => {
-    console.log('add notification', action, state);
+  add: (action, newState, oldState) => {
+    console.log('add notification', action, newState, oldState);
   },
   delete: (action, state) => {},
   test: (action, state) => {},
