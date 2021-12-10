@@ -1,21 +1,23 @@
-type Subscription<L> = {
-  [E in keyof L]: (...args: any[]) => any;
+export type ValueOf<T> = T[keyof T];
+
+type Subscription<S, M> = {
+  [K in keyof M]: (state: S, action: M[K]) => any;
 };
 
-export class Signal<Sub extends Subscription<Sub>> {
-  protected subscriptions: Array<Sub> = [];
+export class Signal<S, M> {
+  protected subscriptions: Array<Subscription<S, M>> = [];
 
   constructor() {}
 
-  notify(type: keyof Sub, ...args: any[]) {
+  notify(type: keyof M, action: M[keyof M], state: S) {
     for (let sub of this.subscriptions) {
       if (sub[type]) {
-        sub[type](args);
+        sub[type](state, action);
       }
     }
   }
 
-  on(sub: Sub): () => void {
+  on(sub: Subscription<S, M>): () => void {
     this.subscriptions.push(sub);
 
     return () => {
@@ -31,9 +33,14 @@ export type BaseAction<M> = {
   type: keyof M;
 };
 
-export type Transform<S, M> = Partial<Record<keyof M, (state: S, action: any) => S>>;
+export type Transform<S, M> = {
+  [K in keyof M]: (state: S, action: M[K]) => S;
+};
 
-export class Store<M extends Subscription<M>, State> extends Signal<M> {
+// Constraints key of the mapping needs to be the type of the action(base action)
+export type Correlate<M> = Record<keyof M, BaseAction<M>>;
+
+export class Store<M extends Correlate<M>, State> extends Signal<State, M> {
   protected state: State;
 
   constructor(initialState: State, protected transform: Transform<State, M>) {
@@ -41,7 +48,7 @@ export class Store<M extends Subscription<M>, State> extends Signal<M> {
     this.state = initialState;
   }
 
-  operate<A extends BaseAction<M>>(action: A) {
+  operate(action: ValueOf<M>) {
     const transformer = this.transform[action.type];
     if (transformer) {
       this.state = transformer(this.state, action);

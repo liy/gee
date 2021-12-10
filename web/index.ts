@@ -15,6 +15,7 @@ import './ConsoleMananger';
 import './elements';
 import './views';
 import { ActionBase, Signal, Store, ValueOf } from './vase/vase';
+import { AddAction, DeleteAction } from './vase/type';
 
 function openRepository(data: Repository__Output) {
   // Setup repository
@@ -76,36 +77,41 @@ const initialState = {
   data: 0,
 };
 
-type AddAction = {
-  type: 'add';
-  data: 'data';
-};
-
-type DeleteAction = {
-  type: 'delete';
-  id: string;
+type WrongAction = {
+  type: 'wrong';
+  wrong: 'missing type';
 };
 
 interface Mapping {
   add: AddAction;
   delete: DeleteAction;
+  wrong: WrongAction;
 }
 
-interface Subscriptions {
-  add?: (action: AddAction, state: typeof initialState) => void;
-  update?: () => void;
-}
+// interface Subscriptions {
+//   add: (action: AddAction, state: typeof initialState) => void;
+//   update: () => void;
+// }
 
-const store = new Store<Subscriptions, typeof initialState>(initialState, {
+const store = new Store<Mapping, typeof initialState>(initialState, {
   add: (state, action) => {
+    return state;
+  },
+  delete: (state, action) => {
     return state;
   },
 });
 
 store.on({
-  add: (action, state) => {
-    console.log('state updated', action, state);
+  add: (state, action) => {
+    // console.log('state updated', action, state);
   },
+  delete: (state, action) => {},
 });
 
-store.operate({ type: 'add' });
+store.operate({
+  type: 'add',
+  obj: {
+    name: 'object name',
+  },
+});
