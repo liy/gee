@@ -14,8 +14,9 @@ import './ConsoleMananger';
 // Always import elements and views
 import './elements';
 import './views';
-import { ActionBase, Signal, Store, ValueOf } from './vase/vase';
+import { Middleware, Store, Transform } from './vase/vase';
 import { AddAction, DeleteAction } from './vase/type';
+import { stat } from 'original-fs';
 
 function openRepository(data: Repository__Output) {
   // Setup repository
@@ -60,19 +61,6 @@ window.api.onNotification((notification) => {
   console.log(notification);
 });
 
-// type testAction = {
-//   type: string;
-//   payload: string;
-// };
-
-// Maps event type to event data
-// interface ActionMap {
-//   update: typeof updateAction;
-//   test: typeof testAction;
-// }
-
-// type ActionType = typeof testAction | typeof updateAction
-
 const initialState = {
   data: 0,
 };
@@ -85,29 +73,79 @@ type WrongAction = {
 interface Mapping {
   add: AddAction;
   delete: DeleteAction;
-  wrong: WrongAction;
+  test: {
+    type: 'test';
+  };
+  wood: {
+    type: 'wood';
+  };
+  dog: {
+    type: 'dog';
+  };
 }
 
-// interface Subscriptions {
-//   add: (action: AddAction, state: typeof initialState) => void;
-//   update: () => void;
-// }
+// const transform: Transform<Mapping, typeof initialState> = ;
 
-const store = new Store<Mapping, typeof initialState>(initialState, {
-  add: (state, action) => {
+const middleware: Middleware<Mapping, typeof initialState> = (action, state) => {
+  console.log('1', JSON.stringify(action), state);
+  if (action.type === 'add') {
+    action.obj.name = 'modified';
+  }
+  return action;
+};
+
+const SubOperation: Transform<Mapping, typeof initialState> = {
+  wood: (action, state) => {
     return state;
   },
-  delete: (state, action) => {
+  dog: (action, state) => {
     return state;
   },
+};
+
+const store = new Store<Mapping, typeof initialState>(
+  initialState,
+  {
+    add: (action, state) => {
+      return state;
+    },
+    delete: (action, state) => {
+      return state;
+    },
+    test: (action, state) => {
+      console.log('transform test', action);
+      return state;
+    },
+    ...SubOperation,
+  },
+  [
+    middleware,
+    (action, state) => {
+      console.log('2', action, state);
+      return action;
+    },
+  ]
+);
+
+const cleanup = store.on({
+  add: (action, state) => {
+    console.log('add notification', action, state);
+  },
+  delete: (action, state) => {},
+  test: (action, state) => {},
+  dog: (action, state) => {},
 });
 
-store.on({
-  add: (state, action) => {
-    // console.log('state updated', action, state);
-  },
-  delete: (state, action) => {},
-});
+setTimeout(() => {
+  cleanup();
+
+  store.operate({
+    type: 'add',
+    obj: {
+      name: 'object name',
+    },
+  });
+}, 3000);
 
 store.operate({
   type: 'add',

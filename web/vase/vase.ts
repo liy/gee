@@ -1,23 +1,69 @@
-export type ValueOf<T> = T[keyof T];
-
-type Subscription<S, M> = {
-  [K in keyof M]: (state: S, action: M[K]) => any;
+// Constraint the action type
+export type BaseAction<M> = {
+  type: keyof M;
 };
 
-export class Signal<S, M> {
-  protected subscriptions: Array<Subscription<S, M>> = [];
+// Constraints key of the mapping needs to be the type of the action(base action)
+export type ActionMapping<M> = Record<keyof M, BaseAction<M>>;
 
-  constructor() {}
+// Constrain the subscription function name and its parameters
+export type Subscription<M extends ActionMapping<M>, S = any> = {
+  [K in keyof M]?: (action: Readonly<M[K]>, state: Readonly<S>) => void;
+};
 
-  notify(type: keyof M, action: M[keyof M], state: S) {
-    for (let sub of this.subscriptions) {
-      if (sub[type]) {
-        sub[type](state, action);
-      }
+// Constrain the transform function name and its parameters
+export type Transform<M extends ActionMapping<M>, S = any> = {
+  [K in keyof M]?: (action: Readonly<M[K]>, state: Readonly<S>) => S;
+};
+
+export type Middleware<M extends ActionMapping<M>, S> = (
+  action: Readonly<M[keyof M]>,
+  state: Readonly<S>
+) => Readonly<M[keyof M]> | void;
+
+export class Store<M extends ActionMapping<M> = any, State = any> {
+  protected subscriptions: Array<Subscription<M, State>> = [];
+  private reducedMiddleware: Middleware<M, State>;
+
+  constructor(
+    protected state: State,
+    protected transform: Transform<M, State>,
+    middilewares: Middleware<M, State>[] = []
+  ) {
+    this.reducedMiddleware = middilewares.reverse().reduce(
+      (a, b) => {
+        return (action, state) => {
+          const newAction = b(action, state);
+          if (newAction) {
+            return a(newAction, state);
+          }
+        };
+      },
+      // dummy pass through function so we don't get conditional check in operate
+      (action) => action
+    );
+  }
+
+  operate(action: M[keyof M]) {
+    const newAction = this.reducedMiddleware(action, this.state);
+    // Halt the operate if action is not valid anymore
+    if (!newAction) return;
+
+    const transformer = this.transform[newAction.type];
+    if (transformer) {
+      this.state = transformer(newAction, this.state);
+      this.notify(newAction, this.state);
     }
   }
 
-  on(sub: Subscription<S, M>): () => void {
+  notify(action: Readonly<M[keyof M]>, state: Readonly<State>) {
+    for (let subscription of this.subscriptions) {
+      // Optional chaining function call
+      subscription[action.type]?.(action, state);
+    }
+  }
+
+  on(sub: Subscription<M, State>): () => void {
     this.subscriptions.push(sub);
 
     return () => {
@@ -26,34 +72,6 @@ export class Signal<S, M> {
       temp.splice(index, 1);
       this.subscriptions = temp;
     };
-  }
-}
-
-export type BaseAction<M> = {
-  type: keyof M;
-};
-
-export type Transform<S, M> = {
-  [K in keyof M]: (state: S, action: M[K]) => S;
-};
-
-// Constraints key of the mapping needs to be the type of the action(base action)
-export type Correlate<M> = Record<keyof M, BaseAction<M>>;
-
-export class Store<M extends Correlate<M>, State> extends Signal<State, M> {
-  protected state: State;
-
-  constructor(initialState: State, protected transform: Transform<State, M>) {
-    super();
-    this.state = initialState;
-  }
-
-  operate(action: ValueOf<M>) {
-    const transformer = this.transform[action.type];
-    if (transformer) {
-      this.state = transformer(this.state, action);
-    }
-    this.notify(action.type, action, this.state);
   }
 
   get currentState() {
