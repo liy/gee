@@ -7,9 +7,8 @@ import { Diff } from '../DiffParser';
 import { diffExtension } from '../defaultExtension';
 import './DiffFile.css';
 import { Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@codemirror/view';
-import { Extension, Facet } from '@codemirror/state';
+import { Extension } from '@codemirror/state';
 import { RangeSetBuilder } from '@codemirror/rangeset';
-import { gray, grey } from 'chalk';
 
 const customTheme = EditorView.theme({
   '&.cm-editor': {
@@ -28,33 +27,45 @@ const customTheme = EditorView.theme({
   '.hunk-heading *': {
     color: 'grey',
   },
-});
-
-const hunkHeadingHeight = Facet.define<number, string>({
-  combine(values) {
-    return values.length ? Math.min(...values) + 'px' : '32px';
+  '.diff-add': {
+    backgroundColor: '#2d3838',
+  },
+  '.diff-delete': {
+    backgroundColor: '#322130',
   },
 });
 
-export function hunkHeading(options: { hunkHeight: number }): Extension {
-  return [options.hunkHeight ? [] : hunkHeadingHeight.of(options.hunkHeight), showHunkHeading];
-}
-
-const hunkLine = Decoration.line({
+const hunkLineDeco = Decoration.line({
   attributes: {
     class: 'hunk-heading',
   },
 });
 
+const addLineDeco = Decoration.line({
+  attributes: {
+    class: 'diff-add',
+  },
+});
+
+const deleteLineDeco = Decoration.line({
+  attributes: {
+    class: 'diff-delete',
+  },
+});
+
 function decorate(view: EditorView) {
-  const height = view.state.facet(hunkHeadingHeight);
   let builder = new RangeSetBuilder<Decoration>();
   for (let { from, to } of view.visibleRanges) {
     for (let pos = from; pos <= to; ) {
       let line = view.state.doc.lineAt(pos);
       if (line.text.startsWith('@@')) {
-        builder.add(line.from, line.from, hunkLine);
+        builder.add(line.from, line.from, hunkLineDeco);
+      } else if (line.text.startsWith('-')) {
+        builder.add(line.from, line.from, deleteLineDeco);
+      } else if (line.text.startsWith('+')) {
+        builder.add(line.from, line.from, addLineDeco);
       }
+
       pos = line.to + 1;
     }
   }
@@ -62,26 +73,30 @@ function decorate(view: EditorView) {
   return builder.finish();
 }
 
-const showHunkHeading = ViewPlugin.fromClass(
-  class {
-    decorations: DecorationSet;
+export function DiffLine(): Extension {
+  return [
+    ViewPlugin.fromClass(
+      class {
+        decorations: DecorationSet;
 
-    constructor(view: EditorView) {
-      this.decorations = decorate(view);
-    }
+        constructor(view: EditorView) {
+          this.decorations = decorate(view);
+        }
 
-    update(update: ViewUpdate) {
-      if (update.docChanged || update.viewportChanged) {
-        this.decorations = decorate(update.view);
+        update(update: ViewUpdate) {
+          if (update.docChanged || update.viewportChanged) {
+            this.decorations = decorate(update.view);
+          }
+        }
+      },
+      {
+        decorations(v) {
+          return v.decorations;
+        },
       }
-    }
-  },
-  {
-    decorations(v) {
-      return v.decorations;
-    },
-  }
-);
+    ),
+  ];
+}
 
 export class DiffFile extends HTMLDivElement {
   private heading: HTMLDivElement;
@@ -116,7 +131,7 @@ export class DiffFile extends HTMLDivElement {
       state: EditorState.create({
         doc: doc,
         extensions: [
-          hunkHeading({ hunkHeight: 40 }),
+          DiffLine(),
           gutter({
             class: 'before lineNo',
             lineMarker(view, lineInfo) {

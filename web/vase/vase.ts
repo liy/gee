@@ -32,8 +32,6 @@ export type Middleware<M extends ActionMapping<M>, State, ST extends Store<M, St
   store: ST
 ) => Readonly<M[keyof M]> | void;
 
-export type Config = {};
-
 export class Store<M extends ActionMapping<M> = any, State = any> {
   protected subscriptions: Array<Subscription<M, State>> = [];
   private reducedMiddleware: Middleware<M, State, Store<M, State>>;
