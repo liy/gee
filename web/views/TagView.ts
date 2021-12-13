@@ -1,4 +1,4 @@
-import { CommitTag } from '../elements/Tag';
+import { CommitTag } from '../components/Tag';
 import { TagData } from '../commands/tag';
 import { ViewBase } from './ViewBase';
 export class TagView extends ViewBase {

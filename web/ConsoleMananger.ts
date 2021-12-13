@@ -1,16 +1,13 @@
 import { EventMap } from './@types/event';
 import { allBranches } from './commands/branch';
-import { localChanges, stagedChanges } from './commands/changes';
 import { rebase } from './commands/rebase';
-import { status, statusOneline } from './commands/status';
 import { tag } from './commands/tag';
-import { DiffParser } from './DiffParser';
 import EventEmitter from './EventEmitter';
 import { BranchView } from './views/BranchView';
-import { DiffView } from './views/DiffView';
+import { DiffView } from './views/diff/DiffView';
+import { store } from './views/diff/store';
+import { status } from './views/diff/subroutines';
 import { RebaseView } from './views/RebaseView';
-import { StatusView } from './views/StatusView';
-
 import { TagView } from './views/TagView';
 
 class ConsoleManager extends EventEmitter<EventMap> {
@@ -48,14 +45,9 @@ class ConsoleManager extends EventEmitter<EventMap> {
         this.consoleElement.prepend(rebaseView);
         break;
       case 'status':
-        // const statusView = document.createElement('div', { is: 'status-view' }) as StatusView;
-        // statusView.update(await statusOneline());
-        // this.consoleElement.prepend(statusView);
-
-        const [localDiffText, stagedDiffText] = await Promise.all([localChanges(), stagedChanges()]);
         const diffView = document.createElement('div', { is: 'diff-view' }) as DiffView;
-        diffView.update(localDiffText, stagedDiffText);
         this.consoleElement.prepend(diffView);
+        store.invoke(status());
         break;
       case 'clear':
         this.consoleElement.innerHTML = '';

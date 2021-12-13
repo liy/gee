@@ -6,7 +6,7 @@ import GraphStyle from './GraphStyle';
 import Graph from '../graph/Graph';
 import EventEmitter from '../EventEmitter';
 import { EventMap } from '../@types/event';
-import { Commit } from '../elements/Commit';
+import { Commit } from '../components/Commit';
 import { Tag__Output } from 'protobuf/pb/Tag';
 import { Reference__Output } from 'protobuf/pb/Reference';
 import { Hash } from '../@types/window';

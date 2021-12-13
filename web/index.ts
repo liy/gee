@@ -1,22 +1,16 @@
-import StraightLayout from './layouts/StraightLayout';
-
-import CommitManager from './ui/CommitManager';
-import GraphView from './ui/GraphView';
+import { Repository__Output } from '../src/protobuf/pb/Repository';
+import './ConsoleMananger';
+// Always import elements and views
+import './components';
+import './components/CommandInput';
 import Repository from './git/Repository';
 import RepositoryStore from './git/RepositoryStore';
 import GraphStore from './graph/GraphStore';
 import './index.css';
-import { Repository__Output } from '../src/protobuf/pb/Repository';
-
-import './elements/CommandInput';
-import './ConsoleMananger';
-
-// Always import elements and views
-import './elements';
+import StraightLayout from './layouts/StraightLayout';
+import CommitManager from './ui/CommitManager';
+import GraphView from './ui/GraphView';
 import './views';
-import { Middleware, Store, Transform } from './vase/vase';
-import { AddAction, DeleteAction } from './vase/type';
-import { stat } from 'original-fs';
 
 function openRepository(data: Repository__Output) {
   // Setup repository

@@ -1,5 +1,5 @@
 import { BranchData } from '../commands/branch';
-import { Branch } from '../elements/Branch';
+import { Branch } from '../components/Branch';
 import CommitManager from '../ui/CommitManager';
 import { ViewBase } from './ViewBase';
 

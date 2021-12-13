@@ -3,4 +3,4 @@ import './TagView';
 import './BranchView';
 import './RebaseView';
 import './StatusView';
-import './DiffView';
+import './diff/DiffView';

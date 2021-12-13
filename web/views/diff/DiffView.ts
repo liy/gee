@@ -1,13 +1,7 @@
-import { ViewBase } from './ViewBase';
-import { EditorState, EditorView } from '@codemirror/basic-setup';
-import { javascript } from '@codemirror/lang-javascript';
-import { oneDarkHighlightStyle, oneDarkTheme } from '@codemirror/theme-one-dark';
-import { gutter, GutterMarker, highlightActiveLineGutter, lineNumbers } from '@codemirror/gutter';
-
-import { Diff, DiffParser } from '../DiffParser';
-import { stagedChanges } from '../commands/changes';
-import { diffExtension } from '../defaultExtension';
-import { DiffFile } from '../elements/DiffFile';
+import { EditorView } from '@codemirror/basic-setup';
+import { DiffFile } from '../../components/DiffFile';
+import { ViewBase } from '../ViewBase';
+import { State, store } from './store';
 
 const customTheme = EditorView.theme({
   '&.cm-editor': {
@@ -33,12 +27,12 @@ export class DiffView extends ViewBase {
     this.content.classList.add('content-flex');
   }
 
-  update(localDiffText: string, stagedDiffText: string) {
-    const localDiffs = new DiffParser(localDiffText).parse();
-    for (const diff of localDiffs) {
+  update(state: State) {
+    const { workspace, stage } = state;
+    for (const diff of workspace.diffs) {
       const doc = diff.hunks
         .map((hunk) => {
-          return localDiffText.substring(hunk.range[0], hunk.range[1]);
+          return workspace.diffText.substring(hunk.range[0], hunk.range[1]);
         })
         .join('\n');
 
@@ -47,11 +41,10 @@ export class DiffView extends ViewBase {
       this.appendChild(elm);
     }
 
-    const stagedDiffs = new DiffParser(stagedDiffText).parse();
-    for (const diff of stagedDiffs) {
+    for (const diff of stage.diffs) {
       const doc = diff.hunks
         .map((hunk) => {
-          return stagedDiffText.substring(hunk.range[0], hunk.range[1]);
+          return workspace.diffText.substring(hunk.range[0], hunk.range[1]);
         })
         .join('\n');
 
@@ -61,7 +54,12 @@ export class DiffView extends ViewBase {
     }
   }
 
-  connectedCallback() {}
+  connectedCallback() {
+    this.update(store.currentState);
+    store.on({
+      update: (_, state) => this.update(state),
+    });
+  }
 
   disconnectedCallback() {}
 }

@@ -8,37 +8,44 @@ export type BaseAction<M> = {
 /**
  * Constraints key of the mapping needs to be the type of the action(base action)
  */
-export type ActionMapping<M> = Record<keyof M, BaseAction<M>>;
+export type BaseActionMapping<M> = Record<keyof M, BaseAction<M>>;
 
 /**
  * Constrain the subscription function name and its parameters
  */
-export type Subscription<M extends ActionMapping<M>, S = any> = {
+export type Subscription<M extends BaseActionMapping<M>, S = any> = {
   [K in keyof M]?: (action: Readonly<M[K]>, newState: Readonly<S>, oldState: Readonly<S>) => void;
 };
 
 /**
- * Constrain the transform function name and its parameters
+ * Constrain the reducer function name and its parameters
  */
-export type Transform<M extends ActionMapping<M>, S = any> = {
+export type Reducer<M extends BaseActionMapping<M>, S = any> = {
   [K in keyof M]?: (action: Readonly<M[K]>, state: Readonly<S>) => S;
 };
 
 /**
  * Middleware is a function which intercepts an action and output another action (usually be the same action). Return nothing will halt the operation
  */
-export type Middleware<M extends ActionMapping<M>, State, ST extends Store<M, State>> = (
+export type Middleware<M extends BaseActionMapping<M>, State, ST extends Store<M, State>> = (
   action: Readonly<M[keyof M]>,
   store: ST
 ) => Readonly<M[keyof M]> | void;
 
-export class Store<M extends ActionMapping<M> = any, State = any> {
+export type Operate<M extends BaseActionMapping<M>> = (action: M[keyof M]) => M[keyof M] | undefined;
+
+export type Subroutine<M extends BaseActionMapping<M>, StateType, ResolveType = void> = (
+  operate: Operate<M>,
+  state: StateType
+) => ResolveType extends void ? void : Promise<ResolveType>;
+
+export class Store<M extends BaseActionMapping<M> = any, State = any> {
   protected subscriptions: Array<Subscription<M, State>> = [];
   private reducedMiddleware: Middleware<M, State, Store<M, State>>;
 
   constructor(
     protected state: State,
-    protected transform: Transform<M, State>,
+    protected reducer: Reducer<M, State>,
     middilewares: Middleware<M, State, Store<M, State>>[] = []
   ) {
     this.reducedMiddleware = middilewares.reverse().reduce(
@@ -55,8 +62,8 @@ export class Store<M extends ActionMapping<M> = any, State = any> {
     );
   }
 
-  updateTransform(transform: Transform<M, State>) {
-    this.transform = transform;
+  updateReducer(reducer: Reducer<M, State>) {
+    this.reducer = reducer;
   }
 
   operate(action: M[keyof M]) {
@@ -64,12 +71,21 @@ export class Store<M extends ActionMapping<M> = any, State = any> {
     // Halt the operate if action is not valid anymore
     if (!newAction) return;
 
-    const transformer = this.transform[newAction.type];
-    if (transformer) {
+    const fn = this.reducer[newAction.type];
+    if (fn) {
       const oldState = this.state;
-      this.state = transformer(newAction, this.state);
+      this.state = fn(newAction, this.state);
       this.notify(newAction, this.state, oldState);
     }
+
+    return action;
+  }
+
+  invoke<ResolveType>(thunk: Subroutine<M, State, ResolveType>) {
+    if (typeof thunk !== 'function') {
+      throw new Error('subroutine needs to be a function return a promise, use operate for normal action');
+    }
+    return thunk(this.operate.bind(this), this.currentState);
   }
 
   notify(action: Readonly<M[keyof M]>, newState: Readonly<State>, oldState: Readonly<State>) {
