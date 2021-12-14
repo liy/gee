@@ -45,4 +45,12 @@ declare global {
       listener: (this: Document, ev: CustomEvent<EventMap[K]>) => void
     ): void;
   }
+
+  interface HTMLDivElement {
+    //adds definition to Document, but you can do the same with HTMLElement
+    addEventListener<K extends keyof EventMap>(
+      type: K,
+      listener: (this: Document, ev: CustomEvent<EventMap[K]>) => void
+    ): void;
+  }
 }

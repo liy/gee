@@ -8,4 +8,5 @@ interface EventMap {
   'commit.focus': Hash;
   'command.tag': TagData[];
   'input.command': string;
+  'line.mousedown': number;
 }

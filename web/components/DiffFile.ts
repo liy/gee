@@ -6,8 +6,8 @@ import { gutter, GutterMarker, highlightActiveLineGutter, lineNumbers } from '@c
 import { Diff } from '../DiffParser';
 import { diffExtension } from '../defaultExtension';
 import './DiffFile.css';
-import { Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@codemirror/view';
-import { Extension } from '@codemirror/state';
+import { BlockInfo, Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@codemirror/view';
+import { Compartment, Extension } from '@codemirror/state';
 import { RangeSetBuilder } from '@codemirror/rangeset';
 
 const customTheme = EditorView.theme({
@@ -15,9 +15,13 @@ const customTheme = EditorView.theme({
     fontSize: '12px',
   },
   '.lineNo': {
-    margin: '0 3px ',
     textAlign: 'right',
-    minInlineSize: '3ch',
+    // compensate 4px padding
+    minInlineSize: 'calc(3ch + 4px)',
+  },
+  '.lineNo .cm-gutterElement': {
+    paddingRight: '4px',
+    cursor: 'pointer',
   },
   '.hunk-heading': {
     fontSize: '11px',
@@ -114,6 +118,7 @@ export class DiffFile extends HTMLDivElement {
     this.appendChild(this.heading);
 
     this.toggle = this.toggle.bind(this);
+    this.onLineMouseDown = this.onLineMouseDown.bind(this);
   }
 
   update(doc: string, diff: Diff) {
@@ -121,9 +126,15 @@ export class DiffFile extends HTMLDivElement {
       this.editor.dom.remove();
     }
 
-    const lineNo = diff.hunks
+    const beforeLineNo = diff.hunks
       .map((hunk) => {
-        return hunk.lineNo;
+        return hunk.beforeLineNo;
+      })
+      .flat();
+
+    const afterLineNo = diff.hunks
+      .map((hunk) => {
+        return hunk.afterLineNo;
       })
       .flat();
 
@@ -138,9 +149,12 @@ export class DiffFile extends HTMLDivElement {
               return new (class extends GutterMarker {
                 toDOM() {
                   const line = view.state.doc.lineAt(lineInfo.from);
-                  return document.createTextNode(lineNo[line.number - 1][0]);
+                  return document.createTextNode(beforeLineNo[line.number - 1]);
                 }
               })();
+            },
+            domEventHandlers: {
+              mousedown: this.onLineMouseDown,
             },
           }),
           gutter({
@@ -149,9 +163,12 @@ export class DiffFile extends HTMLDivElement {
               return new (class extends GutterMarker {
                 toDOM() {
                   const line = view.state.doc.lineAt(lineInfo.from);
-                  return document.createTextNode(lineNo[line.number - 1][1]);
+                  return document.createTextNode(afterLineNo[line.number - 1]);
                 }
               })();
+            },
+            domEventHandlers: {
+              mousedown: this.onLineMouseDown,
             },
           }),
           diffExtension,
@@ -168,6 +185,15 @@ export class DiffFile extends HTMLDivElement {
     this.heading.textContent = diff.header.from + ' ' + diff.header.to;
     this.appendChild(this.editor.dom);
     this.collapsed = false;
+  }
+
+  onLineMouseDown(view: EditorView, lineInfo: BlockInfo): boolean {
+    this.dispatchEvent(
+      new CustomEvent('line.mousedown', {
+        detail: view.state.doc.lineAt(lineInfo.from).number,
+      })
+    );
+    return true;
   }
 
   set collapsed(collapse: boolean) {

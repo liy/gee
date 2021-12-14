@@ -80,7 +80,11 @@ export class Store<M extends BaseActionMapping<M> = any, State = any> {
 
     return action;
   }
-
+  /**
+   * Start a subroutine
+   * @param thunk A subroutine, or a thunk if you familiar with redux.
+   * @returns A Promise.
+   */
   invoke<ResolveType>(thunk: Subroutine<M, State, ResolveType>) {
     if (typeof thunk !== 'function') {
       throw new Error('subroutine needs to be a function return a promise, use operate for normal action');

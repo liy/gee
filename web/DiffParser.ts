@@ -2,8 +2,6 @@ const hunkHeaderRegex = /@@ -(\d+),(\d+) \+(\d+),(\d+) @@ ?(.*)?/;
 
 const linePrefixes = new Set([' ', '-', '+']);
 
-type LineNo = [string, string];
-
 export enum HunkLineType {
   heading,
   default,
@@ -34,8 +32,9 @@ interface Hunk {
     after: [number, number];
   };
   range: [number, number];
-  lineNo: LineNo[];
   lines: HunkLine[];
+  beforeLineNo: string[];
+  afterLineNo: string[];
 }
 
 interface DiffHeader {
@@ -178,7 +177,8 @@ export class DiffParser {
     const lines: HunkLine[] = [];
 
     // First line is the hunk heading
-    const lineNo = new Array<LineNo>(['', '']);
+    const beforeLineNo = [''];
+    const afterLineNo = [''];
     lines.push(new HunkLine(line, HunkLineType.heading, '', ''));
 
     let b = before[0];
@@ -188,24 +188,24 @@ export class DiffParser {
       if (!line) return null;
 
       let type: HunkLineType;
-      const no: LineNo = ['', ''];
       if (this.lineStartWith('-')) {
         type = HunkLineType.delete;
-        no[0] = b.toString();
+        beforeLineNo.push(b.toString());
+        afterLineNo.push('');
         b++;
       } else if (this.lineStartWith('+')) {
         type = HunkLineType.add;
-        no[1] = a.toString();
+        beforeLineNo.push('');
+        afterLineNo.push(b.toString());
         a++;
       } else {
         type = HunkLineType.default;
-        no[0] = b.toString();
-        no[1] = a.toString();
+        beforeLineNo.push(b.toString());
+        afterLineNo.push(a.toString());
         b++;
         a++;
       }
-      lineNo.push(no as LineNo);
-      lines.push(new HunkLine(line, type, no[0], no[1]));
+      lines.push(new HunkLine(line, type, beforeLineNo[beforeLineNo.length - 1], afterLineNo[afterLineNo.length - 1]));
     }
 
     return {
@@ -216,7 +216,8 @@ export class DiffParser {
       },
       range: [start, this.lineEnd] as [number, number],
       lines,
-      lineNo,
+      beforeLineNo,
+      afterLineNo,
     };
   }
 

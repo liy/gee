@@ -3,17 +3,6 @@ import { DiffFile } from '../../components/DiffFile';
 import { ViewBase } from '../ViewBase';
 import { State, store } from './store';
 
-const customTheme = EditorView.theme({
-  '&.cm-editor': {
-    fontSize: '12px',
-  },
-  '.lineNo': {
-    margin: '0 3px ',
-    textAlign: 'right',
-    minInlineSize: '3ch',
-  },
-});
-
 export class DiffView extends ViewBase {
   mapping: Array<[number, number]>;
 
@@ -36,8 +25,17 @@ export class DiffView extends ViewBase {
         })
         .join('\n');
 
+      const lines = diff.hunks
+        .map((hunk) => {
+          return hunk.lines;
+        })
+        .flat();
+
       const elm = document.createElement('div', { is: 'diff-file' }) as DiffFile;
       elm.update(doc, diff);
+      elm.addEventListener('line.mousedown', (e) => {
+        console.log(diff.header.from, e.detail, lines[e.detail - 1]);
+      });
       this.appendChild(elm);
     }
 
@@ -50,6 +48,7 @@ export class DiffView extends ViewBase {
 
       const elm = document.createElement('div', { is: 'diff-file' }) as DiffFile;
       elm.update(doc, diff);
+      // elm.addEventListener('line.mousedown', this.onLineMouseDown);
       this.appendChild(elm);
     }
   }
