@@ -25,13 +25,17 @@ export class HunkLine {
   }
 }
 
-interface Hunk {
+export interface Hunk {
   header: {
     text: string;
+    // The first line that starts with -, and the number of lines which start with ' '(space, normal) and '-'
     before: [number, number];
+    // The first line that starts with +, and the number of lines which start with ' '(space, normal) and '+'
     after: [number, number];
   };
+  // Range is based on per diff text
   range: [number, number];
+  text: string;
   lines: HunkLine[];
   beforeLineNo: string[];
   afterLineNo: string[];
@@ -51,12 +55,14 @@ interface DiffHeader {
   binary: boolean;
   // True if file is deleted
   deleted: boolean;
+  text: string;
 }
 
 export interface Diff {
   header: DiffHeader;
   // The detail changes
   hunks: Hunk[];
+  text: string;
 }
 
 export class DiffParser {
@@ -119,15 +125,20 @@ export class DiffParser {
       new: false,
       rename: false,
       similarity: '0%',
+      text: '',
     };
+
+    const lines = [];
 
     const result = /^diff --git (?:[ia]\/(.*)) (?:[wb]\/(.*))/.exec(this.currentLine);
     if (result) {
       header.from = result[1];
       header.to = result[2];
+      lines.push(result[0]);
     }
 
     // other stuff
+    let breakLoop = false;
     while (this.nextLine()) {
       if (this.lineStartWith('index')) {
         const result = /^index ([\da-zA-Z]+)..([\da-zA-Z]+)/.exec(this.currentLine);
@@ -146,17 +157,37 @@ export class DiffParser {
         }
       } else if (this.lineStartWith('Binary files ') && this.lineEndWith('differ')) {
         header.binary = true;
-        break;
+        breakLoop = true;
       } else if (this.lineStartWith('+++')) {
         header.binary = false;
+        breakLoop = true;
+      }
+
+      lines.push(this.currentLine);
+      if (breakLoop) {
         break;
       }
     }
 
+    header.text = lines.join('\n');
+
     return header;
   }
 
-  parseHunk(): Hunk | null {
+  parseHunks(rangeTrack: number) {
+    const hunks = new Array<Hunk>();
+    while (true) {
+      const result = this.parseHunk(rangeTrack);
+      if (result) {
+        hunks.push(result);
+        rangeTrack += result.text.length + 1;
+      } else {
+        return hunks;
+      }
+    }
+  }
+
+  parseHunk(rangeTrack: number): Hunk | null {
     const line = this.readLine();
     if (!line) return null;
 
@@ -170,7 +201,7 @@ export class DiffParser {
     }
 
     // hunk heading
-    const text = result[5];
+    const heading = line;
     const before: [number, number] = [parseInt(result[1]), parseInt(result[2])];
     const after: [number, number] = [parseInt(result[3]), parseInt(result[4])];
 
@@ -208,29 +239,20 @@ export class DiffParser {
       lines.push(new HunkLine(line, type, beforeLineNo[beforeLineNo.length - 1], afterLineNo[afterLineNo.length - 1]));
     }
 
+    const text = this.text.substring(start, this.lineEnd);
+
     return {
       header: {
-        text,
+        text: heading,
         before,
         after,
       },
-      range: [start, this.lineEnd] as [number, number],
+      text,
+      range: [rangeTrack, rangeTrack + text.length],
       lines,
       beforeLineNo,
       afterLineNo,
     };
-  }
-
-  parseHunks() {
-    const hunks = new Array<Hunk>();
-    while (true) {
-      const result = this.parseHunk();
-      if (result) {
-        hunks.push(result);
-      } else {
-        return hunks;
-      }
-    }
   }
 
   parse() {
@@ -243,11 +265,12 @@ export class DiffParser {
     this.nextLine();
     while (!this.eof()) {
       const header = this.parseHeader();
-      const hunks = this.parseHunks();
-      diffs.push({ header, hunks });
-    }
+      const hunks = this.parseHunks(header.text.length + 1);
 
-    console.log(diffs);
+      const text = header.text + '\n' + hunks.map((hunk) => hunk.text).join('\n');
+
+      diffs.push({ header, hunks, text });
+    }
 
     return diffs;
   }

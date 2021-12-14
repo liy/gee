@@ -3,7 +3,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { oneDarkHighlightStyle, oneDarkTheme } from '@codemirror/theme-one-dark';
 import { gutter, GutterMarker, highlightActiveLineGutter, lineNumbers } from '@codemirror/gutter';
 
-import { Diff } from '../DiffParser';
+import { Diff, Hunk } from '../DiffParser';
 import { diffExtension } from '../defaultExtension';
 import './DiffFile.css';
 import { BlockInfo, Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@codemirror/view';
@@ -102,6 +102,13 @@ export function DiffLine(): Extension {
   ];
 }
 
+export type LineMouseDownEvent = {
+  editorLineNo: number;
+  hunk: Hunk;
+  beforeLineNo: string;
+  afterLineNo: string;
+};
+
 export class DiffFile extends HTMLDivElement {
   private heading: HTMLDivElement;
 
@@ -118,7 +125,6 @@ export class DiffFile extends HTMLDivElement {
     this.appendChild(this.heading);
 
     this.toggle = this.toggle.bind(this);
-    this.onLineMouseDown = this.onLineMouseDown.bind(this);
   }
 
   update(doc: string, diff: Diff) {
@@ -138,6 +144,29 @@ export class DiffFile extends HTMLDivElement {
       })
       .flat();
 
+    const onLineMouseDown = (view: EditorView, lineInfo: BlockInfo): boolean => {
+      const hunkIndex = diff.hunks.findIndex((hunk) => {
+        const lineStart = lineInfo.from + diff.header.text.length + 1;
+        console.log(hunk.range);
+        return hunk.range[0] <= lineStart && lineStart <= hunk.range[1];
+      });
+
+      console.log(hunkIndex);
+
+      const editorLineNo = view.state.doc.lineAt(lineInfo.from).number;
+      this.dispatchEvent(
+        new CustomEvent<LineMouseDownEvent>('line.mousedown', {
+          detail: {
+            editorLineNo,
+            hunk: diff.hunks[hunkIndex],
+            beforeLineNo: beforeLineNo[editorLineNo],
+            afterLineNo: afterLineNo[editorLineNo],
+          },
+        })
+      );
+      return true;
+    };
+
     this.editor = new EditorView({
       state: EditorState.create({
         doc: doc,
@@ -154,7 +183,7 @@ export class DiffFile extends HTMLDivElement {
               })();
             },
             domEventHandlers: {
-              mousedown: this.onLineMouseDown,
+              mousedown: onLineMouseDown,
             },
           }),
           gutter({
@@ -168,7 +197,7 @@ export class DiffFile extends HTMLDivElement {
               })();
             },
             domEventHandlers: {
-              mousedown: this.onLineMouseDown,
+              mousedown: onLineMouseDown,
             },
           }),
           diffExtension,
@@ -185,15 +214,6 @@ export class DiffFile extends HTMLDivElement {
     this.heading.textContent = diff.header.from + ' ' + diff.header.to;
     this.appendChild(this.editor.dom);
     this.collapsed = false;
-  }
-
-  onLineMouseDown(view: EditorView, lineInfo: BlockInfo): boolean {
-    this.dispatchEvent(
-      new CustomEvent('line.mousedown', {
-        detail: view.state.doc.lineAt(lineInfo.from).number,
-      })
-    );
-    return true;
   }
 
   set collapsed(collapse: boolean) {
