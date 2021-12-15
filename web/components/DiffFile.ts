@@ -102,11 +102,13 @@ export function DiffLine(): Extension {
   ];
 }
 
-export type LineMouseDownEvent = {
+export type LineMouseDownData = {
   editorLineNo: number;
-  hunk: Hunk;
+  diff: Diff;
+  hunkIndex: number;
   beforeLineNo: string;
   afterLineNo: string;
+  lineText: string;
 };
 
 export class DiffFile extends HTMLDivElement {
@@ -127,7 +129,9 @@ export class DiffFile extends HTMLDivElement {
     this.toggle = this.toggle.bind(this);
   }
 
-  update(doc: string, diff: Diff) {
+  update(diff: Diff) {
+    const doc = diff.hunks.map((hunk) => hunk.text).join('\n');
+
     if (this.editor) {
       this.editor.dom.remove();
     }
@@ -151,16 +155,17 @@ export class DiffFile extends HTMLDivElement {
         return hunk.range[0] <= lineStart && lineStart <= hunk.range[1];
       });
 
-      console.log(hunkIndex);
-
       const editorLineNo = view.state.doc.lineAt(lineInfo.from).number;
+      const lineText = view.state.doc.lineAt(lineInfo.from).text;
       this.dispatchEvent(
-        new CustomEvent<LineMouseDownEvent>('line.mousedown', {
+        new CustomEvent<LineMouseDownData>('line.mousedown', {
           detail: {
             editorLineNo,
-            hunk: diff.hunks[hunkIndex],
             beforeLineNo: beforeLineNo[editorLineNo],
             afterLineNo: afterLineNo[editorLineNo],
+            hunkIndex,
+            diff,
+            lineText,
           },
         })
       );

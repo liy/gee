@@ -227,7 +227,7 @@ export class DiffParser {
       } else if (this.lineStartWith('+')) {
         type = HunkLineType.add;
         beforeLineNo.push('');
-        afterLineNo.push(b.toString());
+        afterLineNo.push(a.toString());
         a++;
       } else {
         type = HunkLineType.default;

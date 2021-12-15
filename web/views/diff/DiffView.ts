@@ -1,6 +1,5 @@
-import { EditorView } from '@codemirror/basic-setup';
-import { doc } from 'prettier';
 import { DiffFile } from '../../components/DiffFile';
+import { createLinePatch } from '../../patch';
 import { ViewBase } from '../ViewBase';
 import { State, store } from './store';
 
@@ -19,22 +18,19 @@ export class DiffView extends ViewBase {
 
   update(state: State) {
     const { workspace, stage } = state;
-    for (const diff of workspace.diffs) {
-      const doc = diff.hunks.map((hunk) => hunk.text).join('\n');
-
+    for (const diff of workspace.changes) {
       const elm = document.createElement('div', { is: 'diff-file' }) as DiffFile;
-      elm.update(doc, diff);
+      elm.update(diff);
       elm.addEventListener('line.mousedown', (e) => {
-        // console.log(diff.header.from, e.detail);
+        const patchText = createLinePatch(e.detail.editorLineNo, e.detail.hunkIndex, e.detail.diff);
+        console.log(patchText);
       });
       this.appendChild(elm);
     }
 
-    for (const diff of stage.diffs) {
-      const doc = diff.hunks.map((hunk) => hunk.text).join('\n');
-
+    for (const diff of stage.changes) {
       const elm = document.createElement('div', { is: 'diff-file' }) as DiffFile;
-      elm.update(doc, diff);
+      elm.update(diff);
       // elm.addEventListener('line.mousedown', this.onLineMouseDown);
       this.appendChild(elm);
     }

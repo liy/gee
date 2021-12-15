@@ -6,12 +6,10 @@ export const reducer: Reducer<ActionMapping, State> = {
     return {
       ...state,
       stage: {
-        diffText: action.stagedDiffText,
-        diffs: action.stagedDiffs,
+        changes: action.stagedChanges,
       },
       workspace: {
-        diffText: action.localDiffText,
-        diffs: action.localDiffs,
+        changes: action.workspaceChanges,
       },
     };
   },

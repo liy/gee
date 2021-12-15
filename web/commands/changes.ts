@@ -1,6 +1,4 @@
-import { DiffParser } from '../DiffParser';
-
-export const localChanges = () => {
+export const workspaceChanges = () => {
   const args = ['git', 'diff', '--full-index'];
   return window.command.invoke(args);
 };

@@ -2,7 +2,7 @@ import { ViewBase } from './ViewBase';
 import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup';
 import { javascript } from '@codemirror/lang-javascript';
 import { oneDarkHighlightStyle, oneDarkTheme } from '@codemirror/theme-one-dark';
-import { StatusData } from '../commands/status';
+import { StatusData } from '../commands/rawStatus';
 import template from './StatusView.html';
 import './StatusView.css';
 import { createElement } from '../utils';

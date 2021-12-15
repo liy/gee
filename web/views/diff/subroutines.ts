@@ -1,18 +1,16 @@
-import { localChanges, stagedChanges } from '../../commands/changes';
+import { workspaceChanges, stagedChanges } from '../../commands/changes';
 import { DiffParser } from '../../DiffParser';
 import { Subroutine } from '../../vase';
 import { ActionMapping, State } from './store';
 
 export function status(): Subroutine<ActionMapping, State> {
   return async (operate) => {
-    const [localDiffText, stagedDiffText] = await Promise.all([localChanges(), stagedChanges()]);
+    const [workspaceDiffText, stagedDiffText] = await Promise.all([workspaceChanges(), stagedChanges()]);
 
     operate({
       type: 'update',
-      localDiffText,
-      localDiffs: new DiffParser(localDiffText).parse(),
-      stagedDiffText,
-      stagedDiffs: new DiffParser(stagedDiffText).parse(),
+      workspaceChanges: new DiffParser(workspaceDiffText).parse(),
+      stagedChanges: new DiffParser(stagedDiffText).parse(),
     });
   };
 }

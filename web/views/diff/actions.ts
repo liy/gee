@@ -2,10 +2,8 @@ import { Diff } from '../../DiffParser';
 
 export type Update = {
   type: 'update';
-  localDiffText: string;
-  localDiffs: Diff[];
-  stagedDiffText: string;
-  stagedDiffs: Diff[];
+  workspaceChanges: Diff[];
+  stagedChanges: Diff[];
 };
 
 export type Apply = {

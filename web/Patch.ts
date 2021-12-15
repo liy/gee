@@ -1,13 +1,45 @@
 import { Diff } from './DiffParser';
 
-export class PatchCreator {
-  constructor(protected diff: Diff) {}
+export const createLinePatch = (lineNo: number, hunkIndex: number, diff: Diff): string => {
+  const hunk = diff.hunks[hunkIndex];
+  const selectedLine = hunk.lines[lineNo - 1];
 
-  stageLine(lineNo: number) {}
+  if (!selectedLine.text.startsWith('-') && !selectedLine.text.startsWith('+')) {
+    return '';
+  }
 
-  unstageLine(lineNo: number) {}
+  const lineTexts = [];
 
-  stageHunk(index: number) {}
+  let ln = lineNo;
 
-  unstageHunk(index: number) {}
-}
+  let startLineNo = lineNo;
+  // find previous line if any
+  while (--ln > 1) {
+    const line = hunk.lines[ln - 1];
+    if (line.text.startsWith(' ')) {
+      lineTexts.push(line.text);
+      startLineNo = ln;
+      break;
+    }
+  }
+
+  lineTexts.push(selectedLine.text);
+
+  // find next line if any
+  while (++ln <= hunk.lines.length) {
+    const line = hunk.lines[ln - 1];
+    if (line.text.startsWith(' ')) {
+      lineTexts.push(line.text);
+      break;
+    }
+  }
+
+  let isRemove = selectedLine.text.startsWith('-');
+
+  const hunkHeading = `@@ -${startLineNo},${isRemove ? lineTexts.length : lineTexts.length - 1} +${startLineNo},${
+    isRemove ? lineTexts.length - 1 : lineTexts.length
+  } @@`;
+
+  // A valid patch starts with container diff header, and a hunk heading and actual patch content finally ends with a newline
+  return [diff.header.text, hunkHeading, lineTexts, '\n'].flat().join('\n');
+};

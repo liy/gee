@@ -15,12 +15,10 @@ export interface Patch {
 
 const initialState = {
   workspace: {
-    diffText: '',
-    diffs: new Array<Diff>(),
+    changes: new Array<Diff>(),
   },
   stage: {
-    diffText: '',
-    diffs: new Array<Diff>(),
+    changes: new Array<Diff>(),
   },
 };
 
