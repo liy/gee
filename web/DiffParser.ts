@@ -55,7 +55,8 @@ interface DiffHeader {
   binary: boolean;
   // True if file is deleted
   deleted: boolean;
-  text: string;
+  // text: string;
+  lines: string[];
 }
 
 export interface Diff {
@@ -125,16 +126,14 @@ export class DiffParser {
       new: false,
       rename: false,
       similarity: '0%',
-      text: '',
+      lines: [],
     };
-
-    const lines = [];
 
     const result = /^diff --git (?:[ia]\/(.*)) (?:[wb]\/(.*))/.exec(this.currentLine);
     if (result) {
       header.from = result[1];
       header.to = result[2];
-      lines.push(result[0]);
+      header.lines.push(result[0]);
     }
 
     // other stuff
@@ -163,13 +162,11 @@ export class DiffParser {
         breakLoop = true;
       }
 
-      lines.push(this.currentLine);
+      header.lines.push(this.currentLine);
       if (breakLoop) {
         break;
       }
     }
-
-    header.text = lines.join('\n');
 
     return header;
   }
@@ -265,9 +262,10 @@ export class DiffParser {
     this.nextLine();
     while (!this.eof()) {
       const header = this.parseHeader();
-      const hunks = this.parseHunks(header.text.length + 1);
+      const headerText = header.lines.join('\n');
+      const hunks = this.parseHunks(headerText.length + 1);
 
-      const text = header.text + '\n' + hunks.map((hunk) => hunk.text).join('\n');
+      const text = headerText + '\n' + hunks.map((hunk) => hunk.text).join('\n');
 
       diffs.push({ header, hunks, text });
     }

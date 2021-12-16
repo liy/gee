@@ -4,12 +4,13 @@ import { Subroutine } from '../../vase';
 import { ActionMapping, State } from './store';
 
 export function status(): Subroutine<ActionMapping, State> {
-  return async (operate) => {
-    const [workspaceDiffText, stagedDiffText] = await Promise.all([workspaceChanges(), stagedChanges()]);
+  return async (operate1) => {
+    const [test, stagedDiffText] = await Promise.all([workspaceChanges(), stagedChanges()]);
+    console.log(test);
 
-    operate({
+    operate1({
       type: 'update',
-      workspaceChanges: new DiffParser(workspaceDiffText).parse(),
+      workspaceChanges: new DiffParser(test).parse(),
       stagedChanges: new DiffParser(stagedDiffText).parse(),
     });
   };

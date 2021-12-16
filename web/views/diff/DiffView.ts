@@ -1,3 +1,4 @@
+import { applyPatch } from '../../commands/apply';
 import { DiffFile } from '../../components/DiffFile';
 import { createLinePatch } from '../../patch';
 import { ViewBase } from '../ViewBase';
@@ -5,6 +6,8 @@ import { State, store } from './store';
 
 export class DiffView extends ViewBase {
   mapping: Array<[number, number]>;
+
+  private cleanup: (() => void) | null;
 
   constructor() {
     super();
@@ -21,9 +24,11 @@ export class DiffView extends ViewBase {
     for (const diff of workspace.changes) {
       const elm = document.createElement('div', { is: 'diff-file' }) as DiffFile;
       elm.update(diff);
-      elm.addEventListener('line.mousedown', (e) => {
+      elm.addEventListener('line.mousedown', async (e) => {
         const patchText = createLinePatch(e.detail.editorLineNo, e.detail.hunkIndex, e.detail.diff);
-        console.log(patchText);
+        // console.log(patchText);
+        const result = await applyPatch(patchText);
+        console.log(result);
       });
       this.appendChild(elm);
     }
@@ -37,13 +42,14 @@ export class DiffView extends ViewBase {
   }
 
   connectedCallback() {
-    this.update(store.currentState);
-    store.on({
+    this.cleanup = store.on({
       update: (_, state) => this.update(state),
     });
   }
 
-  disconnectedCallback() {}
+  disconnectedCallback() {
+    this.cleanup?.();
+  }
 }
 
 customElements.define('diff-view', DiffView, { extends: 'div' });

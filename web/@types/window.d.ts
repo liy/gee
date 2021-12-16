@@ -27,6 +27,8 @@ declare global {
       readFileLine: (path: string, callback: CommandCallback) => void;
 
       readFile: (path: string) => Promise<ArrayBuffer>;
+
+      saveFile: (path: string, text: string) => Promise<string>;
     };
     command: {
       // Directly invoke a command and expect the whole output in a promise. Suitable for small output.

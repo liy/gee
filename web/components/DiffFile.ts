@@ -150,8 +150,7 @@ export class DiffFile extends HTMLDivElement {
 
     const onLineMouseDown = (view: EditorView, lineInfo: BlockInfo): boolean => {
       const hunkIndex = diff.hunks.findIndex((hunk) => {
-        const lineStart = lineInfo.from + diff.header.text.length + 1;
-        console.log(hunk.range);
+        const lineStart = lineInfo.from + diff.header.lines.join('\n').length + 1;
         return hunk.range[0] <= lineStart && lineStart <= hunk.range[1];
       });
 
@@ -161,8 +160,8 @@ export class DiffFile extends HTMLDivElement {
         new CustomEvent<LineMouseDownData>('line.mousedown', {
           detail: {
             editorLineNo,
-            beforeLineNo: beforeLineNo[editorLineNo],
-            afterLineNo: afterLineNo[editorLineNo],
+            beforeLineNo: beforeLineNo[editorLineNo - 1],
+            afterLineNo: afterLineNo[editorLineNo - 1],
             hunkIndex,
             diff,
             lineText,
@@ -205,6 +204,7 @@ export class DiffFile extends HTMLDivElement {
               mousedown: onLineMouseDown,
             },
           }),
+          lineNumbers(),
           diffExtension,
           javascript(),
           oneDarkTheme,

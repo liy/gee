@@ -56,6 +56,10 @@ contextBridge.exposeInMainWorld('api', {
   readFile: (path: string): Promise<ArrayBuffer> => {
     return ipcRenderer.invoke('file.read', path);
   },
+
+  saveFile: (path: string, patch: string): Promise<string> => {
+    return ipcRenderer.invoke('file.save', path, patch);
+  },
 });
 
 const callbacks = new CallbackStore();

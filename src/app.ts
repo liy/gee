@@ -58,6 +58,18 @@ class GeeApp {
       });
     });
 
+    ipcMain.handle('file.save', async (event, filePath: string, patchText: string) => {
+      return new Promise<void>((resolve, reject) => {
+        fs.writeFile(filePath, patchText, (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(filePath);
+          }
+        });
+      });
+    });
+
     ipcMain.handle(COMMAND_INVOKE, (_, args: Array<string>) => {
       return new Promise((resolve, reject) => {
         execFile(
