@@ -3,12 +3,12 @@ import { javascript } from '@codemirror/lang-javascript';
 import { oneDarkHighlightStyle, oneDarkTheme } from '@codemirror/theme-one-dark';
 import { gutter, GutterMarker, highlightActiveLineGutter, lineNumbers } from '@codemirror/gutter';
 
-import { Diff, Hunk } from '../DiffParser';
 import { diffExtension } from '../defaultExtension';
 import './DiffFile.css';
 import { BlockInfo, Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@codemirror/view';
 import { Compartment, Extension } from '@codemirror/state';
 import { RangeSetBuilder } from '@codemirror/rangeset';
+import { Diff } from '../Diff';
 
 const customTheme = EditorView.theme({
   '&.cm-editor': {
@@ -105,10 +105,6 @@ export function DiffLine(): Extension {
 export type LineMouseDownData = {
   editorLineNo: number;
   diff: Diff;
-  hunkIndex: number;
-  beforeLineNo: string;
-  afterLineNo: string;
-  lineText: string;
 };
 
 export class DiffFile extends HTMLDivElement {
@@ -130,41 +126,29 @@ export class DiffFile extends HTMLDivElement {
   }
 
   update(diff: Diff) {
-    const doc = diff.hunks.map((hunk) => hunk.text).join('\n');
-
     if (this.editor) {
       this.editor.dom.remove();
     }
 
     const beforeLineNo = diff.hunks
       .map((hunk) => {
-        return hunk.beforeLineNo;
+        return hunk.oldLineNo;
       })
       .flat();
 
     const afterLineNo = diff.hunks
       .map((hunk) => {
-        return hunk.afterLineNo;
+        return hunk.newLineNo;
       })
       .flat();
 
     const onLineMouseDown = (view: EditorView, lineInfo: BlockInfo): boolean => {
-      const hunkIndex = diff.hunks.findIndex((hunk) => {
-        const lineStart = lineInfo.from + diff.header.lines.join('\n').length + 1;
-        return hunk.range[0] <= lineStart && lineStart <= hunk.range[1];
-      });
-
       const editorLineNo = view.state.doc.lineAt(lineInfo.from).number;
-      const lineText = view.state.doc.lineAt(lineInfo.from).text;
       this.dispatchEvent(
         new CustomEvent<LineMouseDownData>('line.mousedown', {
           detail: {
             editorLineNo,
-            beforeLineNo: beforeLineNo[editorLineNo - 1],
-            afterLineNo: afterLineNo[editorLineNo - 1],
-            hunkIndex,
             diff,
-            lineText,
           },
         })
       );
@@ -173,7 +157,7 @@ export class DiffFile extends HTMLDivElement {
 
     this.editor = new EditorView({
       state: EditorState.create({
-        doc: doc,
+        doc: diff.content,
         extensions: [
           DiffLine(),
           gutter({
@@ -216,7 +200,7 @@ export class DiffFile extends HTMLDivElement {
       }),
     });
 
-    this.heading.textContent = diff.header.from + ' ' + diff.header.to;
+    this.heading.textContent = diff.heading.from + ' ' + diff.heading.to;
     this.appendChild(this.editor.dom);
     this.collapsed = false;
   }

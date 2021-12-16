@@ -1,13 +1,13 @@
-import { applyPatch } from '../../commands/apply';
+import { stagePatch, unstagePatch } from '../../commands/apply';
 import { DiffFile } from '../../components/DiffFile';
-import { createLinePatch } from '../../patch';
+import { createPatch } from '../../patch';
 import { ViewBase } from '../ViewBase';
 import { State, store } from './store';
 
 export class DiffView extends ViewBase {
   mapping: Array<[number, number]>;
 
-  private cleanup: (() => void) | null;
+  private cleanup: (() => void) | undefined;
 
   constructor() {
     super();
@@ -25,10 +25,11 @@ export class DiffView extends ViewBase {
       const elm = document.createElement('div', { is: 'diff-file' }) as DiffFile;
       elm.update(diff);
       elm.addEventListener('line.mousedown', async (e) => {
-        const patchText = createLinePatch(e.detail.editorLineNo, e.detail.hunkIndex, e.detail.diff);
-        // console.log(patchText);
-        const result = await applyPatch(patchText);
-        console.log(result);
+        const patchText = createPatch([e.detail.editorLineNo], e.detail.diff);
+        if (patchText) {
+          const result = await stagePatch(patchText);
+          console.log(result);
+        }
       });
       this.appendChild(elm);
     }
@@ -36,7 +37,13 @@ export class DiffView extends ViewBase {
     for (const diff of stage.changes) {
       const elm = document.createElement('div', { is: 'diff-file' }) as DiffFile;
       elm.update(diff);
-      // elm.addEventListener('line.mousedown', this.onLineMouseDown);
+      elm.addEventListener('line.mousedown', async (e) => {
+        const patchText = createPatch([e.detail.editorLineNo], e.detail.diff);
+        if (patchText) {
+          const result = await unstagePatch(patchText);
+          console.log(result);
+        }
+      });
       this.appendChild(elm);
     }
   }

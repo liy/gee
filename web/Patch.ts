@@ -1,78 +1,72 @@
-import { Diff } from './DiffParser';
+import { LineStyle } from 'pixi.js';
+import { Diff, Hunk, HunkLine, HunkLineType } from './Diff';
 
-export enum LineType {
-  add,
-  remove,
-  normal,
-}
+// TODO: handle delete file and new files
+export const createPatch = (lineNos: number[], diff: Diff) => {
+  // only allows select add or remove lines
+  lineNos = lineNos.filter((lineNo) => {
+    return diff.getLine(lineNo).text.startsWith('-') || diff.getLine(lineNo).text.startsWith('+');
+  });
+  const selectedLineNos = new Set(lineNos);
 
-export const createLinePatch = (lineNo: number, hunkIndex: number, diff: Diff): string => {
-  const lines = diff.hunks.map((hunk) => hunk.lines).flat();
-  const selectedLine = lines[lineNo - 1];
+  const hunkLineTexts = diff.hunks
+    .map((hunk, index) => {
+      const hunkLines = new Array<string>();
+      let oldLength = 0;
+      let newLength = 0;
+      let ignoreHunk = true;
+      hunk.lines.forEach((line) => {
+        if (line.text.startsWith('@@')) {
+          // ignore the old hunk heading, it will be updated and prepended manually
+        } else if (line.text.startsWith('+')) {
+          const lineNo = diff.getLineNo(line);
+          if (lineNo && selectedLineNos.has(lineNo)) {
+            newLength++;
+            ignoreHunk = false;
+            hunkLines.push(line.text);
+          }
+          // If + line is not selected, it should no be included in the patch.
+          // So it is not included in hunkLines and does not increase old or new line count
+        } else if (line.text.startsWith('-')) {
+          const lineNo = diff.getLineNo(line);
+          // If - line is selected the line won't be in the new file so only increase old line cout
+          if (lineNo && selectedLineNos.has(lineNo)) {
+            oldLength++;
+            ignoreHunk = false;
+            hunkLines.push(line.text);
+          }
+          // If - line is not selected it means it means the old line will be presented in the patch
+          // So both new and old line count will be increased and we have to manually remove - prefix.
+          else {
+            oldLength++;
+            newLength++;
+            hunkLines.push(line.text.replace(/\-/, ' '));
+          }
+        }
+        // Normal lines in the patch, simply keep track of old and new line count
+        else if (line.text.startsWith(' ')) {
+          oldLength++;
+          newLength++;
+          hunkLines.push(line.text);
+        }
+        // Anything else we just pushing it into the patch hunk lines
+        else {
+          hunkLines.push(line.text);
+        }
+      });
 
-  // if (!selectedLine.text.startsWith('-') && !selectedLine.text.startsWith('+')) {
-  //   return '';
-  // }
-  let lineType = LineType.normal;
-  if (selectedLine.text.startsWith('-')) {
-    lineType = LineType.remove;
-  } else if (selectedLine.text.startsWith('+')) {
-    lineType = LineType.add;
-  } else {
-    return '';
-  }
+      if (!ignoreHunk) {
+        const oldRange = (hunk.heading.oldRange = [hunk.heading.oldRange[0], oldLength]);
+        const newRange = (hunk.heading.newRange = [hunk.heading.newRange[0], newLength]);
 
-  const lineTexts = [];
+        return `@@ -${oldRange[0]},${oldRange[1]} +${newRange[0]},${newRange[1]} @@ ${
+          hunk.heading.title
+        }\n${hunkLines.join('\n')}`;
+      }
 
-  let ln = lineNo;
+      return null;
+    })
+    .filter((text) => text !== null);
 
-  let startLineNo = lineNo;
-  // find previous line if any
-  while (--ln > 1) {
-    const line = lines[ln - 1];
-    if (line.text.startsWith(' ')) {
-      lineTexts.push(line.text);
-      startLineNo = ln;
-      break;
-    } else if (line.text.startsWith('-')) {
-      lineTexts.push(line.text.replace(/\-/, ' '));
-      startLineNo = ln;
-      break;
-    }
-
-    if (line.text.startsWith('@@')) {
-      break;
-    }
-  }
-
-  lineTexts.push(selectedLine.text);
-
-  ln = lineNo;
-  // find next line if any
-  while (++ln <= lines.length) {
-    const line = lines[ln - 1];
-    if (line.text.startsWith(' ')) {
-      lineTexts.push(line.text);
-      break;
-    } else if (line.text.startsWith('-')) {
-      lineTexts.push(line.text.replace(/\-/, ' '));
-      break;
-    }
-
-    if (line.text.startsWith('@@')) {
-      break;
-    }
-  }
-
-  let isRemove = selectedLine.text.startsWith('-');
-
-  const hunkHeading = `@@ -${startLineNo},${isRemove ? lineTexts.length : lineTexts.length - 1} +${startLineNo},${
-    isRemove ? lineTexts.length - 1 : lineTexts.length
-  } @@`;
-
-  // filter out the index line from the diff header, which does not make sense in patch scenarios
-  const headerText = diff.header.lines.filter((l) => !l.startsWith('index '));
-
-  // A valid patch starts with container diff header, and a hunk heading and actual patch content finally ends with a newline
-  return [headerText, hunkHeading, lineTexts, '\n'].flat().join('\n');
+  return diff.heading.text + '\n' + hunkLineTexts.join('\n') + '\n';
 };
