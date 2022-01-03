@@ -1,10 +1,9 @@
-import { RepositoryServiceClient } from './protobuf/pb/RepositoryService';
+const grpc = require('@grpc/grpc-js');
+import { Head__Output } from 'protobuf/pb/Head';
+import { Repository__Output } from 'protobuf/pb/Repository';
 import { ProtoGrpcType } from './protobuf/messages';
-import loader from '@grpc/proto-loader';
-import fs from 'fs';
-import grpc from '@grpc/grpc-js';
-import { Repository, Repository__Output } from 'protobuf/pb/Repository';
-import { Head, Head__Output } from 'protobuf/pb/Head';
+import { RepositoryServiceClient } from './protobuf/pb/RepositoryService';
+const loader = require('@grpc/proto-loader');
 const path = require('path');
 
 class RPC {
@@ -15,39 +14,23 @@ class RPC {
       arrays: true,
     });
     const pkg = grpc.loadPackageDefinition(packageDefinition) as unknown as ProtoGrpcType;
-    //   const Client  = pkg.pb.RepositoryService;
-    const cacert = fs.readFileSync(path.join(__dirname, require('../certificates/ca.crt')));
-    const cert = fs.readFileSync(path.join(__dirname, require('../certificates/client.crt')));
-    const key = fs.readFileSync(path.join(__dirname, require('../certificates/client.key')));
-    const kvpair = {
-      private_key: key,
-      cert_chain: cert,
-    };
-    const creds = grpc.credentials.createSsl(cacert, key, cert);
-
-    this.client = new pkg.pb.RepositoryService(`localhost:${8888}`, creds, {
-      'grpc.max_receive_message_length': 20 * 1024 * 1024,
-    });
+    this.client = new pkg.pb.RepositoryService('localhost:18888', grpc.credentials.createInsecure());
   }
 
-  getRepository(repoPath: string) {
-    const md = new grpc.Metadata();
-    md.add('path', repoPath || '../repos/checkout');
-
+  getRepository(path: string) {
     return new Promise<Repository__Output | null | undefined>((resolve, reject) => {
-      this.client.getRepository({}, md, (err, response) => {
+      this.client.getRepository({ path }, (err, response) => {
+        console.log(err, response?.repository);
         if (err) reject(err);
+
         resolve(response?.repository);
       });
     });
   }
 
-  getHead() {
-    const md = new grpc.Metadata();
-    md.add('path', '../repos/checkout');
-
+  getHead(path: string) {
     return new Promise<Head__Output | null | undefined>((resolve, reject) => {
-      this.client.getHead({}, md, (err, response) => {
+      this.client.getHead({ path }, (err, response) => {
         if (err) reject(err);
         resolve(response?.head);
       });

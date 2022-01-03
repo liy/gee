@@ -1,4 +1,4 @@
-import { Diff } from '../../DiffParser';
+import { Diff } from '../../Diff';
 
 export type Update = {
   type: 'update';

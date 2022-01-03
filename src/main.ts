@@ -3,7 +3,6 @@
 import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron';
 import * as path from 'path';
 import GeeApp from './app';
-import { debugMsg } from './debugUtils';
 import RPC from './RPC';
 
 const argv = require('minimist')(process.argv.slice(2));
@@ -41,15 +40,11 @@ if (app.requestSingleInstanceLock()) {
   app.on('ready', async () => {
     const mainWindow = createMainWindow();
 
-    const wd = process.env.NODE_ENV !== 'production' ? './' : process.cwd();
-
     // Loading the application
     const indexPath = path.join(__dirname, '../index.html');
     mainWindow.loadFile(indexPath).then(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-
-      mainWindow.webContents.send('openRepository', await RPC.getRepository(wd));
-      mainWindow.title = wd;
+      mainWindow.webContents.send('openRepository', await RPC.getRepository(process.cwd()));
+      mainWindow.title = process.cwd();
     });
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
@@ -93,7 +88,7 @@ if (app.requestSingleInstanceLock()) {
       mainWindow.show();
     });
 
-    GeeApp.init(wd);
+    GeeApp.init(process.cwd());
   });
 } else {
   console.log('single instance lock, exiting.');

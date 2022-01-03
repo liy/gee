@@ -20,7 +20,8 @@
     "lint": "eslint --ext .ts .",
     "rebuild-native": "npx electron-rebuild -f -b",
     "test": "jest",
-    "build": "node esbuild-electron.js && node esbuild-web.js"
+    "build": "node esbuild-electron.js && node esbuild-web.js",
+    "update-proto": "npx proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --arrays --grpcLib=@grpc/grpc-js --outDir=src/protobuf/ protobuf/messages.proto"
   },
   "repository": {
     "type": "git",
@@ -112,7 +113,10 @@
     "@codemirror/basic-setup": "^0.19.0",
     "@codemirror/gutter": "^0.19.9",
     "@codemirror/lang-javascript": "^0.19.3",
+    "@codemirror/rangeset": "^0.19.5",
+    "@codemirror/state": "^0.19.6",
     "@codemirror/theme-one-dark": "^0.19.1",
+    "@codemirror/view": "^0.19.37",
     "@grpc/grpc-js": "^1.4.3",
     "@grpc/proto-loader": "^0.6.6",
     "chalk": "^4.1.2",

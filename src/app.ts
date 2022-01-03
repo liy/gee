@@ -59,7 +59,7 @@ class GeeApp {
     });
 
     ipcMain.handle('file.save', async (event, filePath: string, patchText: string) => {
-      return new Promise<void>((resolve, reject) => {
+      return new Promise<string>((resolve, reject) => {
         fs.writeFile(filePath, patchText, (err) => {
           if (err) {
             reject(err);

@@ -1,72 +1,115 @@
-import { LineStyle } from 'pixi.js';
-import { Diff, Hunk, HunkLine, HunkLineType } from './Diff';
+import { Diff } from './Diff';
 
-// TODO: handle delete file and new files
-export const createPatch = (lineNos: number[], diff: Diff) => {
-  // only allows select add or remove lines
+// TODO: clean this up
+function transformLine(lineText: string, isSelected: boolean, reverse: boolean): string {
+  if (reverse) {
+    // In reverse mode non-selected + line need sign removing
+    if (!isSelected && lineText.startsWith('+')) {
+      return ' ' + lineText.substring(1);
+    }
+    // Selected line start with + needs reverting the sign, e.g., unstage a + line needs - the same line)
+    else if (lineText.startsWith('+')) {
+      return '-' + lineText.substring(1);
+    }
+    // Selected or non-selected line start with - needs reverting the sign
+    else if (lineText.startsWith('-')) {
+      return '+' + lineText.substring(1);
+    }
+    // Should not happen, only - or + line should be selectable
+    // just return the original line text
+    else {
+      return lineText;
+    }
+  }
+
+  // Line not selected and start with - needs removing sign
+  if (!isSelected && lineText.startsWith('-')) {
+    return ' ' + lineText.substring(1);
+  }
+
+  return lineText;
+}
+
+function getPatchHeading(diff: Diff, reverse: boolean): string {
+  // manually construct diff heading if diff is deleting
+  if (diff.heading.deleted && reverse) {
+    return diff.heading.lines[0] + '\n' + 'new file mode 100644';
+  } else if (diff.heading.new && reverse) {
+    const chunks = diff.heading.lines[0].split(' ');
+    return `${diff.heading.lines[0]}\n--- ${chunks[2]}\n+++ ${chunks[3]}`;
+  } else {
+    return diff.heading.lines.filter((text) => !text.startsWith('index')).join('\n');
+  }
+}
+
+/**
+ *
+ * @param lineNos
+ * @param diff
+ * @param reverse Whether to reverse the diff manually. Set it to true if you are unstaging individual line or hunk
+ * @returns
+ */
+export const createPatch = (lineNos: number[], diff: Diff, reverse = false) => {
+  // Only allows select add or remove lines
   lineNos = lineNos.filter((lineNo) => {
-    return diff.getLine(lineNo).text.startsWith('-') || diff.getLine(lineNo).text.startsWith('+');
+    const line = diff.getLine(lineNo);
+    return line.text.startsWith('-') || line.text.startsWith('+');
   });
   const selectedLineNos = new Set(lineNos);
 
-  const hunkLineTexts = diff.hunks
-    .map((hunk, index) => {
-      const hunkLines = new Array<string>();
+  // Loop all hunks and make the necessary transformation on first character of each line
+  const hunkContents = diff.hunks
+    .map((hunk) => {
+      // Transform the first character of every line
+      const lineTexts = hunk.lines
+        .map((line) => {
+          const lineNo = diff.getLineNo(line);
+          const isLineSelected = lineNo ? selectedLineNos.has(lineNo) : false;
+          const lineText = transformLine(line.text, isLineSelected, reverse);
+
+          // Ignore any line starts with + and not selected. + means newly added line and if it is not selected
+          // it should not be added to the patch. Note that - line is different, it means it is a old line and should
+          // still be added to the patch even the line is not selected
+          if (lineText.startsWith('+') && !isLineSelected) {
+            return null;
+          }
+
+          return lineText;
+        })
+        // Filter out the unselected + line
+        .filter((lineText) => {
+          return lineText !== null;
+        }) as Array<string>;
+
+      // Count the new, old and total number of changes
       let oldLength = 0;
       let newLength = 0;
-      let ignoreHunk = true;
-      hunk.lines.forEach((line) => {
-        if (line.text.startsWith('@@')) {
-          // ignore the old hunk heading, it will be updated and prepended manually
-        } else if (line.text.startsWith('+')) {
-          const lineNo = diff.getLineNo(line);
-          if (lineNo && selectedLineNos.has(lineNo)) {
-            newLength++;
-            ignoreHunk = false;
-            hunkLines.push(line.text);
-          }
-          // If + line is not selected, it should no be included in the patch.
-          // So it is not included in hunkLines and does not increase old or new line count
-        } else if (line.text.startsWith('-')) {
-          const lineNo = diff.getLineNo(line);
-          // If - line is selected the line won't be in the new file so only increase old line cout
-          if (lineNo && selectedLineNos.has(lineNo)) {
-            oldLength++;
-            ignoreHunk = false;
-            hunkLines.push(line.text);
-          }
-          // If - line is not selected it means it means the old line will be presented in the patch
-          // So both new and old line count will be increased and we have to manually remove - prefix.
-          else {
-            oldLength++;
-            newLength++;
-            hunkLines.push(line.text.replace(/\-/, ' '));
-          }
-        }
-        // Normal lines in the patch, simply keep track of old and new line count
-        else if (line.text.startsWith(' ')) {
+      let numChanges = 0;
+      for (const lineText of lineTexts) {
+        if (lineText.startsWith('-') || lineText.startsWith(' ')) {
           oldLength++;
+        }
+        if (lineText.startsWith('+') || lineText.startsWith(' ')) {
           newLength++;
-          hunkLines.push(line.text);
         }
-        // Anything else we just pushing it into the patch hunk lines
-        else {
-          hunkLines.push(line.text);
+        if (lineText.startsWith('+') || lineText.startsWith('-')) {
+          numChanges++;
         }
-      });
-
-      if (!ignoreHunk) {
-        const oldRange = (hunk.heading.oldRange = [hunk.heading.oldRange[0], oldLength]);
-        const newRange = (hunk.heading.newRange = [hunk.heading.newRange[0], newLength]);
-
-        return `@@ -${oldRange[0]},${oldRange[1]} +${newRange[0]},${newRange[1]} @@ ${
-          hunk.heading.title
-        }\n${hunkLines.join('\n')}`;
       }
 
-      return null;
+      // If this hunk has no change simply return null so we can filter it out later
+      if (numChanges == 0) return null;
+
+      const heading = `@@ -${hunk.heading.oldRange[0]},${oldLength} +${hunk.heading.newRange[0]},${newLength} @@`;
+
+      return heading + '\n' + lineTexts.slice(1).join('\n');
     })
+    // Filter out any empty hunk text
     .filter((text) => text !== null);
 
-  return diff.heading.text + '\n' + hunkLineTexts.join('\n') + '\n';
+  // Patch is empty if no hunk needs applying
+  if (hunkContents.length == 0) return null;
+
+  // Specifies correct diff heading, it add correct header for new or deleted file patch
+  return getPatchHeading(diff, reverse) + '\n' + hunkContents.join('\n') + '\n';
 };

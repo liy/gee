@@ -13,6 +13,10 @@ export class ViewBase extends HTMLDivElement {
     this.content.classList.add('content');
     this.appendChild(this.content);
   }
+
+  clearContent() {
+    this.content.replaceChildren();
+  }
 }
 
 customElements.define('view-base', ViewBase, { extends: 'div' });

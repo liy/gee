@@ -1,33 +1,16 @@
 import { EventMap } from './@types/event';
-import { stagePatch } from './commands/apply';
 import { allBranches } from './commands/branch';
-import { workspaceChanges } from './commands/changes';
 import { rebase } from './commands/rebase';
 import { tag } from './commands/tag';
-import { Diff } from './Diff';
 import EventEmitter from './EventEmitter';
-import { createPatch } from './patch';
 import { BranchView } from './views/BranchView';
-import { DiffView } from './views/diff/DiffView';
+import { StageView } from './views/diff/StageView';
 import { store } from './views/diff/store';
 import { status } from './views/diff/subroutines';
+import { WorkspaceView } from './views/diff/WorkspaceView';
 import { RebaseView } from './views/RebaseView';
 import { TagView } from './views/TagView';
 
-const t = `diff --git a/web/ConsoleMananger.ts b/web/ConsoleMananger.ts
-index 02ec875..e3dc2b3 100644
---- a/web/ConsoleMananger.ts
-+++ b/web/ConsoleMananger.ts
-@@ -1,7 +1,9 @@
- import { EventMap } from './@types/event';
- import { allBranches } from './commands/branch';
-+import { workspaceChanges } from './commands/changes';
- import { rebase } from './commands/rebase';
- import { tag } from './commands/tag';
-+import { Diff } from './Diff';
- import EventEmitter from './EventEmitter';
- import { BranchView } from './views/BranchView';
- import { DiffView } from './views/diff/DiffView';`;
 class ConsoleManager extends EventEmitter<EventMap> {
   consoleElement: HTMLElement;
 
@@ -63,8 +46,10 @@ class ConsoleManager extends EventEmitter<EventMap> {
         this.consoleElement.prepend(rebaseView);
         break;
       case 'status':
-        const diffView = document.createElement('div', { is: 'diff-view' }) as DiffView;
-        this.consoleElement.prepend(diffView);
+        const workspaceView = document.createElement('div', { is: 'workspace-view' }) as WorkspaceView;
+        const stageView = document.createElement('div', { is: 'stage-view' }) as StageView;
+        this.consoleElement.prepend(stageView);
+        this.consoleElement.prepend(workspaceView);
         store.invoke(status());
         break;
       case 'clear':
