@@ -1,4 +1,3 @@
-import { CommandCallback } from '../constants';
 import { LogEntry } from '../views/log/store';
 
 type Signaure = {
@@ -25,9 +24,9 @@ export const log = () => {
       onReadLine: (line: string) => {
         const matches = /\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]/.exec(line);
         if (matches && matches.length != 0) {
-          logs.push({
+          const parents = logs.push({
             hash: matches[1],
-            parents: matches[2].split(' '),
+            parents: matches[2] === '' ? [] : matches[2].split(' '),
             subject: matches[3],
             author: {
               name: matches[4],

@@ -3,10 +3,6 @@
 import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron';
 import * as path from 'path';
 import GeeApp from './app';
-import RPC from './RPC';
-import { spawn } from 'child_process';
-import * as readline from 'readline';
-import { createPatch } from '../web/Patch';
 
 const argv = require('minimist')(process.argv.slice(2));
 
@@ -36,57 +32,6 @@ function createMainWindow() {
   return browserWindow;
 }
 
-const commits = [];
-
-type Signaure = {
-  name: string;
-  email: string;
-};
-
-interface CommitLog {
-  hash: string;
-  parents: Array<string>;
-  subject: string;
-  author: Signaure;
-  authorDate: Date;
-  committer: Signaure;
-  commitDate: Date;
-}
-
-function openRepository(path: string) {
-  const logs = new Array<CommitLog>();
-  const cli = spawn('git', ['log', '--pretty="[%H][%P][%s][%an][%ae][%at][%cn][%ce][%ct]"', '--branches=*'], {
-    cwd: path,
-  });
-  const rl = readline.createInterface({ input: cli.stdout });
-
-  return new Promise<Array<CommitLog>>((resolve) => {
-    rl.on('line', (line) => {
-      const matches = /\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]/.exec(line);
-      if (matches && matches.length != 0) {
-        logs.push({
-          hash: matches[1],
-          parents: matches[2].split(' '),
-          subject: matches[3],
-          author: {
-            name: matches[4],
-            email: matches[5],
-          },
-          authorDate: new Date(parseInt(matches[6])),
-          committer: {
-            name: matches[7],
-            email: matches[8],
-          },
-          commitDate: new Date(parseInt(matches[9])),
-        });
-      }
-    });
-    rl.on('close', () => {
-      resolve(logs);
-    });
-  });
-}
-
 // Avoid GC causing tray icon disappers.
 let tray = null;
 
@@ -96,9 +41,7 @@ if (app.requestSingleInstanceLock()) {
 
     // Loading the application
     const indexPath = path.join(__dirname, '../index.html');
-    mainWindow.loadFile(indexPath).then(async () => {
-      mainWindow.webContents.send('openRepository', await RPC.getRepository(process.cwd()));
-      // mainWindow.webContents.send('openRepository', await openRepository(process.cwd()));
+    mainWindow.loadFile(indexPath).then(() => {
       mainWindow.title = process.cwd();
     });
     // Open the DevTools.
@@ -108,8 +51,6 @@ if (app.requestSingleInstanceLock()) {
     // Simply open repository at second instance working directory
     app.on('second-instance', async (event, commandLine, workingDirectory) => {
       GeeApp.workingDirectory = workingDirectory;
-      mainWindow.webContents.send('openRepository', await RPC.getRepository(workingDirectory));
-      // mainWindow.webContents.send('openRepository', await openRepository(workingDirectory));
       mainWindow.title = workingDirectory;
       mainWindow.show();
     });

@@ -1,5 +1,4 @@
 import { ipcMain } from 'electron';
-import RPC from './RPC';
 import { ChildProcess, spawn, execFile } from 'child_process';
 import {
   COMMAND_INVOKE,
@@ -22,9 +21,9 @@ class GeeApp {
   init(workingDirectory: string) {
     this.workingDirectory = workingDirectory;
 
-    ipcMain.handle(REPOSITORY_OPEN, async (_, repoPath: string) => {
-      return RPC.getRepository(repoPath);
-    });
+    // ipcMain.handle(REPOSITORY_OPEN, async (_, repoPath: string) => {
+    //   return RPC.getRepository(repoPath);
+    // });
 
     ipcMain.handle(COMMIT_SELECTED, () => {
       return 'test';

@@ -11,8 +11,6 @@ import { WorkspaceView } from './views/diff/WorkspaceView';
 import { LogView } from './views/log/LogView';
 import { RebaseView } from './views/RebaseView';
 import { TagView } from './views/TagView';
-import { log } from './views/log/subroutines';
-import { store as logStore } from './views/log/store';
 
 class ConsoleManager extends EventEmitter<EventMap> {
   consoleElement: HTMLElement;
@@ -35,6 +33,7 @@ class ConsoleManager extends EventEmitter<EventMap> {
     switch (cmd.toLowerCase()) {
       case 'clear':
         this.consoleElement.innerHTML = '';
+        break;
       case 'tag':
         const tagView = document.createElement('div', { is: 'tag-view' }) as TagView;
         tagView.update(await tag());
@@ -57,10 +56,10 @@ class ConsoleManager extends EventEmitter<EventMap> {
         this.consoleElement.prepend(workspaceView);
         diffStore.invoke(status());
         break;
-      case 'log':
-        const logView = document.createElement('div', { is: 'log-view' }) as LogView;
-        this.consoleElement.prepend(logView);
-        logStore.invoke(log());
+      // case 'log':
+      //   const logView = document.createElement('div', { is: 'log-view' }) as LogView;
+      //   this.consoleElement.prepend(logView);
+      //   break;
     }
   }
 }

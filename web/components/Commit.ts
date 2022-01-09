@@ -1,10 +1,7 @@
-import { Commit__Output } from '../../src/protobuf/pb/Commit';
-import template from './Commit.html';
-import './commit.css';
 import GraphStyle from '../ui/GraphStyle';
-import { Reference__Output } from 'protobuf/pb/Reference';
-import Node from '../graph/Node';
-import { Tag__Output } from 'protobuf/pb/Tag';
+import { LogEntry } from '../views/log/store';
+import './commit.css';
+import template from './Commit.html';
 
 const dateFormat = Intl.DateTimeFormat('en-GB', {
   month: 'short',
@@ -39,29 +36,13 @@ export class Commit extends HTMLDivElement {
     this.refsNode = this.querySelector('.refs')!;
   }
 
-  update(data: Commit__Output, branches: Reference__Output[], tags: Tag__Output[], graphNode: Node) {
-    this.summaryNode.textContent = data.summary;
-    this.hashNode.textContent = data.hash?.substr(0, 7) || '';
-    this.authroNode.textContent = data.author?.name || '';
-    const dateTime = new Date((data!.commitTime!.seconds as any).low * 1000);
-    this.dateTimeNode.textContent = dateFormat.format(dateTime) + ' ' + timeFormat.format(dateTime);
+  update(data: LogEntry) {
+    this.summaryNode.textContent = data.subject;
+    this.hashNode.textContent = data.hash.substring(0, 7);
+    this.authroNode.textContent = data.author.name;
+    this.dateTimeNode.textContent = dateFormat.format(data.commitDate) + ' ' + timeFormat.format(data.commitDate);
 
     this.refsNode.innerHTML = '';
-    for (const branch of branches) {
-      const node = document.createElement('span');
-      node.classList.add('ref');
-      node.textContent = branch.shorthand;
-      node.style.color = '#' + GraphStyle.getLineColour(graphNode.x, false).toString(16).padStart(6, '0');
-      this.refsNode.appendChild(node);
-    }
-
-    for (const tag of tags) {
-      const node = document.createElement('span');
-      node.classList.add('ref', 'tag');
-      node.textContent = '🏷️' + tag.name;
-      node.style.color = '#e9a948';
-      this.refsNode.appendChild(node);
-    }
   }
 
   onClick(e: MouseEvent) {}

@@ -1,4 +1,4 @@
-import { Hash } from '../@types/gee';
+import { Hash } from '../@types/window';
 import Node from './Node';
 
 /**

@@ -1,0 +1,9 @@
+#commit-table {
+  position: sticky;
+  width: 100%;
+
+  margin-left: 4px;
+  margin-right: 4px;
+
+  width: 600px;
+}
