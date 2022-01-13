@@ -1,21 +1,20 @@
+import { appStore } from '../../appStore';
+import { Commit } from '../../components/Commit';
+import Graph from '../../graph/Graph';
 import GraphStore from '../../graph/GraphStore';
 import StraightLayout from '../../layouts/StraightLayout';
-import GraphStyle from '../../ui/GraphStyle';
 import { ViewBase } from '../ViewBase';
+import { SelectLog, Update } from './actions';
+import GraphStyle from './GraphStyle';
 import GraphView from './GraphView';
-import { LogEntry, store } from './store';
-import { log } from './subroutines';
 import template from './LogView.html';
-import Graph from '../../graph/Graph';
-import { Commit } from '../../components/Commit';
+import { LogEntry, State, store } from './store';
 import './table.css';
 
 export class LogView extends ViewBase {
-  private cleanup: (() => void) | undefined;
+  private unsubscribe: (() => void) | undefined;
 
   elements: Array<Commit>;
-
-  selectedCommit: LogEntry | undefined;
 
   scrollbar: HTMLElement;
 
@@ -26,6 +25,10 @@ export class LogView extends ViewBase {
   numRows: number = 0;
 
   startIndex: number = 0;
+
+  map: Map<string, LogEntry> = new Map();
+
+  graph: Graph;
 
   constructor() {
     super();
@@ -41,53 +44,58 @@ export class LogView extends ViewBase {
     this.table = this.querySelector('#commit-table')!;
     this.table.style.transform = 'translate(0px)';
     this.scrollElement = this.scrollbar.querySelector<HTMLElement>('.scroll-content')!;
+    this.graph = GraphStore.getGraph(appStore.currentState.workingDirectory);
 
     this.onScroll = this.onScroll.bind(this);
     this.onResize = this.onResize.bind(this);
-  }
+    this.onBranchSelected = this.onBranchSelected.bind(this);
 
-  display(graph: Graph, logs: Array<LogEntry>) {
-    // 2 extra rows for top and bottom, so smooth scroll display commit outside of the viewport
-    this.numRows = Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1;
-    this.scrollElement.style.height = GraphStyle.sliceHeight * logs.length + 'px';
-
-    this.clear();
-    this.layout();
-    this.update();
-
-    this.scrollbar.removeEventListener('scroll', this.onScroll);
     this.scrollbar.addEventListener('scroll', this.onScroll, { passive: true });
-    window.removeEventListener('resize', this.onResize);
     window.addEventListener('resize', this.onResize, { passive: true });
+    document.addEventListener('branch.selected', this.onBranchSelected);
 
-    document.addEventListener('commit.focus', (e) => {
-      const node = graph.getNode(e.detail);
-      this.scrollView(node.y);
-    });
+    this.unsubscribe = store.subscribe(this);
   }
-
   /**
    * Update elements with commit data
    */
-  update() {
-    this.startIndex = Math.floor(
-      (this.scrollbar.scrollTop + this.table.getBoundingClientRect().y) / GraphStyle.sliceHeight
-    );
+  update(action: Update, _: State) {
+    this.map.clear();
+    for (const log of action.logs) {
+      this.map.set(log.hash, log);
+    }
 
-    const logs = store.currentState.logs;
+    this.graph = GraphStore.getGraph(appStore.currentState.workingDirectory);
+    this.graph.clear();
+    for (const log of this.logs) {
+      this.graph.createNode(log.hash, log.parents);
+    }
 
-    for (let i = 0, ii = this.startIndex; i < this.numRows; ++i, ++ii) {
-      if (i < this.elements.length) {
-        const node = this.elements[i];
-        if (ii < logs.length) node.update(logs[ii]);
-      }
+    const layout = new StraightLayout(this.graph);
+    GraphView.display(layout.process());
+
+    this.populate();
+  }
+
+  selectLog(action: SelectLog, _: State) {
+    const node = this.graph.getNode(action.log.hash);
+    this.scrollView(node.y);
+  }
+
+  private onBranchSelected(e: CustomEvent) {
+    const log = this.map.get(e.detail.hash);
+    if (log) {
+      store.operate({
+        type: 'selectLog',
+        log,
+      });
     }
   }
 
   /**
-   * Layout commit elements
+   * Layout commit DOM elements
    */
-  layout() {
+  private layout() {
     this.numRows = Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1;
 
     const limit = Math.max(this.numRows, this.elements.length);
@@ -105,57 +113,38 @@ export class LogView extends ViewBase {
     }
   }
 
-  async connectedCallback() {
-    await store.invoke(log());
-    this.cleanup = store.on({
-      update: (_, state) => {
-        this.update();
-      },
-    });
+  private populate() {
+    this.startIndex = Math.floor(
+      (this.scrollbar.scrollTop + this.table.getBoundingClientRect().y) / GraphStyle.sliceHeight
+    );
 
-    // const logs = store.currentState.logs;
+    this.scrollElement.style.height = GraphStyle.sliceHeight * this.logs.length + 'px';
 
-    // this.numRows = Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1;
-    // this.scrollElement.style.height = GraphStyle.sliceHeight * logs.length + 'px';
-
-    // const graph = GraphStore.createGraph('test');
-    // for (const entry of logs) {
-    //   graph.createNode(entry.hash, entry.parents);
-    // }
-
-    // const layout = new StraightLayout(graph);
-    // const result = layout.process();
-    // GraphView.display(result);
-
-    // this.clear();
-    // this.layout();
-    // this.update();
-
-    // this.scrollbar.removeEventListener('scroll', this.onScroll);
-    // this.scrollbar.addEventListener('scroll', this.onScroll, { passive: true });
-    // window.removeEventListener('resize', this.onResize);
-    // window.addEventListener('resize', this.onResize, { passive: true });
-
-    // document.addEventListener('commit.focus', (e) => {
-    //   const node = graph.getNode(e.detail);
-    //   this.scrollView(node.y);
-    // });
-
-    const logs = store.currentState.logs;
-
-    const graph = GraphStore.createGraph('test');
-    for (const entry of logs) {
-      graph.createNode(entry.hash, entry.parents);
+    for (let i = 0, ii = this.startIndex; i < this.numRows; ++i, ++ii) {
+      if (i < this.elements.length) {
+        const node = this.elements[i];
+        if (ii < this.logs.length) node.update(this.logs[ii]);
+      }
     }
+  }
 
-    const layout = new StraightLayout(graph);
-    const result = layout.process();
-    GraphView.display(result);
-    this.display(graph, logs);
+  get logs() {
+    return store.currentState.logs;
+  }
+
+  connectedCallback() {
+    // 2 extra rows for top and bottom, so smooth scroll display commit outside of the viewport
+    this.numRows = Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1;
+    this.scrollElement.style.height = GraphStyle.sliceHeight * this.logs.length + 'px';
+
+    this.layout();
   }
 
   disconnectedCallback() {
-    this.cleanup?.();
+    this.unsubscribe?.();
+    this.scrollbar.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this.onResize);
+    document.removeEventListener('branch.selected', this.onBranchSelected);
   }
 
   /**
@@ -172,12 +161,12 @@ export class LogView extends ViewBase {
 
   onResize() {
     this.layout();
-    this.update();
+    this.populate();
   }
 
   onScroll(e: Event) {
     this.table.style.top = `${-(this.scrollbar.scrollTop % GraphStyle.sliceHeight)}px`;
-    this.update();
+    this.populate();
   }
 
   scrollView(index: number) {

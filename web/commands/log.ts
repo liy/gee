@@ -15,12 +15,12 @@ interface CommitLog {
   commitDate: Date;
 }
 
-export const log = () => {
+export const log = (workingDirectory: string) => {
   const args = ['git', 'log', '--pretty="[%H][%P][%s][%an][%ae][%at][%cn][%ce][%ct]"', '--branches=*'];
 
   const logs = new Array<CommitLog>();
   return new Promise<LogEntry[]>((resolve, reject) => {
-    window.command.submit(args, {
+    window.command.submit(args, workingDirectory, {
       onReadLine: (line: string) => {
         const matches = /\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]/.exec(line);
         if (matches && matches.length != 0) {

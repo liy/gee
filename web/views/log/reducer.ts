@@ -9,4 +9,10 @@ export const reducer: Reducer<ActionMapping, State> = {
       logs: action.logs,
     };
   },
+  selectLog(action, state) {
+    return {
+      ...state,
+      selectedLog: action.log,
+    };
+  },
 };

@@ -1,4 +1,5 @@
 import { Hash } from '../@types/window';
+import { appStore } from '../appStore';
 
 export interface BranchData {
   name: string;
@@ -6,11 +7,11 @@ export interface BranchData {
   hash: string;
 }
 
-export const allBranches = () => {
+export const allBranches = (workingDirectory: string) => {
   const args = ['git', 'branch', '--format', '%(refname) %(refname:short) %(objectname)'];
   return new Promise<Array<BranchData>>((resolve, reject) => {
     const entries = new Array<BranchData>();
-    window.command.submit(args, {
+    window.command.submit(args, workingDirectory, {
       onReadLine: (line: string) => {
         const [name, shorthand, hash] = line.split(' ');
         entries.push({
@@ -33,7 +34,7 @@ export const currentBranch = async (): Promise<[string | undefined, Hash | undef
   // get branch name, pointed by HEAD
   const branchName = await new Promise<string | undefined>((resolve, reject) => {
     let branchName: string | undefined;
-    window.command.submit(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], {
+    window.command.submit(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], appStore.currentState.workingDirectory, {
       onReadLine: (line: string) => {
         branchName = line.trim();
       },
@@ -49,7 +50,7 @@ export const currentBranch = async (): Promise<[string | undefined, Hash | undef
   // Get hash
   const hash = await new Promise<string | undefined>((resolve, reject) => {
     let h: string | undefined;
-    window.command.submit(['git', 'rev-parse', 'HEAD'], {
+    window.command.submit(['git', 'rev-parse', 'HEAD'], appStore.currentState.workingDirectory, {
       onReadLine: (line: string) => {
         h = line.trim();
       },

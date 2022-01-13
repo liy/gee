@@ -1,7 +1,6 @@
-import { BranchData } from '../commands/branch';
-import { Branch } from '../components/Branch';
-import CommitManager from '../ui/CommitManager';
-import { ViewBase } from './ViewBase';
+import { BranchData } from '../../commands/branch';
+import { Branch } from '../../components/Branch';
+import { ViewBase } from '../ViewBase';
 
 export class BranchView extends ViewBase {
   constructor() {
@@ -16,7 +15,7 @@ export class BranchView extends ViewBase {
     for (const d of data) {
       const branch = document.createElement('git-branch') as Branch;
       branch.update(d);
-      branch.style.color = '#' + CommitManager.getCommitColor(d.hash).toString(16).padStart(6, '0');
+      // branch.style.color = '#' + CommitManager.getCommitColor(d.hash).toString(16).padStart(6, '0');
       this.content.appendChild(branch);
     }
   }

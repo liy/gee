@@ -15,7 +15,15 @@ export class Branch extends HTMLElement {
   }
 
   onClick(e: MouseEvent) {
-    this.dispatchEvent(new CustomEvent('commit.focus', { bubbles: true, detail: this._data.hash }));
+    this.dispatchEvent(
+      new CustomEvent('branch.selected', {
+        bubbles: true,
+        detail: {
+          name: this._data.name,
+          hash: this._data.hash,
+        },
+      })
+    );
   }
 
   connectedCallback() {

@@ -2,7 +2,7 @@
 
 import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron';
 import * as path from 'path';
-import GeeApp from './app';
+import { start } from './app';
 
 const argv = require('minimist')(process.argv.slice(2));
 
@@ -50,7 +50,7 @@ if (app.requestSingleInstanceLock()) {
     // Second instance is passing the arguments to this first instance.
     // Simply open repository at second instance working directory
     app.on('second-instance', async (event, commandLine, workingDirectory) => {
-      GeeApp.workingDirectory = workingDirectory;
+      mainWindow.webContents.send('wd.changed', workingDirectory);
       mainWindow.title = workingDirectory;
       mainWindow.show();
     });
@@ -84,7 +84,7 @@ if (app.requestSingleInstanceLock()) {
       mainWindow.show();
     });
 
-    GeeApp.init(process.cwd());
+    start(process.cwd());
   });
 } else {
   console.log('single instance lock, exiting.');

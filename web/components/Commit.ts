@@ -1,4 +1,4 @@
-import GraphStyle from '../ui/GraphStyle';
+import GraphStyle from '../views/log/GraphStyle';
 import { LogEntry } from '../views/log/store';
 import './commit.css';
 import template from './Commit.html';

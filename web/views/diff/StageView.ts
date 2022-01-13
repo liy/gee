@@ -1,3 +1,4 @@
+import { appStore } from '../../appStore';
 import { applyPatch } from '../../commands/apply';
 import { DiffFile } from '../../components/DiffFile';
 import { Diff } from '../../Diff';
@@ -34,7 +35,7 @@ export class StageView extends ViewBase {
         const patchText = createPatch([e.detail.editorLineNo], e.detail.diff, true);
         if (patchText) {
           await applyPatch(patchText);
-          store.invoke(status());
+          store.invoke(status(appStore.currentState.workingDirectory));
         }
       });
       this.content.appendChild(elm);
@@ -42,7 +43,7 @@ export class StageView extends ViewBase {
   }
 
   connectedCallback() {
-    this.cleanup = store.on({
+    this.cleanup = store.subscribe({
       update: (_, state) => this.update(state.stage.changes),
     });
   }

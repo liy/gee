@@ -1,9 +1,10 @@
 import { Store } from '../../vase';
-import { Update } from './actions';
+import { SelectLog, Update } from './actions';
 import { reducer } from './reducer';
 
 export interface ActionMapping {
   update: Update;
+  selectLog: SelectLog;
 }
 
 export type Signature = {
@@ -34,12 +35,18 @@ export interface Branch {
   shorthand: string;
 }
 
-const initialState = {
+export type State = {
+  logs: LogEntry[];
+  tags: Tag[];
+  branches: Branch[];
+  selectedLog: LogEntry | null;
+};
+
+const initialState: State = {
   logs: new Array<LogEntry>(),
   tags: new Array<Tag>(),
   branches: new Array<Branch>(),
+  selectedLog: null,
 };
-
-export type State = typeof initialState;
 
 export const store = new Store<ActionMapping, State>(initialState, reducer);

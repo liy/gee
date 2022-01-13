@@ -115,6 +115,11 @@ export default class Graph {
     }
   }
 
+  clear(): void {
+    this.map = new Map<Hash, Node>();
+    this.nodes = new Array<Node>();
+  }
+
   getParentNodes(node: Node): Array<Node> {
     return node.parents.map((hash) => this.getNode(hash));
   }

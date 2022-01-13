@@ -92,14 +92,14 @@ export class Store<M extends BaseActionMapping<M> = any, State = any> {
     return thunk(this.operate.bind(this), this.currentState);
   }
 
-  notify(action: Readonly<M[keyof M]>, newState: Readonly<State>, oldState: Readonly<State>) {
+  protected notify(action: Readonly<M[keyof M]>, newState: Readonly<State>, oldState: Readonly<State>) {
     for (let subscription of this.subscriptions) {
       // Optional chaining function call
       subscription[action.type]?.(action, newState, oldState);
     }
   }
 
-  on(sub: Subscription<M, State>): () => void {
+  subscribe(sub: Subscription<M, State>): () => void {
     this.subscriptions.push(sub);
 
     return () => {

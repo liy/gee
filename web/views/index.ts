@@ -1,6 +1,6 @@
 import './index.css';
 import './TagView';
-import './BranchView';
+import './branch/BranchView';
 import './RebaseView';
 import './StatusView';
 import './diff/WorkspaceView';

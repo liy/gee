@@ -17,7 +17,7 @@ install(PIXI);
 import './graph.css';
 
 import { SimType } from '../../Simulator';
-import GraphStyle from '../../ui/GraphStyle';
+import GraphStyle from './GraphStyle';
 import { LayoutResult } from '../../layouts/StraightLayout';
 
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
@@ -42,6 +42,8 @@ class GraphView {
 
   initialized: boolean;
 
+  private renderer: Renderer;
+
   constructor() {
     this.strap = new Graphics();
     this.initialized = false;
@@ -55,6 +57,9 @@ class GraphView {
 
     const smoothScroll = false;
 
+    this.arcRadius = GraphStyle.getArcRadius();
+    this.canvasWidth = GraphStyle.getGraphWidth(layoutResult.totalLanes);
+
     if (!this.initialized) {
       this.lineGraphics = new Graphics();
 
@@ -64,15 +69,12 @@ class GraphView {
       // stats.dom.style.left = 'unset';
       // stats.dom.style.right = '80px';
 
-      this.arcRadius = GraphStyle.getArcRadius();
-      this.canvasWidth = GraphStyle.getGraphWidth(layoutResult.totalLanes);
-
       this.strap.beginFill(0x3875af, 0.2);
       this.strap.drawRect(0, -GraphStyle.sliceHeight / 2, this.canvasWidth, GraphStyle.sliceHeight);
       this.strap.endFill();
       this.strap.visible = false;
 
-      const renderer = new Renderer({
+      this.renderer = new Renderer({
         view: canvas,
         width: this.canvasWidth,
         height: window.innerHeight,
@@ -113,14 +115,14 @@ class GraphView {
       scrollbar.style.height = window.innerHeight + 'px';
       window.addEventListener('resize', (e) => {
         canvas.style.height = window.innerHeight + 'px';
-        renderer.resize(this.canvasWidth, window.innerHeight);
+        this.renderer.resize(this.canvasWidth, window.innerHeight);
         scrollbar.style.height = window.innerHeight + 'px';
       });
 
       const ticker = new Ticker();
       ticker.add(() => {
         // stats.begin();
-        renderer.render(stage);
+        this.renderer.render(stage);
         // stats.end();
       });
       ticker.start();
@@ -136,9 +138,11 @@ class GraphView {
         GraphStyle.node.radius * 2
       );
       nodeGraphics.endFill();
-      this.nodeTexture = renderer.generateTexture(nodeGraphics);
+      this.nodeTexture = this.renderer.generateTexture(nodeGraphics);
 
       this.initialized = true;
+    } else {
+      this.renderer.resize(this.canvasWidth, window.innerHeight);
     }
 
     this.update(layoutResult);

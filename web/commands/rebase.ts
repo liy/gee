@@ -70,10 +70,10 @@ function readTodos() {
   });
 }
 
-export const rebase = async () => {
+export const rebase = async (workingDirectory: string) => {
   const args = ['git', 'rebase', '--interactive', 'origin/master'];
   await new Promise<void>((resolve) => {
-    window.command.submit(args, {
+    window.command.submit(args, workingDirectory, {
       onReadLine: (line: string, routeId: CallbackID) => {
         window.command.kill(routeId);
       },

@@ -5,14 +5,14 @@ export interface TagData {
   targetHash: string;
 }
 
-export const tag = () => {
+export const tag = (workingDirectory: string) => {
   const args = ['git', 'show-ref', '--tags', '-d'];
   return new Promise<Array<TagData>>((resolve, reject) => {
     // tag name -> tag
     const entries = new Array<TagData>();
     // tag name -> annotated tag object hash
     const annoated = new Map<string, string>();
-    window.command.submit(args, {
+    window.command.submit(args, workingDirectory, {
       onReadLine: (line: string) => {
         const [hash, name] = line.split(' ');
         const tagName = name.replace(/\^\{\}$/, '');

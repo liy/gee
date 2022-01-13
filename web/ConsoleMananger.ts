@@ -1,9 +1,11 @@
+import { app } from 'electron';
 import { EventMap } from './@types/event';
+import { appStore } from './appStore';
 import { allBranches } from './commands/branch';
 import { rebase } from './commands/rebase';
 import { tag } from './commands/tag';
 import EventEmitter from './EventEmitter';
-import { BranchView } from './views/BranchView';
+import { BranchView } from './views/branch/BranchView';
 import { StageView } from './views/diff/StageView';
 import { store as diffStore } from './views/diff/store';
 import { status } from './views/diff/subroutines';
@@ -12,12 +14,10 @@ import { LogView } from './views/log/LogView';
 import { RebaseView } from './views/RebaseView';
 import { TagView } from './views/TagView';
 
-class ConsoleManager extends EventEmitter<EventMap> {
+class ConsoleManager {
   consoleElement: HTMLElement;
 
   constructor() {
-    super();
-
     this.consoleElement = document.getElementById('console')!;
 
     const input = document.getElementsByClassName('command-input')[0] as HTMLInputElement;
@@ -26,6 +26,12 @@ class ConsoleManager extends EventEmitter<EventMap> {
         this.process(input.value);
         input.value = '';
       }
+    });
+
+    appStore.subscribe({
+      'wd.update': () => {
+        this.process('clear');
+      },
     });
   }
 
@@ -36,17 +42,17 @@ class ConsoleManager extends EventEmitter<EventMap> {
         break;
       case 'tag':
         const tagView = document.createElement('div', { is: 'tag-view' }) as TagView;
-        tagView.update(await tag());
+        tagView.update(await tag(appStore.currentState.workingDirectory));
         this.consoleElement.prepend(tagView);
         break;
       case 'branch':
         const branchView = document.createElement('div', { is: 'branch-view' }) as BranchView;
-        branchView.update(await allBranches());
+        branchView.update(await allBranches(appStore.currentState.workingDirectory));
         this.consoleElement.prepend(branchView);
         break;
       case 'rebase':
         const rebaseView = document.createElement('div', { is: 'rebase-view' }) as RebaseView;
-        rebaseView.update(await rebase());
+        rebaseView.update(await rebase(appStore.currentState.workingDirectory));
         this.consoleElement.prepend(rebaseView);
         break;
       case 'status':
@@ -54,12 +60,8 @@ class ConsoleManager extends EventEmitter<EventMap> {
         const stageView = document.createElement('div', { is: 'stage-view' }) as StageView;
         this.consoleElement.prepend(stageView);
         this.consoleElement.prepend(workspaceView);
-        diffStore.invoke(status());
+        diffStore.invoke(status(appStore.currentState.workingDirectory));
         break;
-      // case 'log':
-      //   const logView = document.createElement('div', { is: 'log-view' }) as LogView;
-      //   this.consoleElement.prepend(logView);
-      //   break;
     }
   }
 }

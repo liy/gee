@@ -6,14 +6,14 @@ class GraphStore {
     this.map = new Map<string, Graph>();
   }
 
-  createGraph(id: string): Graph {
-    const graph = new Graph();
-    this.map.set(id, graph);
-    return graph;
-  }
+  getGraph(id: string): Graph {
+    let graph = this.map.get(id);
+    if (!graph) {
+      graph = new Graph();
+      this.map.set(id, graph);
+    }
 
-  getGraph(id: string): Graph | undefined {
-    return this.map.get(id);
+    return graph;
   }
 
   removeGraph(id: string): boolean {

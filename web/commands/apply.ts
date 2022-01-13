@@ -1,3 +1,5 @@
+import { appStore } from '../appStore';
+
 /**
  *
  * @param patch
@@ -10,5 +12,5 @@ export const applyPatch = async (patch: string, gitReverse: Boolean = false) => 
   const args = ['git', 'apply', '--cached'];
   if (gitReverse) args.push('--reverse');
   args.push(path);
-  return window.command.invoke(args);
+  return window.command.invoke(args, appStore.currentState.workingDirectory);
 };
