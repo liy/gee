@@ -1,51 +1,26 @@
 import { Store } from '../../vase';
-import { SelectLog, Update } from './actions';
+import { SelectLog, Update, UpdateBranch, UpdateLog, UpdateTag } from './actions';
 import { reducer } from './reducer';
 
 export interface ActionMapping {
   update: Update;
+  updateLog: UpdateLog;
   selectLog: SelectLog;
-}
-
-export type Signature = {
-  name: string;
-  email: string;
-};
-
-export interface LogEntry {
-  hash: string;
-  parents: string[];
-  subject: string;
-  author: Signature;
-  authorDate: Date;
-  committer: Signature;
-  commitDate: Date;
-}
-
-export interface Tag {
-  hash: string;
-  name: string;
-  shorthand: string;
-  targetHash: string;
-}
-
-export interface Branch {
-  targetHash: string;
-  name: string;
-  shorthand: string;
+  updateTag: UpdateTag;
+  updateBranch: UpdateBranch;
 }
 
 export type State = {
-  logs: LogEntry[];
-  tags: Tag[];
-  branches: Branch[];
-  selectedLog: LogEntry | null;
+  logs: Log[];
+  tags: Map<string, Tag[]>;
+  branches: Map<string, Branch[]>;
+  selectedLog: Log | null;
 };
 
 const initialState: State = {
-  logs: new Array<LogEntry>(),
-  tags: new Array<Tag>(),
-  branches: new Array<Branch>(),
+  logs: new Array<Log>(),
+  tags: new Map<string, Tag[]>(),
+  branches: new Map<string, Branch[]>(),
   selectedLog: null,
 };
 

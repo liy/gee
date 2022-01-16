@@ -16,7 +16,7 @@ export class Branch extends HTMLElement {
 
   onClick(e: MouseEvent) {
     this.dispatchEvent(
-      new CustomEvent('branch.selected', {
+      new CustomEvent('reference.clicked', {
         bubbles: true,
         detail: {
           name: this._data.name,

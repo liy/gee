@@ -9,8 +9,12 @@ interface EventMap {
   'command.tag': TagData[];
   'input.command': string;
   'line.mousedown': LineMouseDownData;
-  'branch.selected': {
-    branchName: string;
+  // 'branch.selected': {
+  //   branchName: string;
+  //   hash: string;
+  // };
+  'reference.clicked': {
+    name: string;
     hash: string;
   };
 }

@@ -1,11 +1,26 @@
-import { LogEntry } from './store';
-
 export type Update = {
   type: 'update';
-  logs: LogEntry[];
+  logs: Log[];
+  tags: Tag[];
+  branches: Branch[];
+};
+
+export type UpdateLog = {
+  type: 'updateLog';
+  logs: Log[];
+};
+
+export type UpdateTag = {
+  type: 'updateTag';
+  tags: Tag[];
+};
+
+export type UpdateBranch = {
+  type: 'updateBranch';
+  branches: Branch[];
 };
 
 export type SelectLog = {
   type: 'selectLog';
-  log: LogEntry;
+  log: Log;
 };

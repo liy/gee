@@ -4,3 +4,4 @@ import './Tag';
 import './Branch';
 import './Commit';
 import './DiffFile';
+import './LogLabel/LogLabel';

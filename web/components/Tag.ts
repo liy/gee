@@ -14,7 +14,12 @@ export class CommitTag extends HTMLElement {
   }
 
   onClick(e: MouseEvent) {
-    this.dispatchEvent(new CustomEvent('commit.focus', { bubbles: true, detail: this._data.targetHash }));
+    this.dispatchEvent(
+      new CustomEvent('reference.clicked', {
+        bubbles: true,
+        detail: { name: this._data.name, hash: this._data.targetHash },
+      })
+    );
   }
 
   connectedCallback() {

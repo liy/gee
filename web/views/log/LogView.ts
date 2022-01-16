@@ -4,11 +4,11 @@ import Graph from '../../graph/Graph';
 import GraphStore from '../../graph/GraphStore';
 import StraightLayout from '../../layouts/StraightLayout';
 import { ViewBase } from '../ViewBase';
-import { SelectLog, Update } from './actions';
+import { SelectLog, Update, UpdateLog } from './actions';
 import GraphStyle from './GraphStyle';
 import GraphView from './GraphView';
 import template from './LogView.html';
-import { LogEntry, State, store } from './store';
+import { State, store } from './store';
 import './table.css';
 
 export class LogView extends ViewBase {
@@ -26,7 +26,7 @@ export class LogView extends ViewBase {
 
   startIndex: number = 0;
 
-  map: Map<string, LogEntry> = new Map();
+  map: Map<string, Log> = new Map();
 
   graph: Graph;
 
@@ -48,11 +48,11 @@ export class LogView extends ViewBase {
 
     this.onScroll = this.onScroll.bind(this);
     this.onResize = this.onResize.bind(this);
-    this.onBranchSelected = this.onBranchSelected.bind(this);
+    this.focusLog = this.focusLog.bind(this);
 
     this.scrollbar.addEventListener('scroll', this.onScroll, { passive: true });
     window.addEventListener('resize', this.onResize, { passive: true });
-    document.addEventListener('branch.selected', this.onBranchSelected);
+    document.addEventListener('reference.clicked', this.focusLog);
 
     this.unsubscribe = store.subscribe(this);
   }
@@ -82,7 +82,7 @@ export class LogView extends ViewBase {
     this.scrollView(node.y);
   }
 
-  private onBranchSelected(e: CustomEvent) {
+  private focusLog(e: CustomEvent) {
     const log = this.map.get(e.detail.hash);
     if (log) {
       store.operate({
@@ -123,7 +123,11 @@ export class LogView extends ViewBase {
     for (let i = 0, ii = this.startIndex; i < this.numRows; ++i, ++ii) {
       if (i < this.elements.length) {
         const node = this.elements[i];
-        if (ii < this.logs.length) node.update(this.logs[ii]);
+        if (ii < this.logs.length) {
+          const branches = store.currentState.branches.get(this.logs[ii].hash) || [];
+          const tags = store.currentState.tags.get(this.logs[ii].hash) || [];
+          node.update(this.logs[ii], [...branches, ...tags]);
+        }
       }
     }
   }
@@ -144,7 +148,7 @@ export class LogView extends ViewBase {
     this.unsubscribe?.();
     this.scrollbar.removeEventListener('scroll', this.onScroll);
     window.removeEventListener('resize', this.onResize);
-    document.removeEventListener('branch.selected', this.onBranchSelected);
+    document.removeEventListener('reference.clicked', this.focusLog);
   }
 
   /**

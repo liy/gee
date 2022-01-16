@@ -1,14 +1,13 @@
-.ref-label {
-  margin-right: 4px;
+.log-label {
   border-radius: 9px;
-  padding: 2px 10px;
+  padding: 0px 5px;
   color: white;
 }
 
-.ref-label.branch {
+.log-label.branch {
   background-color: #ff9900;
 }
 
-.ref-label.tag {
+.log-label.tag {
   background-color: #ff0000;
 }

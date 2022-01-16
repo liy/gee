@@ -1,6 +1,6 @@
-import { Diff } from '../../DiffParser';
+import { Diff } from '../../Diff';
 import { Store } from '../../vase';
-import { Apply, Update, ToggleLine } from './actions';
+import { Apply, ToggleLine, Update } from './actions';
 import { reducer } from './reducer';
 
 export interface ActionMapping {

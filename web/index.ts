@@ -33,6 +33,7 @@ if (wd) {
   const root = document.getElementById('root')!;
   root.prepend(logView);
 
+  // logs
   await logStore.invoke(log(wd));
 } else {
   // Display splash screen
