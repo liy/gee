@@ -5,6 +5,10 @@ function parseReference(str: string) {
   for (const chunk of chunks) {
     // head
     if (chunk.startsWith('HEAD -> ')) {
+      const result = /HEAD -> (.+)/.exec(chunk);
+      if (result && result.length != 0) {
+        branches.push(result[1]);
+      }
     }
     // tags
     else if (chunk.startsWith('tag: ')) {
