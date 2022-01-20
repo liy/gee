@@ -40,13 +40,15 @@ export const reducer: Reducer<ActionMapping, State> = {
   update(action, state) {
     const branchMap = new Map<string, Branch[]>();
     for (const branch of action.branches) {
-      const branches = branchMap.get(branch.targetHash) || [branch];
+      const branches = branchMap.get(branch.targetHash) || [];
+      branches.push(branch);
       branchMap.set(branch.targetHash, branches);
     }
 
     const tagMap = new Map<string, Tag[]>();
     for (const tag of action.tags) {
-      const tags = tagMap.get(tag.hash) || [tag];
+      const tags = tagMap.get(tag.hash) || [];
+      tags.push(tag);
       tagMap.set(tag.targetHash, tags);
     }
 

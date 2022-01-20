@@ -6,3 +6,4 @@ import './StatusView';
 import './diff/WorkspaceView';
 import './diff/StageView';
 import './log/LogView';
+import './show/ShowView';

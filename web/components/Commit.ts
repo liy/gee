@@ -1,3 +1,4 @@
+import ConsoleMananger from '../ConsoleMananger';
 import GraphStyle from '../views/log/GraphStyle';
 import './commit.css';
 import template from './Commit.html';
@@ -22,6 +23,8 @@ export class Commit extends HTMLDivElement {
   private authroNode: HTMLElement;
   private refNode: HTMLElement;
 
+  private data!: Log;
+
   constructor() {
     super();
 
@@ -37,6 +40,7 @@ export class Commit extends HTMLDivElement {
   }
 
   update(data: Log, labelInfos?: Branch[] | Tag[]) {
+    this.data = data;
     this.clear();
 
     this.summaryNode.textContent = data.subject;
@@ -53,7 +57,10 @@ export class Commit extends HTMLDivElement {
     }
   }
 
-  onClick(e: MouseEvent) {}
+  onClick(e: MouseEvent) {
+    // console.log(this.data);
+    ConsoleMananger.process(['show', this.data.hash]);
+  }
 
   connectedCallback() {
     this.addEventListener('click', this.onClick, true);

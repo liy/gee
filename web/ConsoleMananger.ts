@@ -3,7 +3,9 @@ import { EventMap } from './@types/event';
 import { appStore } from './appStore';
 import { allBranches } from './commands/branch';
 import { rebase } from './commands/rebase';
+import { show } from './commands/show';
 import { tag } from './commands/tag';
+import { Diff } from './Diff';
 import EventEmitter from './EventEmitter';
 import { BranchView } from './views/branch/BranchView';
 import { StageView } from './views/diff/StageView';
@@ -12,6 +14,7 @@ import { status } from './views/diff/subroutines';
 import { WorkspaceView } from './views/diff/WorkspaceView';
 import { LogView } from './views/log/LogView';
 import { RebaseView } from './views/RebaseView';
+import { ShowView } from './views/show/ShowView';
 import { TagView } from './views/TagView';
 
 class ConsoleManager {
@@ -23,20 +26,20 @@ class ConsoleManager {
     const input = document.getElementsByClassName('command-input')[0] as HTMLInputElement;
     input.addEventListener('keydown', async (e: KeyboardEvent) => {
       if (e.key == 'Enter') {
-        this.process(input.value);
+        this.process(input.value.split(' '));
         input.value = '';
       }
     });
 
     appStore.subscribe({
       'wd.update': () => {
-        this.process('clear');
+        this.process(['clear']);
       },
     });
   }
 
-  async process(cmd: string) {
-    switch (cmd.toLowerCase()) {
+  async process(cmds: string[]) {
+    switch (cmds[0].toLowerCase()) {
       case 'clear':
         this.consoleElement.innerHTML = '';
         break;
@@ -61,6 +64,12 @@ class ConsoleManager {
         this.consoleElement.prepend(stageView);
         this.consoleElement.prepend(workspaceView);
         diffStore.invoke(status(appStore.currentState.workingDirectory));
+        break;
+      case 'show':
+        const showView = document.createElement('div', { is: 'show-view' }) as ShowView;
+        const diffs = Diff.parse(await show(cmds[1], appStore.currentState.workingDirectory));
+        this.consoleElement.prepend(showView);
+        showView.update(diffs, cmds[1]);
         break;
     }
   }
