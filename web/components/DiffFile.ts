@@ -131,7 +131,6 @@ export class DiffFile extends HTMLDivElement {
 
   constructor() {
     super();
-    this.collapsed = true;
 
     this.classList.add('diff-file');
 
@@ -183,6 +182,8 @@ export class DiffFile extends HTMLDivElement {
       }),
       parent: this.content,
     });
+
+    this.collapsed = true;
   }
 
   onLineMouseDown(view: EditorView, lineInfo: BlockInfo): boolean {
@@ -200,7 +201,7 @@ export class DiffFile extends HTMLDivElement {
     return true;
   }
 
-  update(diff: Diff) {
+  update(diff: Diff, collapse = false) {
     this.diff = diff;
 
     this.oldLineNos = diff.hunks.map((hunk) => hunk.oldLineNo).flat();
@@ -215,6 +216,8 @@ export class DiffFile extends HTMLDivElement {
     });
 
     this.heading.textContent = diff.heading.from + ' ' + diff.heading.to;
+
+    this.collapsed = collapse;
   }
 
   set collapsed(collapse: boolean) {
@@ -232,7 +235,6 @@ export class DiffFile extends HTMLDivElement {
   }
 
   toggle() {
-    console.log(this.collapsed);
     this.collapsed = !this.collapsed;
   }
 

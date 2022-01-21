@@ -8,12 +8,11 @@ export class ShowView extends ViewBase {
   constructor() {
     super();
 
-    this.title = 'show';
     this.heading.textContent = this.title;
   }
 
   update(diffs: Diff[], hash: string) {
-    this.title = hash;
+    this.updateHeadingText(`show ${hash}`);
     const editors = Array.from(this.content.children) as Array<DiffFile>;
     let i = 0;
     for (; i < editors.length; ++i) {
@@ -26,7 +25,7 @@ export class ShowView extends ViewBase {
 
     for (; i < diffs.length; ++i) {
       const elm = document.createElement('div', { is: 'diff-file' }) as DiffFile;
-      elm.update(diffs[i]);
+      elm.update(diffs[i], true);
       this.content.appendChild(elm);
     }
   }

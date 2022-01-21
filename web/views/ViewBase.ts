@@ -17,6 +17,10 @@ export class ViewBase extends HTMLDivElement {
   clearContent() {
     this.content.replaceChildren();
   }
+
+  updateHeadingText(text: string) {
+    this.heading.textContent = text;
+  }
 }
 
 customElements.define('view-base', ViewBase, { extends: 'div' });
