@@ -14,9 +14,6 @@ body {
   display: flex;
   flex-direction: row;
   align-content: stretch;
-
-  margin: 0 auto;
-  width: 2200px;
 }
 
 .scrollbar-y {

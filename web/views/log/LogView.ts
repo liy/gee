@@ -47,7 +47,7 @@ export class LogView extends HTMLElement {
 
     this.onScroll = this.onScroll.bind(this);
     this.onResize = this.onResize.bind(this);
-    this.focusCommit = this.focusCommit.bind(this);
+    this.focusLog = this.focusLog.bind(this);
     this.clearSelection = this.clearSelection.bind(this);
 
     this.scrollbar.addEventListener('scroll', this.onScroll, { passive: true });
@@ -88,10 +88,10 @@ export class LogView extends HTMLElement {
     }
   }
 
-  private focusCommit(e: CustomEvent) {
+  private focusLog(e: CustomEvent) {
     // const log = this.map.get(e.detail.hash);
     const index = store.currentState.map.get(e.detail.hash);
-    if (index) {
+    if (index !== undefined) {
       store.operate({
         type: 'selectLog',
         log: store.currentState.logs[index],
@@ -157,8 +157,8 @@ export class LogView extends HTMLElement {
     this.numRows = Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1;
     this.scrollElement.style.height = GraphStyle.sliceHeight * this.logs.length + 'px';
 
-    document.addEventListener('hash.clicked', this.focusCommit);
-    document.addEventListener('reference.clicked', this.focusCommit);
+    document.addEventListener('hash.clicked', this.focusLog);
+    document.addEventListener('reference.clicked', this.focusLog);
     // document.addEventListener('commit.clicked', this.clearSelection);
 
     this.layout();
@@ -169,8 +169,8 @@ export class LogView extends HTMLElement {
     this.scrollbar.removeEventListener('scroll', this.onScroll);
     window.removeEventListener('resize', this.onResize);
 
-    document.removeEventListener('hash.clicked', this.focusCommit);
-    document.removeEventListener('reference.clicked', this.focusCommit);
+    document.removeEventListener('hash.clicked', this.focusLog);
+    document.removeEventListener('reference.clicked', this.focusLog);
     // document.removeEventListener('commit.clicked', this.clearSelection);
   }
 
