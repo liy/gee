@@ -1,5 +1,5 @@
 import { CommandCallback, CallbackID } from '../constants';
-import { EventMap } from './event';
+import { CustomEventMap } from './event';
 
 export type Hash = string;
 
@@ -49,22 +49,22 @@ declare global {
 
   interface Document {
     //adds definition to Document, but you can do the same with HTMLElement
-    addEventListener<K extends keyof EventMap>(
+    addEventListener<K extends keyof CustomEventMap>(
       type: K,
-      listener: (this: Document, ev: CustomEvent<EventMap[K]>) => void
+      listener: (this: Document, ev: CustomEvent<CustomEventMap[K]>) => void
     ): void;
 
-    removeEventListener<K extends keyof EventMap>(
+    removeEventListener<K extends keyof CustomEventMap>(
       type: K,
-      listener: (this: Document, ev: CustomEvent<EventMap[K]>) => void
+      listener: (this: Document, ev: CustomEvent<CustomEventMap[K]>) => void
     ): void;
   }
 
   interface HTMLDivElement {
     //adds definition to Document, but you can do the same with HTMLElement
-    addEventListener<K extends keyof EventMap>(
+    addEventListener<K extends keyof CustomEventMap>(
       type: K,
-      listener: (this: Document, ev: CustomEvent<EventMap[K]>) => void
+      listener: (this: Document, ev: CustomEvent<CustomEventMap[K]>) => void
     ): void;
   }
 }

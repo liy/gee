@@ -3,15 +3,14 @@ import { Commit } from '../../components/Commit';
 import Graph from '../../graph/Graph';
 import GraphStore from '../../graph/GraphStore';
 import StraightLayout from '../../layouts/StraightLayout';
-import { ViewBase } from '../ViewBase';
-import { SelectLog, Update, UpdateLog } from './actions';
+import { SelectLog, Update } from './actions';
 import GraphStyle from './GraphStyle';
 import GraphView from './GraphView';
+import './LogView.css';
 import template from './LogView.html';
 import { State, store } from './store';
-import './table.css';
 
-export class LogView extends ViewBase {
+export class LogView extends HTMLElement {
   private unsubscribe: (() => void) | undefined;
 
   elements: Array<Commit>;
@@ -26,9 +25,9 @@ export class LogView extends ViewBase {
 
   startIndex: number = 0;
 
-  map: Map<string, Log> = new Map();
-
   graph: Graph;
+
+  protected _selectedCommit: Commit | null = null;
 
   constructor() {
     super();
@@ -36,7 +35,7 @@ export class LogView extends ViewBase {
     this.innerHTML = template;
 
     this.title = 'log';
-    this.heading.textContent = this.title;
+    this.classList.add('log-view');
 
     this.elements = new Array<Commit>();
 
@@ -48,11 +47,11 @@ export class LogView extends ViewBase {
 
     this.onScroll = this.onScroll.bind(this);
     this.onResize = this.onResize.bind(this);
-    this.focusLog = this.focusLog.bind(this);
+    this.focusCommit = this.focusCommit.bind(this);
+    this.clearSelection = this.clearSelection.bind(this);
 
     this.scrollbar.addEventListener('scroll', this.onScroll, { passive: true });
     window.addEventListener('resize', this.onResize, { passive: true });
-    document.addEventListener('reference.clicked', this.focusLog);
 
     this.unsubscribe = store.subscribe(this);
   }
@@ -60,10 +59,10 @@ export class LogView extends ViewBase {
    * Update elements with commit data
    */
   update(action: Update, _: State) {
-    this.map.clear();
-    for (const log of action.logs) {
-      this.map.set(log.hash, log);
-    }
+    // this.map.clear();
+    // for (const log of action.logs) {
+    //   this.map.set(log.hash, log);
+    // }
 
     this.graph = GraphStore.getGraph(appStore.currentState.workingDirectory);
     this.graph.clear();
@@ -77,17 +76,25 @@ export class LogView extends ViewBase {
     this.populate();
   }
 
-  selectLog(action: SelectLog, _: State) {
+  selectLog(action: SelectLog, state: State) {
     const node = this.graph.getNode(action.log.hash);
     this.scrollView(node.y);
+
+    for (let i = this.startIndex; i < this.numRows; ++i) {
+      if (i < this.elements.length) {
+        const element = this.elements[i];
+        element.setSelection(store.currentState.selectedLog?.hash === this.logs[i].hash);
+      }
+    }
   }
 
-  private focusLog(e: CustomEvent) {
-    const log = this.map.get(e.detail.hash);
-    if (log) {
+  private focusCommit(e: CustomEvent) {
+    // const log = this.map.get(e.detail.hash);
+    const index = store.currentState.map.get(e.detail.hash);
+    if (index) {
       store.operate({
         type: 'selectLog',
-        log,
+        log: store.currentState.logs[index],
       });
     }
   }
@@ -104,6 +111,11 @@ export class LogView extends ViewBase {
         const ce = document.createElement('div', { is: 'git-commit' }) as Commit;
         this.elements.push(ce);
         this.table.appendChild(ce);
+
+        ce.addEventListener('click', (e) => {
+          this.clearSelection();
+          ce.setSelection(true);
+        });
       }
 
       if (i >= this.numRows) {
@@ -122,11 +134,15 @@ export class LogView extends ViewBase {
 
     for (let i = 0, ii = this.startIndex; i < this.numRows; ++i, ++ii) {
       if (i < this.elements.length) {
-        const node = this.elements[i];
+        const element = this.elements[i];
         if (ii < this.logs.length) {
           const branches = store.currentState.branches.get(this.logs[ii].hash) || [];
           const tags = store.currentState.tags.get(this.logs[ii].hash) || [];
-          node.update(this.logs[ii], [...branches, ...tags]);
+          element.update(
+            this.logs[ii],
+            [...branches, ...tags],
+            store.currentState.selectedLog?.hash === this.logs[ii].hash
+          );
         }
       }
     }
@@ -141,6 +157,10 @@ export class LogView extends ViewBase {
     this.numRows = Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1;
     this.scrollElement.style.height = GraphStyle.sliceHeight * this.logs.length + 'px';
 
+    document.addEventListener('hash.clicked', this.focusCommit);
+    document.addEventListener('reference.clicked', this.focusCommit);
+    // document.addEventListener('commit.clicked', this.clearSelection);
+
     this.layout();
   }
 
@@ -148,7 +168,10 @@ export class LogView extends ViewBase {
     this.unsubscribe?.();
     this.scrollbar.removeEventListener('scroll', this.onScroll);
     window.removeEventListener('resize', this.onResize);
-    document.removeEventListener('reference.clicked', this.focusLog);
+
+    document.removeEventListener('hash.clicked', this.focusCommit);
+    document.removeEventListener('reference.clicked', this.focusCommit);
+    // document.removeEventListener('commit.clicked', this.clearSelection);
   }
 
   /**
@@ -160,6 +183,12 @@ export class LogView extends ViewBase {
 
     for (const element of this.elements) {
       element.clear();
+    }
+  }
+
+  protected clearSelection() {
+    for (const element of this.elements) {
+      element.setSelection(false);
     }
   }
 
@@ -178,4 +207,4 @@ export class LogView extends ViewBase {
   }
 }
 
-customElements.define('log-view', LogView, { extends: 'div' });
+customElements.define('log-view', LogView, { extends: 'main' });

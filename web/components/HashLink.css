@@ -1,0 +1,9 @@
+a.hash {
+  text-decoration: none;
+  color: #6ed5cb;
+}
+
+a.hash:hover {
+  text-decoration: underline;
+  color: #2bf3df;
+}

@@ -29,7 +29,7 @@ if (wd) {
     path: wd,
   });
 
-  const logView = document.createElement('div', { is: 'log-view' }) as LogView;
+  const logView = document.createElement('main', { is: 'log-view' }) as LogView;
   const root = document.getElementById('root')!;
   root.prepend(logView);
 

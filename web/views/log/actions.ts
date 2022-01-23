@@ -5,20 +5,20 @@ export type Update = {
   branches: Branch[];
 };
 
-export type UpdateLog = {
-  type: 'updateLog';
-  logs: Log[];
-};
+// export type UpdateLog = {
+//   type: 'updateLog';
+//   logs: Log[];
+// };
 
-export type UpdateTag = {
-  type: 'updateTag';
-  tags: Tag[];
-};
+// export type UpdateTag = {
+//   type: 'updateTag';
+//   tags: Tag[];
+// };
 
-export type UpdateBranch = {
-  type: 'updateBranch';
-  branches: Branch[];
-};
+// export type UpdateBranch = {
+//   type: 'updateBranch';
+//   branches: Branch[];
+// };
 
 export type SelectLog = {
   type: 'selectLog';

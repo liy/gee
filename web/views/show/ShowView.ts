@@ -1,4 +1,5 @@
 import { DiffFile } from '../../components/DiffFile';
+import HashLink from '../../components/HashLink';
 import { Diff } from '../../Diff';
 import { ViewBase } from '../ViewBase';
 
@@ -12,7 +13,12 @@ export class ShowView extends ViewBase {
   }
 
   update(diffs: Diff[], hash: string) {
-    this.updateHeadingText(`show ${hash}`);
+    // this.updateHeadingText(`show ${hash}`);
+
+    const elm = document.createElement('a', { is: 'hash-link' }) as HashLink;
+    elm.update(hash, true);
+    this.heading.appendChild(elm);
+
     const editors = Array.from(this.content.children) as Array<DiffFile>;
     let i = 0;
     for (; i < editors.length; ++i) {

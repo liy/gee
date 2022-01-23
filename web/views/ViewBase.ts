@@ -1,3 +1,4 @@
+import './ViewBase.css';
 export class ViewBase extends HTMLDivElement {
   protected heading: HTMLHeadingElement;
   protected content: HTMLDivElement;

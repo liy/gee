@@ -1,0 +1,16 @@
+#commit-table {
+  position: sticky;
+
+  margin-left: 4px;
+  margin-right: 4px;
+
+  width: 100%;
+}
+
+.log-view .container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  width: 100%;
+}

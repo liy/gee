@@ -11,9 +11,9 @@ body {
 }
 
 #root {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
+  display: flex;
+  flex-direction: row;
+  align-content: stretch;
 }
 
 .scrollbar-y {
@@ -25,12 +25,6 @@ body {
   visibility: hidden;
 }
 
-.container {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-
 /* width of the scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -40,32 +34,33 @@ body {
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: rgba(41, 42, 45, 255);
+  transition: all;
+  background: rgba(41, 42, 45, 0);
 }
 
 ::-webkit-scrollbar-track:hover {
-  background: rgb(54, 56, 60, 255);
+  background: rgb(54, 56, 60, 0.3);
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #555;
   border-radius: 3px;
+  background: rgba(85, 85, 85, 0.05);
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(100, 100, 100);
+  background: rgb(100, 100, 100, 0.8);
 }
 
 main {
-  grid-column: 1;
   overflow: hidden;
+  min-width: 30vw;
 }
 
 aside {
-  grid-column: 2;
   overflow: hidden;
+  width: 100%;
 }
 
 #console {

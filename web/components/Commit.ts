@@ -1,6 +1,6 @@
 import ConsoleMananger from '../ConsoleMananger';
 import GraphStyle from '../views/log/GraphStyle';
-import './commit.css';
+import './Commit.css';
 import template from './Commit.html';
 import LogLabel from './LogLabel/LogLabel';
 
@@ -39,7 +39,7 @@ export class Commit extends HTMLDivElement {
     this.dateTimeNode = this.querySelector('.date-time')!;
   }
 
-  update(data: Log, labelInfos?: Branch[] | Tag[]) {
+  update(data: Log, labelInfos?: Branch[] | Tag[], selected = false) {
     this.data = data;
     this.clear();
 
@@ -55,11 +55,23 @@ export class Commit extends HTMLDivElement {
         label.update(labelInfo);
       }
     }
+
+    this.setSelection(selected);
+  }
+
+  setSelection(selected: boolean) {
+    if (selected) {
+      this.classList.add('selected');
+    } else {
+      this.classList.remove('selected');
+    }
   }
 
   onClick(e: MouseEvent) {
     // console.log(this.data);
     ConsoleMananger.process(['show', this.data.hash]);
+
+    // this.dispatchEvent(new CustomEvent('commit.clicked', { detail: this.data.hash, bubbles: true }));
   }
 
   connectedCallback() {
