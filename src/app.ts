@@ -5,12 +5,16 @@ import * as path from 'path';
 import * as readline from 'readline';
 import { CallbackID, CommandProcess, COMMAND_INVOKE, COMMAND_KILL, COMMAND_SUBMIT } from '../web/constants';
 
-export const start = async (workingDirectory: string) => {
-  ipcMain.handle('wd.get', () => workingDirectory);
-  ipcMain.handle('wd.set', (event, wd) => (workingDirectory = wd));
+let currentWorkingDirectory = '';
 
-  ipcMain.handle('fileLine.read', async (event, filePath: string, id: CallbackID) => {
-    const fileStream = fs.createReadStream(path.resolve(workingDirectory, filePath));
+export const start = async (initialWorkingDirectory: string) => {
+  currentWorkingDirectory = initialWorkingDirectory;
+
+  ipcMain.handle('wd.get', () => currentWorkingDirectory);
+  ipcMain.handle('wd.set', (event, wd) => (currentWorkingDirectory = wd));
+
+  ipcMain.handle('fileLine.read', async (event, filePath: string, id: CallbackID, wd: string) => {
+    const fileStream = fs.createReadStream(path.resolve(wd, filePath));
     const rl = readline.createInterface({
       input: fileStream,
       crlfDelay: Infinity,
@@ -25,9 +29,9 @@ export const start = async (workingDirectory: string) => {
     });
   });
 
-  ipcMain.handle('file.read', async (event, filePath: string) => {
+  ipcMain.handle('file.read', async (event, filePath: string, wd: string) => {
     return new Promise((resolve, reject) => {
-      fs.readFile(path.resolve(workingDirectory, filePath), (err, data) => {
+      fs.readFile(path.resolve(wd, filePath), (err, data) => {
         if (err) {
           reject(err);
         } else {
@@ -37,9 +41,9 @@ export const start = async (workingDirectory: string) => {
     });
   });
 
-  ipcMain.handle('file.save', async (event, filePath: string, patchText: string) => {
+  ipcMain.handle('file.save', async (event, filePath: string, patchText: string, wd: string) => {
     return new Promise<string>((resolve, reject) => {
-      fs.writeFile(filePath, patchText, (err) => {
+      fs.writeFile(path.resolve(wd, filePath), patchText, (err) => {
         if (err) {
           reject(err);
         } else {
@@ -49,13 +53,13 @@ export const start = async (workingDirectory: string) => {
     });
   });
 
-  ipcMain.handle(COMMAND_INVOKE, (_, args: Array<string>) => {
+  ipcMain.handle(COMMAND_INVOKE, (_, args: Array<string>, wd: string) => {
     return new Promise((resolve, reject) => {
       execFile(
         args[0],
         args.slice(1),
         {
-          cwd: workingDirectory,
+          cwd: wd,
         },
         (err: any, stdout: any) => {
           if (err) {

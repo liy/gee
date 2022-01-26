@@ -20,6 +20,9 @@ const timeFormat = Intl.DateTimeFormat('en-GB', {
 export class ShowView extends ViewBase {
   private cleanup: (() => void) | undefined;
 
+  private branchNode: HTMLDivElement;
+  private tagNode: HTMLDivElement;
+
   private hashNode: HTMLDivElement;
   private parentNodes: HTMLDivElement;
 
@@ -38,8 +41,13 @@ export class ShowView extends ViewBase {
   constructor() {
     super();
 
+    this.classList.add('show');
+
     this.heading.textContent = this.title;
     this.content.innerHTML = template;
+
+    this.branchNode = this.content.querySelector('.branch-ref')!;
+    this.tagNode = this.content.querySelector('.tag-ref')!;
 
     this.hashNode = this.content.querySelector('.hash')!;
     this.parentNodes = this.content.querySelector<HTMLDivElement>('.parent-hashes')!;
@@ -57,8 +65,11 @@ export class ShowView extends ViewBase {
     this.editorContainer = this.content.querySelector('.editor-container')!;
   }
 
-  update(diffs: Diff[], log: Log, logBody: string) {
+  update(diffs: Diff[], log: Log, logBody: string, branches: string[], tags: string[]) {
     this.heading.textContent = `show ${log.subject.trim()}`;
+
+    this.branchNode.textContent = branches.join(', ');
+    this.tagNode.textContent = tags.join(', ');
 
     const elm = document.createElement('a', { is: 'hash-link' }) as HashLink;
     elm.update(log.hash, true);

@@ -1,7 +1,10 @@
 .view {
-  /* box-sizing: content-box; */
   margin: 15px 10px 10px 10px;
   background-color: #3a3a3a63;
   padding: 12px;
   border-radius: 8px;
+}
+
+.content {
+  margin-top: 8px;
 }

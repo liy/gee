@@ -31,11 +31,11 @@ declare global {
 
       onNotification: (callback: (data: Notification) => void) => void;
 
-      readFileLine: (path: string, callback: CommandCallback) => void;
+      readFileLine: (path: string, callback: CommandCallback, wd: string) => void;
 
-      readFile: (path: string) => Promise<ArrayBuffer>;
+      readFile: (path: string, wd: string) => Promise<ArrayBuffer>;
 
-      saveFile: (path: string, text: string) => Promise<string>;
+      saveFile: (path: string, text: string, wd: string) => Promise<string>;
     };
     command: {
       // Directly invoke a command and expect the whole output in a promise. Suitable for small output.

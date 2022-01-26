@@ -48,9 +48,9 @@ contextBridge.exposeInMainWorld('api', {
   },
 
   // Set working directory for main process
-  setWorkingDirectory(path: string) {
-    ipcRenderer.invoke('wd.set', path);
-  },
+  // setWorkingDirectory(path: string) {
+  //   ipcRenderer.invoke('wd.set', path);
+  // },
 
   // Fires if main process changes the working directory, e.g., when application is launched in a different directory via cli
   onWorkingDirectoryChanged(callback: (path: string) => void) {
@@ -60,24 +60,24 @@ contextBridge.exposeInMainWorld('api', {
   onNotification: (callback: (_: Notification) => void) => {
     ipcRenderer.on('notification', (event: Electron.IpcRendererEvent, n: Notification) => callback(n));
   },
-  readFileLine: (path: string, callback: CommandCallback) => {
+  readFileLine: (path: string, callback: CommandCallback, wd: string) => {
     const routeId = callbacks.add(callback);
-    ipcRenderer.invoke('fileLine.read', path, routeId);
+    ipcRenderer.invoke('fileLine.read', path, routeId, wd);
   },
 
-  readFile: (path: string): Promise<ArrayBuffer> => {
-    return ipcRenderer.invoke('file.read', path);
+  readFile: (path: string, wd: string): Promise<ArrayBuffer> => {
+    return ipcRenderer.invoke('file.read', path, wd);
   },
 
-  saveFile: (path: string, patch: string): Promise<string> => {
-    return ipcRenderer.invoke('file.save', path, patch);
+  saveFile: (path: string, patch: string, wd: string): Promise<string> => {
+    return ipcRenderer.invoke('file.save', path, patch, wd);
   },
 });
 
 const callbacks = new CallbackStore();
 contextBridge.exposeInMainWorld('command', {
   invoke: async (args: Array<string>, wd: string): Promise<string> => {
-    return await ipcRenderer.invoke(COMMAND_INVOKE, args);
+    return await ipcRenderer.invoke(COMMAND_INVOKE, args, wd);
   },
 
   kill: (routeId: CallbackID): void => {

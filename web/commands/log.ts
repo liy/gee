@@ -1,4 +1,4 @@
-function parseReference(str: string) {
+export function parseReference(str: string) {
   const chunks = str.split(', ');
   const branches = [];
   const tags = [];

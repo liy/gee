@@ -6,5 +6,5 @@
  */
 export const revParse = async (hash: string, workingDirectory: string) => {
   const args = ['git', 'rev-parse', hash];
-  return window.command.invoke(args, workingDirectory);
+  return (await window.command.invoke(args, workingDirectory)).trim();
 };

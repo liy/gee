@@ -40,11 +40,11 @@ class ConsoleManager {
       const index = logStore.currentState.map.get(e.detail);
       if (index !== undefined) {
         const log = logStore.currentState.logs[index];
-        const [logBody, diffText] = await show(e.detail, appStore.currentState.workingDirectory);
+        const { branches, tags, bodyText, diffText } = await show(e.detail, appStore.currentState.workingDirectory);
         const showView = document.createElement('div', { is: 'show-view' }) as ShowView;
         this.consoleElement.prepend(showView);
         const diffs = Diff.parse(diffText);
-        showView.update(diffs, log, logBody);
+        showView.update(diffs, log, bodyText, branches, tags);
       }
     });
   }
@@ -83,12 +83,11 @@ class ConsoleManager {
         if (index !== undefined) {
           const log = logStore.currentState.logs[index];
           const showView = document.createElement('div', { is: 'show-view' }) as ShowView;
-          const [logBody, diffText] = await show(hash, appStore.currentState.workingDirectory);
+          const { branches, tags, bodyText, diffText } = await show(hash, appStore.currentState.workingDirectory);
           this.consoleElement.prepend(showView);
           const diffs = Diff.parse(diffText);
-          showView.update(diffs, log, logBody);
+          showView.update(diffs, log, bodyText, branches, tags);
         }
-
         break;
     }
   }
