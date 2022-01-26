@@ -2,24 +2,85 @@ import { DiffFile } from '../../components/DiffFile';
 import HashLink from '../../components/HashLink';
 import { Diff } from '../../Diff';
 import { ViewBase } from '../ViewBase';
+import './ShowView.css';
+import template from './ShowView.html';
+
+const dateFormat = Intl.DateTimeFormat('en-GB', {
+  month: 'short',
+  day: '2-digit',
+  year: 'numeric',
+});
+
+const timeFormat = Intl.DateTimeFormat('en-GB', {
+  hour: '2-digit',
+  minute: 'numeric',
+  hour12: false,
+});
 
 export class ShowView extends ViewBase {
   private cleanup: (() => void) | undefined;
+
+  private hashNode: HTMLDivElement;
+  private parentNodes: HTMLDivElement;
+
+  private authorNameNode: HTMLSpanElement;
+  private authorEmailNode: HTMLSpanElement;
+  private authorDateNode: HTMLSpanElement;
+
+  private committerNameNode: HTMLSpanElement;
+  private committerEmailNode: HTMLSpanElement;
+  private committerDateNode: HTMLSpanElement;
+
+  private bodyNode: HTMLDivElement;
+
+  private editorContainer: HTMLDivElement;
 
   constructor() {
     super();
 
     this.heading.textContent = this.title;
+    this.content.innerHTML = template;
+
+    this.hashNode = this.content.querySelector('.hash')!;
+    this.parentNodes = this.content.querySelector<HTMLDivElement>('.parent-hashes')!;
+
+    this.authorNameNode = this.content.querySelector('.author .name')!;
+    this.authorEmailNode = this.content.querySelector('.author .email')!;
+    this.authorDateNode = this.content.querySelector('.author .datetime')!;
+
+    this.committerNameNode = this.content.querySelector('.committer .name')!;
+    this.committerEmailNode = this.content.querySelector('.committer .email')!;
+    this.committerDateNode = this.content.querySelector('.committer .datetime')!;
+
+    this.bodyNode = this.content.querySelector('.body')!;
+
+    this.editorContainer = this.content.querySelector('.editor-container')!;
   }
 
-  update(diffs: Diff[], hash: string) {
-    // this.updateHeadingText(`show ${hash}`);
+  update(diffs: Diff[], log: Log, logBody: string) {
+    this.heading.textContent = `show ${log.subject.trim()}`;
 
     const elm = document.createElement('a', { is: 'hash-link' }) as HashLink;
-    elm.update(hash, true);
-    this.heading.appendChild(elm);
+    elm.update(log.hash, true);
+    this.hashNode.appendChild(elm);
 
-    const editors = Array.from(this.content.children) as Array<DiffFile>;
+    log.parents.forEach((hashStr) => {
+      const elm = document.createElement('a', { is: 'hash-link' }) as HashLink;
+      elm.update(hashStr, true);
+      this.parentNodes.appendChild(elm);
+    });
+
+    this.authorNameNode.textContent = log.author.name;
+    this.authorEmailNode.textContent = log.author.email;
+    this.authorDateNode.textContent = dateFormat.format(log.authorDate) + ' ' + timeFormat.format(log.authorDate);
+
+    this.committerNameNode.textContent = log.committer.name;
+    this.committerEmailNode.textContent = log.committer.email;
+    this.committerDateNode.textContent = dateFormat.format(log.commitDate) + ' ' + timeFormat.format(log.commitDate);
+
+    this.bodyNode.textContent = logBody;
+
+    const editors = Array.from(this.editorContainer.children) as Array<DiffFile>;
     let i = 0;
     for (; i < editors.length; ++i) {
       if (diffs[i]) {

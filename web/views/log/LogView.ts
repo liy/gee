@@ -1,4 +1,5 @@
 import { appStore } from '../../appStore';
+import { show } from '../../commands/show';
 import { Commit } from '../../components/Commit';
 import Graph from '../../graph/Graph';
 import GraphStore from '../../graph/GraphStore';
@@ -80,10 +81,10 @@ export class LogView extends HTMLElement {
     const node = this.graph.getNode(action.log.hash);
     this.scrollView(node.y);
 
-    for (let i = this.startIndex; i < this.numRows; ++i) {
+    for (let i = 0; i < this.numRows; ++i) {
       if (i < this.elements.length) {
         const element = this.elements[i];
-        element.setSelection(store.currentState.selectedLog?.hash === this.logs[i].hash);
+        element.setSelection(store.currentState.selectedLog?.hash === this.logs[this.startIndex + i].hash);
       }
     }
   }
@@ -159,7 +160,6 @@ export class LogView extends HTMLElement {
 
     document.addEventListener('hash.clicked', this.focusLog);
     document.addEventListener('reference.clicked', this.focusLog);
-    // document.addEventListener('commit.clicked', this.clearSelection);
 
     this.layout();
   }
@@ -171,7 +171,6 @@ export class LogView extends HTMLElement {
 
     document.removeEventListener('hash.clicked', this.focusLog);
     document.removeEventListener('reference.clicked', this.focusLog);
-    // document.removeEventListener('commit.clicked', this.clearSelection);
   }
 
   /**

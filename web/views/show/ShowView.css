@@ -1,0 +1,8 @@
+.metadata {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  flex-direction: row;
+
+  padding: 10px 0;
+}

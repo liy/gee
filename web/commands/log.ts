@@ -25,6 +25,30 @@ function parseReference(str: string) {
   return [branches, tags];
 }
 
+function parseLog(matches: RegExpExecArray): Log | null {
+  if (matches && matches.length != 0) {
+    const log: Log = {
+      hash: matches[1],
+      parents: matches[2] === '' ? [] : matches[2].split(' '),
+      subject: matches[3],
+      author: {
+        name: matches[4],
+        email: matches[5],
+      },
+      authorDate: new Date(parseInt(matches[6]) * 1000),
+      committer: {
+        name: matches[7],
+        email: matches[8],
+      },
+      commitDate: new Date(parseInt(matches[9]) * 1000),
+    };
+
+    return log;
+  }
+
+  return null;
+}
+
 export const log = (workingDirectory: string) => {
   const args = ['git', 'log', '--pretty="[%H][%P][%s][%an][%ae][%at][%cn][%ce][%ct][%D]"', '--branches=*'];
 
@@ -33,24 +57,13 @@ export const log = (workingDirectory: string) => {
   const tagList = new Array<Tag>();
   return new Promise<[Log[], Branch[], Tag[]]>((resolve, reject) => {
     window.command.submit(args, workingDirectory, {
-      onReadLine: (line: string) => {
-        const matches = /\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]/.exec(line);
+      onReadLine: (lineText: string) => {
+        const matches = /\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]/.exec(
+          lineText
+        );
         if (matches && matches.length != 0) {
-          logs.push({
-            hash: matches[1],
-            parents: matches[2] === '' ? [] : matches[2].split(' '),
-            subject: matches[3],
-            author: {
-              name: matches[4],
-              email: matches[5],
-            },
-            authorDate: new Date(parseInt(matches[6]) * 1000),
-            committer: {
-              name: matches[7],
-              email: matches[8],
-            },
-            commitDate: new Date(parseInt(matches[9]) * 1000),
-          });
+          const log = parseLog(matches);
+          if (log) logs.push(log);
 
           const [branches, tags] = parseReference(matches[10]);
           if (branches) {

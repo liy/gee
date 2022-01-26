@@ -1,18 +1,15 @@
-import { app } from 'electron';
-import { EventMap } from './@types/event';
 import { appStore } from './appStore';
 import { allBranches } from './commands/branch';
 import { rebase } from './commands/rebase';
 import { show } from './commands/show';
 import { tag } from './commands/tag';
 import { Diff } from './Diff';
-import EventEmitter from './EventEmitter';
 import { BranchView } from './views/branch/BranchView';
 import { StageView } from './views/diff/StageView';
 import { store as diffStore } from './views/diff/store';
+import { store as logStore } from './views/log/store';
 import { status } from './views/diff/subroutines';
 import { WorkspaceView } from './views/diff/WorkspaceView';
-import { LogView } from './views/log/LogView';
 import { RebaseView } from './views/RebaseView';
 import { ShowView } from './views/show/ShowView';
 import { TagView } from './views/TagView';
@@ -32,9 +29,22 @@ class ConsoleManager {
     });
 
     appStore.subscribe({
-      'wd.update': () => {
+      'wd.update': (action, state) => {
         this.process(['clear']);
       },
+    });
+
+    // When log commit is selected
+    document.addEventListener('commit.clicked', async (e) => {
+      const index = logStore.currentState.map.get(e.detail);
+      if (index !== undefined) {
+        const log = logStore.currentState.logs[index];
+        const [logBody, diffText] = await show(e.detail, appStore.currentState.workingDirectory);
+        const showView = document.createElement('div', { is: 'show-view' }) as ShowView;
+        this.consoleElement.prepend(showView);
+        const diffs = Diff.parse(diffText);
+        showView.update(diffs, log, logBody);
+      }
     });
   }
 
@@ -66,10 +76,17 @@ class ConsoleManager {
         diffStore.invoke(status(appStore.currentState.workingDirectory));
         break;
       case 'show':
-        const showView = document.createElement('div', { is: 'show-view' }) as ShowView;
-        const diffs = Diff.parse(await show(cmds[1], appStore.currentState.workingDirectory));
-        this.consoleElement.prepend(showView);
-        showView.update(diffs, cmds[1]);
+        const hash = cmds[1];
+        const index = logStore.currentState.map.get(hash);
+        if (index !== undefined) {
+          const log = logStore.currentState.logs[index];
+          const showView = document.createElement('div', { is: 'show-view' }) as ShowView;
+          const [logBody, diffText] = await show(hash, appStore.currentState.workingDirectory);
+          this.consoleElement.prepend(showView);
+          const diffs = Diff.parse(diffText);
+          showView.update(diffs, log, logBody);
+        }
+
         break;
     }
   }

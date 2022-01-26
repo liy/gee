@@ -67,15 +67,14 @@ export class Commit extends HTMLDivElement {
     }
   }
 
-  onClick(e: MouseEvent) {
-    // console.log(this.data);
-    ConsoleMananger.process(['show', this.data.hash]);
-
-    // this.dispatchEvent(new CustomEvent('commit.clicked', { detail: this.data.hash, bubbles: true }));
-  }
-
   connectedCallback() {
-    this.addEventListener('click', this.onClick, true);
+    this.addEventListener(
+      'click',
+      () => {
+        this.dispatchEvent(new CustomEvent('commit.clicked', { detail: this.data.hash, bubbles: true }));
+      },
+      true
+    );
   }
 
   clear() {

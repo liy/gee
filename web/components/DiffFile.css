@@ -1,3 +1,7 @@
+.diff-file {
+  margin: 10px 0px;
+}
+
 .diff-file .heading {
   cursor: pointer;
 }
