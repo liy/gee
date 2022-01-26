@@ -13,6 +13,7 @@ import { WorkspaceView } from './views/diff/WorkspaceView';
 import { RebaseView } from './views/RebaseView';
 import { ShowView } from './views/show/ShowView';
 import { TagView } from './views/TagView';
+import { revParse } from './commands/revParse';
 
 class ConsoleManager {
   consoleElement: HTMLElement;
@@ -76,7 +77,8 @@ class ConsoleManager {
         diffStore.invoke(status(appStore.currentState.workingDirectory));
         break;
       case 'show':
-        const hash = cmds[1];
+        const hash = await revParse(cmds[1], appStore.currentState.workingDirectory);
+
         const index = logStore.currentState.map.get(hash);
         if (index !== undefined) {
           const log = logStore.currentState.logs[index];
