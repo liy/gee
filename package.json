@@ -42,7 +42,8 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "asar": true
+        "asar": true,
+        "extraResource": "bin"
       },
       "makers": [
         {

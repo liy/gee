@@ -83,7 +83,6 @@ export const start = async (initialWorkingDirectory: string) => {
       event.sender.send(CommandProcess.ReadLine, line, id);
     });
     rl.on('close', () => {
-      console.log('close');
       event.sender.send(CommandProcess.Close, id);
     });
   });

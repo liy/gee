@@ -60,13 +60,13 @@ export class ShowView extends ViewBase {
     this.committerEmailNode = this.content.querySelector('.committer .email')!;
     this.committerDateNode = this.content.querySelector('.committer .datetime')!;
 
-    this.bodyNode = this.content.querySelector('.body')!;
+    this.bodyNode = this.content.querySelector('.message-body')!;
 
     this.editorContainer = this.content.querySelector('.editor-container')!;
   }
 
   update(diffs: Diff[], log: Log, logBody: string, branches: string[], tags: string[]) {
-    this.heading.textContent = `show ${log.subject.trim()}`;
+    this.heading.textContent = log.subject.trim();
 
     this.branchNode.textContent = branches.join(', ');
     this.tagNode.textContent = tags.join(', ');

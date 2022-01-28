@@ -87,7 +87,7 @@ if (app.requestSingleInstanceLock()) {
     start(process.cwd());
   });
 } else {
-  console.log('single instance lock, exiting.');
+  // console.log('single instance lock, exiting.');
   app.exit(0);
 }
 
