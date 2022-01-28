@@ -1,7 +1,7 @@
 {
   "name": "gee",
   "version": "0.0.1",
-  "description": "My Electron application description",
+  "description": "A lightning fast CLI and GUI client for git",
   "main": "dist/main.js",
   "build": {
     "extraResources": [
@@ -120,7 +120,6 @@
     "@codemirror/view": "^0.19.37",
     "@grpc/grpc-js": "^1.4.3",
     "@grpc/proto-loader": "^0.6.6",
-    "chalk": "^4.1.2",
     "chokidar": "^3.5.2",
     "electron-squirrel-startup": "^1.0.0",
     "minimist": "^1.2.5",
