@@ -1,4 +1,4 @@
-import { Store } from '../../vase';
+import { Store } from 'vasejs';
 import { SelectLog, Update } from './actions';
 import { reducer } from './reducer';
 

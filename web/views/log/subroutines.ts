@@ -1,5 +1,5 @@
 import { log as logCommand } from '../../commands/log';
-import { Subroutine } from '../../vase';
+import { Subroutine } from 'vasejs';
 import { ActionMapping, State } from './store';
 
 export function log(workingDirectory: string): Subroutine<ActionMapping, State> {

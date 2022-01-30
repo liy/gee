@@ -125,6 +125,7 @@
     "minimist": "^1.2.5",
     "module-alias": "^2.2.2",
     "pixi.js": "^6.2.0",
-    "stats.js": "^0.17.0"
+    "stats.js": "^0.17.0",
+    "vasejs": "^0.1.0"
   }
 }

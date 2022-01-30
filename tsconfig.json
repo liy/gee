@@ -10,7 +10,8 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "target": "ESNext",
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "preserveSymlinks": true
   },
   "include": ["./src/**/*", "./web/**/*", "bin/RepositoryReaderProcess.ts"]
 }

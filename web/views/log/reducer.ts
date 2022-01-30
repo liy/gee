@@ -1,4 +1,4 @@
-import { Reducer } from '../../vase';
+import { Reducer } from 'vasejs';
 import { ActionMapping } from './store';
 import { State } from './store';
 

@@ -1,4 +1,4 @@
-import { Store } from './vase';
+import { Store } from 'vasejs';
 
 type UpdateWorkingDirectory = {
   type: 'wd.update';

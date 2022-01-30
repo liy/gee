@@ -1,5 +1,5 @@
 import { Diff } from '../../Diff';
-import { Store } from '../../vase';
+import { Store } from 'vasejs';
 import { Apply, ToggleLine, Update } from './actions';
 import { reducer } from './reducer';
 

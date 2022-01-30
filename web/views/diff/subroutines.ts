@@ -1,6 +1,6 @@
 import { workspaceChanges, stagedChanges } from '../../commands/changes';
 import { Diff } from '../../Diff';
-import { Subroutine } from '../../vase';
+import { Subroutine } from 'vasejs';
 import { ActionMapping, State } from './store';
 
 export function status(workingDirectory: string): Subroutine<ActionMapping, State> {
