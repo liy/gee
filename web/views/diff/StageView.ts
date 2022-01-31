@@ -34,7 +34,7 @@ export class StageView extends ViewBase {
       elm.addEventListener('line.mousedown', async (e) => {
         const patchText = createPatch([e.detail.editorLineNo], e.detail.diff, true);
         if (patchText) {
-          await applyPatch(patchText);
+          await applyPatch(patchText, appStore.currentState.workingDirectory, false);
           store.invoke(status(appStore.currentState.workingDirectory));
         }
       });
