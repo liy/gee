@@ -1,10 +1,11 @@
 import { workspaceChanges, stagedChanges } from '../../commands/changes';
 import { Diff } from '../../Diff';
-import { Subroutine } from 'vasejs';
-import { ActionMapping, State } from './store';
+import { Operate, Subroutine } from 'vasejs';
+import { State } from './store';
+import { Actions } from './actions';
 
-export function status(workingDirectory: string): Subroutine<ActionMapping, State> {
-  return async (operate) => {
+export function status(workingDirectory: string) {
+  return async (operate: Operate<Actions>) => {
     const [workspaceDiffText, stagedDiffText] = await Promise.all([
       workspaceChanges(workingDirectory),
       stagedChanges(workingDirectory),

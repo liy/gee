@@ -46,27 +46,31 @@ export interface Todo {
   message: string;
 }
 
-function readTodos() {
+function readTodos(workingDirectory: string) {
   return new Promise<Array<Todo>>((resolve) => {
     const todos = new Array<Todo>();
-    window.api.readFileLine('./.git/rebase-merge/git-rebase-todo', {
-      onReadLine: (line: string, id: CallbackID) => {
-        line = line.trim();
-        if (line === '' || line.startsWith('#')) return;
+    window.api.readFileLine(
+      './.git/rebase-merge/git-rebase-todo',
+      {
+        onReadLine: (line: string, id: CallbackID) => {
+          line = line.trim();
+          if (line === '' || line.startsWith('#')) return;
 
-        const matches = line.match(/([a-zA-Z]+) (\S+) (.+)/);
-        if (matches && matches.length >= 2) {
-          todos.push({
-            action: map[matches[1].toLowerCase()],
-            hash: matches[2],
-            message: matches[3] || '',
-          });
-        }
+          const matches = line.match(/([a-zA-Z]+) (\S+) (.+)/);
+          if (matches && matches.length >= 2) {
+            todos.push({
+              action: map[matches[1].toLowerCase()],
+              hash: matches[2],
+              message: matches[3] || '',
+            });
+          }
+        },
+        onClose: () => {
+          resolve(todos.reverse());
+        },
       },
-      onClose: () => {
-        resolve(todos.reverse());
-      },
-    });
+      workingDirectory
+    );
   });
 }
 
@@ -83,5 +87,5 @@ export const rebase = async (workingDirectory: string) => {
     });
   });
 
-  return await readTodos();
+  return await readTodos(workingDirectory);
 };

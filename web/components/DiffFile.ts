@@ -4,7 +4,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { RangeSetBuilder } from '@codemirror/rangeset';
 import { Extension } from '@codemirror/state';
 import { oneDarkHighlightStyle, oneDarkTheme } from '@codemirror/theme-one-dark';
-import { BlockInfo, Decoration, ViewPlugin, ViewUpdate } from '@codemirror/view';
+import { BlockInfo, Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@codemirror/view';
 import { diffExtension } from '../defaultExtension';
 import { Diff } from '../Diff';
 import './DiffFile.css';

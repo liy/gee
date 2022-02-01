@@ -5,17 +5,11 @@ type UpdateWorkingDirectory = {
   path: string;
 };
 
-export interface ActionMapping {
-  'wd.update': UpdateWorkingDirectory;
-}
-
 const initialState = {
   workingDirectory: '',
 };
 
-export type State = typeof initialState;
-
-export const appStore = new Store<ActionMapping, State>(initialState, {
+export const appStore = new Store<typeof initialState, UpdateWorkingDirectory>(initialState, {
   'wd.update': (action, state) => {
     return {
       ...state,

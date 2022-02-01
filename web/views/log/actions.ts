@@ -24,3 +24,5 @@ export type SelectLog = {
   type: 'selectLog';
   log: Log;
 };
+
+export type Actions = Update | SelectLog;

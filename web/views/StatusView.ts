@@ -7,6 +7,7 @@ import template from './StatusView.html';
 import './StatusView.css';
 import { createElement } from '../utils';
 import { EditorStateConfig } from '@codemirror/state';
+import { appStore } from '../appStore';
 
 const customTheme = EditorView.theme({
   '&.cm-editor': {
@@ -65,7 +66,7 @@ export class StatusElement extends HTMLDivElement {
       if (container.childNodes.length === 1) {
         container.removeChild(container.childNodes[0]);
       } else {
-        const buffer = await window.api.readFile(this.data.file);
+        const buffer = await window.api.readFile(this.data.file, appStore.currentState.workingDirectory);
         this.config.doc = decoder.decode(buffer);
         this.editor.setState(EditorState.create(this.config));
         container.appendChild(this.editor.dom);

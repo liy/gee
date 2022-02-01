@@ -42,7 +42,7 @@ class GraphView {
 
   initialized: boolean;
 
-  private renderer: Renderer;
+  private renderer!: Renderer;
 
   constructor() {
     this.strap = new Graphics();

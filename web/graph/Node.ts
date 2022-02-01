@@ -1,10 +1,8 @@
-import { Hash } from '../@types/gee';
-
 export interface NodePod {
   x: number;
   y: number;
-  hash: Hash;
-  parents: Array<Hash>;
+  hash: string;
+  parents: Array<string>;
 }
 
 /**
@@ -14,7 +12,7 @@ export default class Node {
   /**
    * The identifier for the node, which is usually mapped to the git hash id.
    */
-  hash: Hash;
+  hash: string;
 
   /**
    * Think of it as column lane of the graph.
@@ -29,13 +27,13 @@ export default class Node {
   /**
    * Parent nodes hash
    */
-  parents: Array<Hash>;
+  parents: Array<string>;
 
   /**
    *
    * @param hash The hash identifier for the node.
    */
-  constructor(hash: Hash) {
+  constructor(hash: string) {
     this.hash = hash;
     this.y = -1;
     this.x = -1;

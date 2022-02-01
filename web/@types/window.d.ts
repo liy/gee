@@ -31,17 +31,17 @@ declare global {
 
       onNotification: (callback: (data: Notification) => void) => void;
 
-      readFileLine: (path: string, callback: CommandCallback, wd: string) => void;
+      readFileLine: (path: string, callback: CommandCallback, workingDirectory: string) => void;
 
-      readFile: (path: string, wd: string) => Promise<ArrayBuffer>;
+      readFile: (path: string, workingDirectory: string) => Promise<ArrayBuffer>;
 
-      saveFile: (path: string, text: string, wd: string) => Promise<string>;
+      saveFile: (path: string, text: string, workingDirectory: string) => Promise<string>;
     };
     command: {
       // Directly invoke a command and expect the whole output in a promise. Suitable for small output.
-      invoke: (cmd: Array<string>, wd: string) => Promise<string>;
+      invoke: (cmd: Array<string>, workingDirectory: string) => Promise<string>;
       // Submit a comand and listens on the command output line by line
-      submit(args: Array<string>, wd: string, callback: CommandCallback): void;
+      submit(args: Array<string>, workingDirectory: string, callback: CommandCallback): void;
       // Force kill a git command process
       kill: (routeId: CallbackID) => void;
     };

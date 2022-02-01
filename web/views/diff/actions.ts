@@ -16,3 +16,5 @@ export type ToggleLine = {
   lineNo: number;
   flag: boolean;
 };
+
+export type Actions = Update | Apply | ToggleLine;
