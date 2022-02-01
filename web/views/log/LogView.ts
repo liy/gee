@@ -1,3 +1,4 @@
+import { CustomEventMap } from '../../@types/event';
 import { appStore } from '../../appStore';
 import { show } from '../../commands/show';
 import { Commit } from '../../components/Commit';
@@ -50,6 +51,9 @@ export class LogView extends HTMLElement {
     this.onResize = this.onResize.bind(this);
     this.focusLog = this.focusLog.bind(this);
     this.clearSelection = this.clearSelection.bind(this);
+    this.onCommitClick = this.onCommitClick.bind(this);
+    this.onReferenceClick = this.onReferenceClick.bind(this);
+    this.onHashClick = this.onHashClick.bind(this);
 
     this.scrollbar.addEventListener('scroll', this.onScroll, { passive: true });
     window.addEventListener('resize', this.onResize, { passive: true });
@@ -78,25 +82,11 @@ export class LogView extends HTMLElement {
   }
 
   selectLog(action: SelectLog, state: State) {
-    const node = this.graph.getNode(action.log.hash);
-    this.scrollView(node.y);
-
     for (let i = 0; i < this.numRows; ++i) {
       if (i < this.elements.length) {
         const element = this.elements[i];
         element.setSelection(store.currentState.selectedLog?.hash === this.logs[this.startIndex + i].hash);
       }
-    }
-  }
-
-  private focusLog(e: CustomEvent) {
-    // const log = this.map.get(e.detail.hash);
-    const index = store.currentState.map.get(e.detail.hash);
-    if (index !== undefined) {
-      store.operate({
-        type: 'selectLog',
-        log: store.currentState.logs[index],
-      });
     }
   }
 
@@ -153,13 +143,51 @@ export class LogView extends HTMLElement {
     return store.currentState.logs;
   }
 
+  onCommitClick(e: CustomEvent<string>) {
+    const index = store.currentState.map.get(e.detail);
+    if (index !== undefined) {
+      const log = store.currentState.logs[index];
+      store.operate({
+        type: 'selectLog',
+        log,
+      });
+    }
+  }
+
+  onHashClick(e: CustomEvent<CustomEventMap['hash.clicked']>) {
+    const index = store.currentState.map.get(e.detail.hash);
+    if (index !== undefined) {
+      const log = store.currentState.logs[index];
+      store.operate({
+        type: 'selectLog',
+        log,
+      });
+
+      this.focusLog(log.hash);
+    }
+  }
+
+  onReferenceClick(e: CustomEvent<CustomEventMap['reference.clicked']>) {
+    const index = store.currentState.map.get(e.detail.hash);
+    if (index !== undefined) {
+      const log = store.currentState.logs[index];
+      store.operate({
+        type: 'selectLog',
+        log,
+      });
+
+      this.focusLog(log.hash);
+    }
+  }
+
   connectedCallback() {
     // 2 extra rows for top and bottom, so smooth scroll display commit outside of the viewport
     this.numRows = Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1;
     this.scrollElement.style.height = GraphStyle.sliceHeight * this.logs.length + 'px';
 
-    document.addEventListener('hash.clicked', this.focusLog);
-    document.addEventListener('reference.clicked', this.focusLog);
+    document.addEventListener('hash.clicked', this.onHashClick);
+    document.addEventListener('reference.clicked', this.onReferenceClick);
+    document.addEventListener('commit.clicked', this.onCommitClick);
 
     this.layout();
   }
@@ -169,8 +197,9 @@ export class LogView extends HTMLElement {
     this.scrollbar.removeEventListener('scroll', this.onScroll);
     window.removeEventListener('resize', this.onResize);
 
-    document.removeEventListener('hash.clicked', this.focusLog);
-    document.removeEventListener('reference.clicked', this.focusLog);
+    document.removeEventListener('hash.clicked', this.onHashClick);
+    document.removeEventListener('reference.clicked', this.onReferenceClick);
+    document.removeEventListener('commit.clicked', this.onCommitClick);
   }
 
   /**
@@ -199,6 +228,11 @@ export class LogView extends HTMLElement {
   onScroll(e: Event) {
     this.table.style.top = `${-(this.scrollbar.scrollTop % GraphStyle.sliceHeight)}px`;
     this.populate();
+  }
+
+  private focusLog(hash: string) {
+    const node = this.graph.getNode(hash);
+    this.scrollView(node.y);
   }
 
   scrollView(index: number) {

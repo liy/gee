@@ -3,7 +3,7 @@ import { Subroutine } from 'vasejs';
 import { State } from './store';
 import { Actions } from './actions';
 
-export function log(workingDirectory: string): Subroutine<Actions, State, any> {
+export function log(workingDirectory: string): Subroutine<Actions, State> {
   return async (operate) => {
     const [logs, branches, tags] = await logCommand(workingDirectory);
     operate({

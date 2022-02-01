@@ -170,7 +170,7 @@ export class DiffFile extends HTMLDivElement {
               },
             },
           }),
-          lineNumbers(),
+          // lineNumbers(),
           diffExtension,
           javascript(),
           oneDarkTheme,

@@ -25,6 +25,7 @@ export const store = new Store<State, Update | SelectLog>(initialState, {
   //   };
   // },
   selectLog(action, state) {
+    console.log('selectLog');
     return {
       ...state,
       selectedLog: action.log,

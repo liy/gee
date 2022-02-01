@@ -1,19 +1,19 @@
 import { appStore } from './appStore';
 import { allBranches } from './commands/branch';
 import { rebase } from './commands/rebase';
+import { revParse } from './commands/revParse';
 import { show } from './commands/show';
 import { tag } from './commands/tag';
 import { Diff } from './Diff';
 import { BranchView } from './views/branch/BranchView';
 import { StageView } from './views/diff/StageView';
 import { store as diffStore } from './views/diff/store';
-import { store as logStore } from './views/log/store';
 import { status } from './views/diff/subroutines';
 import { WorkspaceView } from './views/diff/WorkspaceView';
+import { store as logStore } from './views/log/store';
 import { RebaseView } from './views/RebaseView';
 import { ShowView } from './views/show/ShowView';
 import { TagView } from './views/TagView';
-import { revParse } from './commands/revParse';
 
 class ConsoleManager {
   consoleElement: HTMLElement;
@@ -30,22 +30,29 @@ class ConsoleManager {
     });
 
     appStore.subscribe({
-      'wd.update': (action, state) => {
+      'wd.update': () => {
         this.process(['clear']);
       },
     });
 
-    // When log commit is selected
-    document.addEventListener('commit.clicked', async (e) => {
-      const index = logStore.currentState.map.get(e.detail);
-      if (index !== undefined) {
-        const log = logStore.currentState.logs[index];
-        const { branches, tags, bodyText, diffText } = await show(e.detail, appStore.currentState.workingDirectory);
+    logStore.subscribe({
+      selectLog: async (action, newState, oldState) => {
+        if (!newState.selectedLog) return;
+
+        // Click same commit will not append view
+        if (newState.selectedLog.hash === oldState.selectedLog?.hash) {
+          return;
+        }
+
+        const { branches, tags, bodyText, diffText } = await show(
+          newState.selectedLog.hash,
+          appStore.currentState.workingDirectory
+        );
         const showView = document.createElement('div', { is: 'show-view' }) as ShowView;
         this.consoleElement.prepend(showView);
         const diffs = Diff.parse(diffText);
-        showView.update(diffs, log, bodyText, branches, tags);
-      }
+        showView.update(diffs, newState.selectedLog, bodyText, branches, tags);
+      },
     });
   }
 
