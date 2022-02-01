@@ -60,6 +60,7 @@ export class LogView extends HTMLElement {
 
     this.unsubscribe = store.subscribe(this);
   }
+
   /**
    * Update elements with commit data
    */

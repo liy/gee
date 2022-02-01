@@ -18,6 +18,8 @@ export class WorkspaceView extends ViewBase {
   }
 
   update(diffs: Diff[]) {
+    if (diffs.length === 0) this.remove();
+
     const editors = Array.from(this.content.children) as Array<DiffFile>;
     let i = 0;
     for (; i < editors.length; ++i) {

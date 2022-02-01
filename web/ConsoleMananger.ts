@@ -6,6 +6,7 @@ import { show } from './commands/show';
 import { tag } from './commands/tag';
 import { Diff } from './Diff';
 import { BranchView } from './views/branch/BranchView';
+import { CommitView } from './views/commit/CommitView';
 import { StageView } from './views/diff/StageView';
 import { store as diffStore } from './views/diff/store';
 import { status } from './views/diff/subroutines';
@@ -79,8 +80,8 @@ class ConsoleManager {
       case 'status':
         const workspaceView = document.createElement('div', { is: 'workspace-view' }) as WorkspaceView;
         const stageView = document.createElement('div', { is: 'stage-view' }) as StageView;
-        this.consoleElement.prepend(stageView);
         this.consoleElement.prepend(workspaceView);
+        this.consoleElement.prepend(stageView);
         diffStore.invoke(status(appStore.currentState.workingDirectory));
         break;
       case 'show':
@@ -95,6 +96,16 @@ class ConsoleManager {
           const diffs = Diff.parse(diffText);
           showView.update(diffs, log, bodyText, branches, tags);
         }
+        break;
+      case 'commit':
+        const workspaceView2 = document.createElement('div', { is: 'workspace-view' }) as WorkspaceView;
+        const stageView2 = document.createElement('div', { is: 'stage-view' }) as StageView;
+        this.consoleElement.prepend(workspaceView2);
+        this.consoleElement.prepend(stageView2);
+        diffStore.invoke(status(appStore.currentState.workingDirectory));
+
+        const commitView = document.createElement('div', { is: 'commit-view' }) as CommitView;
+        this.consoleElement.prepend(commitView);
         break;
     }
   }
