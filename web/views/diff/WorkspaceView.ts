@@ -46,7 +46,13 @@ export class WorkspaceView extends ViewBase {
 
   connectedCallback() {
     this.cleanup = store.subscribe({
-      update: (_, state) => this.update(state.workspace.changes),
+      update: (_, state) => {
+        if (state.workspace.changes.length === 0) {
+          this.remove();
+        } else {
+          this.update(state.workspace.changes);
+        }
+      },
     });
   }
 

@@ -18,8 +18,6 @@ export class StageView extends ViewBase {
   }
 
   update(diffs: Diff[]) {
-    if (diffs.length === 0) this.remove();
-
     const editors = Array.from(this.content.children) as Array<DiffFile>;
     let i = 0;
     for (; i < editors.length; ++i) {
@@ -46,7 +44,13 @@ export class StageView extends ViewBase {
 
   connectedCallback() {
     this.cleanup = store.subscribe({
-      update: (_, state) => this.update(state.stage.changes),
+      update: (_, state) => {
+        if (state.stage.changes.length === 0) {
+          this.remove();
+        } else {
+          this.update(state.stage.changes);
+        }
+      },
     });
   }
 
