@@ -79,12 +79,7 @@ class ConsoleManager {
         break;
       case 'status':
         diffStore.invoke(status(appStore.currentState.workingDirectory));
-        if (
-          diffStore.currentState.stage.changes.length === 0 &&
-          diffStore.currentState.workspace.changes.length === 0
-        ) {
-          return;
-        }
+
         const workspaceView = document.createElement('div', { is: 'workspace-view' }) as WorkspaceView;
         workspaceView.update(diffStore.currentState.workspace.changes);
         const stageView = document.createElement('div', { is: 'stage-view' }) as StageView;
