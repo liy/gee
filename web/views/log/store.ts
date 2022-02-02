@@ -1,58 +1,33 @@
 import { Store } from 'vasejs';
-import { SelectLog, Update } from './actions';
+import { Actions } from './actions';
 
 export type State = {
   map: Map<string, number>;
   logs: Log[];
+  simulations: Log[];
   tags: Map<string, Tag[]>;
   branches: Map<string, Branch[]>;
   selectedLog: Log | null;
+  head: string;
 };
 
 const initialState: State = {
   map: new Map<string, number>(),
   logs: new Array<Log>(),
+  simulations: [],
   tags: new Map<string, Tag[]>(),
   branches: new Map<string, Branch[]>(),
   selectedLog: null,
+  head: '',
 };
 
-export const store = new Store<State, Update | SelectLog>(initialState, {
-  // updateLog(action, state) {
-  //   return {
-  //     ...state,
-  //     logs: action.logs,
-  //   };
-  // },
+export const store = new Store<State, Actions>(initialState, {
   selectLog(action, state) {
-    console.log('selectLog');
     return {
       ...state,
       selectedLog: action.log,
     };
   },
-  // updateTag(action, state) {
-  //   const map = new Map<string, Tag[]>();
-  //   for (const tag of action.tags) {
-  //     const tags = map.get(tag.hash) || [tag];
-  //     map.set(tag.targetHash, tags);
-  //   }
-  //   return {
-  //     ...state,
-  //     tags: map,
-  //   };
-  // },
-  // updateBranch(action, state) {
-  //   const map = new Map<string, Branch[]>();
-  //   for (const branch of action.branches) {
-  //     const branches = map.get(branch.targetHash) || [branch];
-  //     map.set(branch.targetHash, branches);
-  //   }
-  //   return {
-  //     ...state,
-  //     branches: map,
-  //   };
-  // },
   update(action, state) {
     const branchMap = new Map<string, Branch[]>();
     for (const branch of action.branches) {
@@ -68,6 +43,7 @@ export const store = new Store<State, Update | SelectLog>(initialState, {
       tagMap.set(tag.targetHash, tags);
     }
 
+    // Update graph index map
     const map = new Map<string, number>();
     action.logs.forEach((log, index) => map.set(log.hash, index));
 
@@ -77,6 +53,19 @@ export const store = new Store<State, Update | SelectLog>(initialState, {
       logs: action.logs,
       branches: branchMap,
       tags: tagMap,
+      head: action.head,
+    };
+  },
+  simulate(action, state) {
+    // Update graph index map for both simulation and normal logs
+    const map = new Map<string, number>();
+    action.simulations.forEach((log, index) => map.set(log.hash, index));
+    state.logs.forEach((log, index) => map.set(log.hash, index));
+
+    return {
+      ...state,
+      map,
+      simulations: action.simulations,
     };
   },
 });

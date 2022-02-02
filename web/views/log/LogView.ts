@@ -1,11 +1,10 @@
 import { CustomEventMap } from '../../@types/event';
 import { appStore } from '../../appStore';
-import { show } from '../../commands/show';
 import { Commit } from '../../components/Commit';
 import Graph from '../../graph/Graph';
 import GraphStore from '../../graph/GraphStore';
 import StraightLayout from '../../layouts/StraightLayout';
-import { SelectLog, Update } from './actions';
+import { SelectLog } from './actions';
 import GraphStyle from './GraphStyle';
 import GraphView from './GraphView';
 import './LogView.css';
@@ -64,12 +63,7 @@ export class LogView extends HTMLElement {
   /**
    * Update elements with commit data
    */
-  update(action: Update, _: State) {
-    // this.map.clear();
-    // for (const log of action.logs) {
-    //   this.map.set(log.hash, log);
-    // }
-
+  update() {
     this.graph = GraphStore.getGraph(appStore.currentState.workingDirectory);
     this.graph.clear();
     for (const log of this.logs) {
@@ -80,6 +74,11 @@ export class LogView extends HTMLElement {
     GraphView.display(layout.process());
 
     this.populate();
+  }
+
+  simulate() {
+    this.update();
+    this.scrollView(0);
   }
 
   selectLog(action: SelectLog, state: State) {
@@ -141,7 +140,7 @@ export class LogView extends HTMLElement {
   }
 
   get logs() {
-    return store.currentState.logs;
+    return [...store.currentState.simulations, ...store.currentState.logs];
   }
 
   onCommitClick(e: CustomEvent<string>) {
@@ -158,7 +157,7 @@ export class LogView extends HTMLElement {
   onHashClick(e: CustomEvent<CustomEventMap['hash.clicked']>) {
     const index = store.currentState.map.get(e.detail.hash);
     if (index !== undefined) {
-      const log = store.currentState.logs[index];
+      const log = this.logs[index];
       store.operate({
         type: 'selectLog',
         log,
@@ -171,7 +170,7 @@ export class LogView extends HTMLElement {
   onReferenceClick(e: CustomEvent<CustomEventMap['reference.clicked']>) {
     const index = store.currentState.map.get(e.detail.hash);
     if (index !== undefined) {
-      const log = store.currentState.logs[index];
+      const log = this.logs[index];
       store.operate({
         type: 'selectLog',
         log,

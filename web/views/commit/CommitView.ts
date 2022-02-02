@@ -9,6 +9,8 @@ import { store as diffStore } from '../diff/store';
 import { status } from '../diff/subroutines';
 import { store as logStore } from '../log/store';
 import { log } from '../log/subroutines';
+import GraphStore from '../../graph/GraphStore';
+import { createDebounce } from '../../utils';
 
 export class CommitView extends ViewBase {
   private editorContainer: HTMLDivElement;
@@ -53,6 +55,37 @@ export class CommitView extends ViewBase {
           }
         }
       }
+    });
+
+    const debounce = createDebounce(300);
+    this.input.addEventListener('input', (e) => {
+      debounce(async () => {
+        // TODO: create a simulation node
+        const simulation = {
+          author: {
+            email: 'test@test.com',
+            name: 'test',
+          },
+          authorDate: new Date(),
+          commitDate: new Date(),
+          committer: {
+            email: 'test@test.com',
+            name: 'test',
+          },
+          parents: [logStore.currentState.head],
+          subject: this.input.innerText, // Update subject when user is typing
+          hash: '',
+        };
+        const encoder = new TextEncoder();
+        const buffer = await crypto.subtle.digest('SHA-1', encoder.encode(JSON.stringify(simulation)));
+        const hashArray = Array.from(new Uint8Array(buffer));
+        simulation.hash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+
+        logStore.operate({
+          type: 'simulate',
+          simulations: [simulation],
+        });
+      });
     });
 
     // avoid accidental new line

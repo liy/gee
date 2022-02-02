@@ -5,12 +5,14 @@ import { Actions } from './actions';
 
 export function log(workingDirectory: string): Subroutine<Actions, State> {
   return async (operate) => {
-    const [logs, branches, tags] = await logCommand(workingDirectory);
+    const [logs, branches, tags, head] = await logCommand(workingDirectory);
     operate({
       type: 'update',
       logs,
       tags,
       branches,
+      head,
+      simulations: [],
     });
   };
 }

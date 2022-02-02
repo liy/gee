@@ -3,6 +3,7 @@ export type Update = {
   logs: Log[];
   tags: Tag[];
   branches: Branch[];
+  head: string;
 };
 
 // export type UpdateLog = {
@@ -25,4 +26,12 @@ export type SelectLog = {
   log: Log;
 };
 
-export type Actions = Update | SelectLog;
+/**
+ * Update simulate logs
+ */
+export type Simulate = {
+  type: 'simulate';
+  simulations: Log[];
+};
+
+export type Actions = Update | SelectLog | Simulate;
