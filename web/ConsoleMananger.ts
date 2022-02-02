@@ -78,11 +78,20 @@ class ConsoleManager {
         this.consoleElement.prepend(rebaseView);
         break;
       case 'status':
+        diffStore.invoke(status(appStore.currentState.workingDirectory));
+        if (
+          diffStore.currentState.stage.changes.length === 0 &&
+          diffStore.currentState.workspace.changes.length === 0
+        ) {
+          return;
+        }
         const workspaceView = document.createElement('div', { is: 'workspace-view' }) as WorkspaceView;
+        workspaceView.update(diffStore.currentState.workspace.changes);
         const stageView = document.createElement('div', { is: 'stage-view' }) as StageView;
+        stageView.update(diffStore.currentState.stage.changes);
         this.consoleElement.prepend(workspaceView);
         this.consoleElement.prepend(stageView);
-        diffStore.invoke(status(appStore.currentState.workingDirectory));
+
         break;
       case 'show':
         const hash = await revParse(cmds[1], appStore.currentState.workingDirectory);
@@ -106,6 +115,8 @@ class ConsoleManager {
 
         const commitView = document.createElement('div', { is: 'commit-view' }) as CommitView;
         this.consoleElement.prepend(commitView);
+        break;
+      case 'push':
         break;
     }
   }
