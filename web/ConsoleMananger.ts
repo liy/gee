@@ -115,7 +115,6 @@ class ConsoleManager {
 
         const commitView = document.createElement('div', { is: 'commit-view' }) as CommitView;
         this.consoleElement.prepend(commitView);
-
         break;
       case 'push':
         break;

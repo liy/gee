@@ -1,16 +1,15 @@
+import { appStore } from '../../appStore';
+import { commit } from '../../commands/commit';
 import { DiffFile } from '../../components/DiffFile';
 import { Diff } from '../../Diff';
-import { ViewBase } from '../ViewBase';
-import template from './CommitView.html';
-import './CommitView.css';
-import { commit } from '../../commands/commit';
-import { appStore } from '../../appStore';
+import { createDebounce } from '../../utils';
 import { store as diffStore } from '../diff/store';
 import { status } from '../diff/subroutines';
 import { store as logStore } from '../log/store';
 import { log } from '../log/subroutines';
-import GraphStore from '../../graph/GraphStore';
-import { createDebounce } from '../../utils';
+import { ViewBase } from '../ViewBase';
+import './CommitView.css';
+import template from './CommitView.html';
 
 export class CommitView extends ViewBase {
   private editorContainer: HTMLDivElement;

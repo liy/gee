@@ -28,6 +28,7 @@ export const store = new Store<State, Actions>(initialState, {
       selectedLog: action.log,
     };
   },
+  // Note that update will clear all simulations
   update(action, state) {
     const branchMap = new Map<string, Branch[]>();
     for (const branch of action.branches) {
@@ -54,6 +55,7 @@ export const store = new Store<State, Actions>(initialState, {
       branches: branchMap,
       tags: tagMap,
       head: action.head,
+      simulations: [],
     };
   },
   simulate(action, state) {

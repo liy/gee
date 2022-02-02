@@ -18,7 +18,7 @@ export class WorkspaceView extends ViewBase {
   }
 
   update(diffs: Diff[]) {
-    if (diffs.length === 0) this.remove();
+    this.heading.textContent = diffs.length === 0 ? 'no changes in workspace' : 'workspace changes';
 
     const editors = Array.from(this.content.children) as Array<DiffFile>;
     let i = 0;
@@ -47,11 +47,7 @@ export class WorkspaceView extends ViewBase {
   connectedCallback() {
     this.cleanup = store.subscribe({
       update: (_, state) => {
-        if (state.workspace.changes.length === 0) {
-          this.remove();
-        } else {
-          this.update(state.workspace.changes);
-        }
+        this.update(state.workspace.changes);
       },
     });
   }
