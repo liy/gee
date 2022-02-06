@@ -60,12 +60,14 @@ export const start = async (initialWorkingDirectory: string) => {
         args.slice(1),
         {
           cwd: wd,
+          shell: true,
         },
-        (err: any, stdout: any) => {
+        (err, stdout, stderr) => {
           if (err) {
             reject(err);
           } else {
-            resolve(stdout);
+            // some times the result is in stderr, even though there is not error
+            resolve(stdout || stderr);
           }
         }
       );
@@ -77,7 +79,7 @@ export const start = async (initialWorkingDirectory: string) => {
   // Command, FIXME: reuse child process
   ipcMain.on(COMMAND_SUBMIT, (event, args: Array<string>, wd: string, id: CallbackID) => {
     const cli = spawn(args[0], args.slice(1), { cwd: wd });
-    const rl = readline.createInterface({ input: cli.stdout });
+    const rl = readline.createInterface({ input: cli.stdout || cli.stderr });
     cliMap.set(id, [rl, cli]);
     rl.on('line', (line) => {
       event.sender.send(CommandProcess.ReadLine, line, id);

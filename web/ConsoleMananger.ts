@@ -1,8 +1,10 @@
 import { appStore } from './appStore';
 import { allBranches } from './commands/branch';
+import { push } from './commands/push';
 import { rebase } from './commands/rebase';
 import { revParse } from './commands/revParse';
 import { show } from './commands/show';
+import { simple } from './commands/simple';
 import { tag } from './commands/tag';
 import { Diff } from './Diff';
 import { BranchView } from './views/branch/BranchView';
@@ -12,8 +14,10 @@ import { store as diffStore } from './views/diff/store';
 import { status } from './views/diff/subroutines';
 import { WorkspaceView } from './views/diff/WorkspaceView';
 import { store as logStore } from './views/log/store';
+import { PushView } from './views/push/PushView';
 import { RebaseView } from './views/RebaseView';
 import { ShowView } from './views/show/ShowView';
+import { SimpleView } from './views/simple/SimpleView';
 import { TagView } from './views/TagView';
 
 class ConsoleManager {
@@ -25,7 +29,12 @@ class ConsoleManager {
     const input = document.getElementsByClassName('command-input')[0] as HTMLInputElement;
     input.addEventListener('keydown', async (e: KeyboardEvent) => {
       if (e.key == 'Enter') {
-        this.process(input.value.split(' '));
+        const cmd = input.value.trim().toLowerCase();
+        if (cmd) {
+          if (!(await this.intercept(cmd))) {
+            this.process(input.value.split(' '));
+          }
+        }
         input.value = '';
       }
     });
@@ -55,6 +64,18 @@ class ConsoleManager {
         showView.update(diffs, newState.selectedLog, bodyText, branches, tags);
       },
     });
+  }
+
+  async intercept(cmd: string) {
+    if (cmd.toLowerCase().startsWith('git')) {
+      const simpleView = document.createElement('div', { is: 'simple-view' }) as SimpleView;
+      simpleView.update(await simple(cmd, appStore.currentState.workingDirectory));
+      this.consoleElement.prepend(simpleView);
+
+      return true;
+    }
+
+    return false;
   }
 
   async process(cmds: string[]) {
@@ -112,6 +133,9 @@ class ConsoleManager {
         this.consoleElement.prepend(commitView);
         break;
       case 'push':
+        const pushView = document.createElement('div', { is: 'push-view' }) as PushView;
+        pushView.update(await push(appStore.currentState.workingDirectory));
+        this.consoleElement.prepend(pushView);
         break;
     }
   }
