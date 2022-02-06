@@ -8,8 +8,9 @@ export class SimpleView extends ViewBase {
     this.heading.textContent = this.title;
   }
 
-  update(text: string) {
-    this.content.textContent = text;
+  update(text: string, cmd: string) {
+    this.heading.textContent = cmd;
+    this.content.innerText = text;
   }
 
   connectedCallback() {}

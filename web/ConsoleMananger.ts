@@ -69,7 +69,7 @@ class ConsoleManager {
   async intercept(cmd: string) {
     if (cmd.toLowerCase().startsWith('git')) {
       const simpleView = document.createElement('div', { is: 'simple-view' }) as SimpleView;
-      simpleView.update(await simple(cmd, appStore.currentState.workingDirectory));
+      simpleView.update(await simple(cmd, appStore.currentState.workingDirectory), cmd);
       this.consoleElement.prepend(simpleView);
 
       return true;
