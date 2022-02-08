@@ -89,7 +89,7 @@ export class ShowView extends ViewBase {
     this.committerEmailNode.textContent = log.committer.email;
     this.committerDateNode.textContent = dateFormat.format(log.commitDate) + ' ' + timeFormat.format(log.commitDate);
 
-    this.bodyNode.textContent = logBody;
+    this.bodyNode.innerText = logBody.trim();
 
     const editors = Array.from(this.editorContainer.children) as Array<DiffFile>;
     let i = 0;

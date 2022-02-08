@@ -127,13 +127,9 @@ export class LogView extends HTMLElement {
       if (i < this.elements.length) {
         const element = this.elements[i];
         if (ii < this.logs.length) {
-          const branches = store.currentState.branches.get(this.logs[ii].hash) || [];
-          const tags = store.currentState.tags.get(this.logs[ii].hash) || [];
-          element.update(
-            this.logs[ii],
-            [...branches, ...tags],
-            store.currentState.selectedLog?.hash === this.logs[ii].hash
-          );
+          const branches = store.currentState.branches.get(this.logs[ii].hash);
+          const tags = store.currentState.tags.get(this.logs[ii].hash);
+          element.update(this.logs[ii], branches, tags, store.currentState.selectedLog?.hash === this.logs[ii].hash);
         }
       }
     }

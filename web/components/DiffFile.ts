@@ -127,7 +127,7 @@ export class DiffFile extends HTMLDivElement {
 
   private newLineNos: Array<string> = [];
 
-  private diff: Diff | undefined;
+  diff: Diff | undefined;
 
   constructor() {
     super();
@@ -201,7 +201,7 @@ export class DiffFile extends HTMLDivElement {
     return true;
   }
 
-  update(diff: Diff, collapse = false) {
+  update(diff: Diff, collapse = true) {
     this.diff = diff;
 
     this.oldLineNos = diff.hunks.map((hunk) => hunk.oldLineNo).flat();
@@ -236,6 +236,14 @@ export class DiffFile extends HTMLDivElement {
 
   toggle() {
     this.collapsed = !this.collapsed;
+    this.dispatchEvent(
+      new CustomEvent('diff.toggle', {
+        detail: {
+          key: this.diff?.heading.from,
+          collapsed: this.collapsed,
+        },
+      })
+    );
   }
 
   connectedCallback() {

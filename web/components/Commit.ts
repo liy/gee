@@ -39,17 +39,25 @@ export class Commit extends HTMLDivElement {
     this.dateTimeNode = this.querySelector('.date-time')!;
   }
 
-  update(data: Log, labelInfos?: Branch[] | Tag[], selected = false) {
+  update(data: Log, branches: Branch[] | undefined, tags: Tag[] | undefined, selected = false) {
     this.data = data;
     this.clear();
 
-    this.summaryNode.textContent = data.subject;
+    this.summaryNode.innerText = data.subject;
     this.hashNode.textContent = data.hash.substring(0, 7);
     this.authroNode.textContent = data.author.name;
     this.dateTimeNode.textContent = dateFormat.format(data.commitDate) + ' ' + timeFormat.format(data.commitDate);
 
-    if (labelInfos) {
-      for (const labelInfo of labelInfos) {
+    if (branches) {
+      for (const labelInfo of branches) {
+        const label = document.createElement('div', { is: 'log-label' }) as LogLabel;
+        this.refNode.appendChild(label);
+        label.update(labelInfo);
+      }
+    }
+
+    if (tags) {
+      for (const labelInfo of tags) {
         const label = document.createElement('div', { is: 'log-label' }) as LogLabel;
         this.refNode.appendChild(label);
         label.update(labelInfo);

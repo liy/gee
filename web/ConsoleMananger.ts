@@ -9,10 +9,9 @@ import { tag } from './commands/tag';
 import { Diff } from './Diff';
 import { BranchView } from './views/branch/BranchView';
 import { CommitView } from './views/commit/CommitView';
-import { StageView } from './views/diff/StageView';
 import { store as diffStore } from './views/diff/store';
 import { status } from './views/diff/subroutines';
-import { WorkspaceView } from './views/diff/WorkspaceView';
+import { IndexView } from './views/diff/IndexView';
 import { store as logStore } from './views/log/store';
 import { PushView } from './views/push/PushView';
 import { RebaseView } from './views/RebaseView';
@@ -101,10 +100,10 @@ class ConsoleManager {
       case 'status':
         diffStore.invoke(status(appStore.currentState.workingDirectory));
 
-        const workspaceView = document.createElement('div', { is: 'workspace-view' }) as WorkspaceView;
-        workspaceView.update(diffStore.currentState.workspace.changes);
-        const stageView = document.createElement('div', { is: 'stage-view' }) as StageView;
-        stageView.update(diffStore.currentState.stage.changes);
+        const workspaceView = document.createElement('div', { is: 'index-view' }) as IndexView;
+        workspaceView.update(diffStore.currentState.workspace.changes, 'workspace');
+        const stageView = document.createElement('div', { is: 'index-view' }) as IndexView;
+        stageView.update(diffStore.currentState.stage.changes, 'stage');
         this.consoleElement.prepend(workspaceView);
         this.consoleElement.prepend(stageView);
 
@@ -123,10 +122,12 @@ class ConsoleManager {
         }
         break;
       case 'commit':
-        const workspaceView2 = document.createElement('div', { is: 'workspace-view' }) as WorkspaceView;
-        const stageView2 = document.createElement('div', { is: 'stage-view' }) as StageView;
-        this.consoleElement.prepend(workspaceView2);
-        this.consoleElement.prepend(stageView2);
+        const commitWorkspaceView = document.createElement('div', { is: 'index-view' }) as IndexView;
+        commitWorkspaceView.update([], 'workspace');
+        this.consoleElement.prepend(commitWorkspaceView);
+        const commitStageView = document.createElement('div', { is: 'index-view' }) as IndexView;
+        commitStageView.update([], 'stage');
+        this.consoleElement.prepend(commitStageView);
         diffStore.invoke(status(appStore.currentState.workingDirectory));
 
         const commitView = document.createElement('div', { is: 'commit-view' }) as CommitView;

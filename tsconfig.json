@@ -11,7 +11,8 @@
     "noEmit": true,
     "target": "ESNext",
     "baseUrl": "./src",
-    "preserveSymlinks": true
+    "preserveSymlinks": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["./src/**/*", "./web/**/*", "bin/RepositoryReaderProcess.ts"]
 }

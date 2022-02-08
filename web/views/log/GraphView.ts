@@ -1,24 +1,14 @@
 /* eslint-disable no-constant-condition */
-import {
-  Container,
-  Graphics,
-  Ticker,
-  Renderer,
-  Texture,
-  Sprite,
-  BitmapFont,
-  BitmapText,
-  ParticleContainer,
-} from 'pixi.js';
-import * as PIXI from 'pixi.js';
 import { install } from '@pixi/unsafe-eval';
+import * as PIXI from 'pixi.js';
+import { Container, Graphics, ParticleContainer, Renderer, Sprite, Texture, Ticker } from 'pixi.js';
+import { LayoutResult } from '../../layouts/StraightLayout';
+import { SimType } from '../../Simulator';
+import './graph.css';
+import GraphStyle from './GraphStyle';
 // Apply the patch to PIXI
 install(PIXI);
-import './graph.css';
-
-import { SimType } from '../../Simulator';
-import GraphStyle from './GraphStyle';
-import { LayoutResult } from '../../layouts/StraightLayout';
+import Stats from 'stats.js';
 
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 PIXI.settings.ROUND_PIXELS = true;
@@ -63,11 +53,11 @@ class GraphView {
     if (!this.initialized) {
       this.lineGraphics = new Graphics();
 
-      // const stats = new Stats();
-      // stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-      // document.body.appendChild(stats.dom);
-      // stats.dom.style.left = 'unset';
-      // stats.dom.style.right = '80px';
+      const stats = new Stats();
+      stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+      document.body.appendChild(stats.dom);
+      stats.dom.style.left = 'unset';
+      stats.dom.style.right = '80px';
 
       this.strap.beginFill(0x3875af, 0.2);
       this.strap.drawRect(0, -GraphStyle.sliceHeight / 2, this.canvasWidth, GraphStyle.sliceHeight);
@@ -121,9 +111,9 @@ class GraphView {
 
       const ticker = new Ticker();
       ticker.add(() => {
-        // stats.begin();
+        stats.begin();
         this.renderer.render(stage);
-        // stats.end();
+        stats.end();
       });
       ticker.start();
 

@@ -21,4 +21,11 @@ interface CustomEventMap {
 
   // Log commit is clicked.
   'commit.clicked': string;
+
+  // When diff is clicked, it toggle its collapsed state
+  // True is collapsed, false is show.
+  'diff.toggle': {
+    key: string;
+    collapsed: boolean;
+  };
 }
