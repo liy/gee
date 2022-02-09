@@ -10,11 +10,13 @@ import { log } from './views/log/subroutines';
 import { store as logStore } from './views/log/store';
 
 window.api.onWorkingDirectoryChanged((path) => {
-  appStore.operate({
-    type: 'wd.update',
-    path,
-  });
-  logStore.invoke(log(appStore.currentState.workingDirectory));
+  if (path !== appStore.currentState.workingDirectory) {
+    appStore.operate({
+      type: 'wd.update',
+      path,
+    });
+    logStore.invoke(log(appStore.currentState.workingDirectory));
+  }
 });
 
 window.api.onNotification((notification) => {

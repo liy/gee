@@ -88,6 +88,9 @@ contextBridge.exposeInMainWorld('command', {
     const routeId = callbacks.add(callback);
     ipcRenderer.send(COMMAND_SUBMIT, args, wd, routeId);
   },
+  onCommand: (callback: (cmd: string[]) => void) => {
+    ipcRenderer.on('onCommand', (event: Electron.IpcRendererEvent, cmd: string[]) => callback(cmd));
+  },
 });
 
 // read line

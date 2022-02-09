@@ -9,7 +9,7 @@ export class PushView extends ViewBase {
   }
 
   update(text: string) {
-    this.content.textContent = text;
+    this.content.innerText = text;
   }
 
   connectedCallback() {}

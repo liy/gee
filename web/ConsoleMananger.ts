@@ -39,7 +39,7 @@ class ConsoleManager {
     });
 
     appStore.subscribe({
-      'wd.update': () => {
+      'wd.update': (action, state) => {
         this.process(['clear']);
       },
     });
@@ -62,6 +62,12 @@ class ConsoleManager {
         const diffs = Diff.parse(diffText);
         showView.update(diffs, newState.selectedLog, bodyText, branches, tags);
       },
+    });
+
+    window.command.onCommand((cmds) => {
+      console.log('!??!');
+      console.log(cmds);
+      this.process(cmds);
     });
   }
 

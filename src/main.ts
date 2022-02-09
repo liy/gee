@@ -6,6 +6,8 @@ import { start } from './app';
 
 const argv = require('minimist')(process.argv.slice(2));
 
+console.log(argv);
+
 // If dev mode then allow reload electron main and renderer on source file changes
 if (process.env.NODE_ENV !== 'production') {
   require('electron-reload')(__dirname, {
@@ -53,6 +55,9 @@ if (app.requestSingleInstanceLock()) {
       mainWindow.webContents.send('wd.changed', workingDirectory);
       mainWindow.title = workingDirectory;
       mainWindow.show();
+
+      // Send command line to renderer
+      mainWindow.webContents.send('onCommand', commandLine.slice(2));
     });
 
     // Close to the tray
@@ -85,6 +90,9 @@ if (app.requestSingleInstanceLock()) {
     });
 
     start(process.cwd());
+
+    // Send command line to renderer
+    mainWindow.webContents.send('onCommand', argv.slice(2));
   });
 } else {
   // console.log('single instance lock, exiting.');

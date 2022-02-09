@@ -44,6 +44,8 @@ declare global {
       submit(args: Array<string>, workingDirectory: string, callback: CommandCallback): void;
       // Force kill a git command process
       kill: (routeId: CallbackID) => void;
+      // launch gee from command line
+      onCommand(callback: (cmd: string[]) => void): void;
     };
   }
 
