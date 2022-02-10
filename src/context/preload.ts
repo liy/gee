@@ -42,6 +42,10 @@ contextBridge.exposeInMainWorld('api', {
   //   ipcRenderer.on('openRepository', (event: Electron.IpcRendererEvent, data: Repository__Output) => callback(data));
   // },
 
+  appReady() {
+    return ipcRenderer.invoke('app.ready');
+  },
+
   // Get working directory from main process
   getWorkingDirectory: (): Promise<string | null> => {
     return ipcRenderer.invoke('wd.get');

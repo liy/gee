@@ -4,9 +4,9 @@ import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron
 import * as path from 'path';
 import { start } from './app';
 
-const argv = require('minimist')(process.argv.slice(2));
-
-console.log(argv);
+// const args = require('minimist')(process.env.NODE_ENV !== 'production' ? process.argv.slice(3) : process.argv).;
+// console.log(args);
+const args = process.env.NODE_ENV !== 'production' ? process.argv.slice(3) : process.argv.slice(1);
 
 // If dev mode then allow reload electron main and renderer on source file changes
 if (process.env.NODE_ENV !== 'production') {
@@ -46,6 +46,7 @@ if (app.requestSingleInstanceLock()) {
     mainWindow.loadFile(indexPath).then(() => {
       mainWindow.title = process.cwd();
     });
+
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
 
@@ -89,10 +90,7 @@ if (app.requestSingleInstanceLock()) {
       mainWindow.show();
     });
 
-    start(process.cwd());
-
-    // Send command line to renderer
-    mainWindow.webContents.send('onCommand', argv.slice(2));
+    start(process.cwd(), args);
   });
 } else {
   // console.log('single instance lock, exiting.');

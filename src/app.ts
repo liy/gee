@@ -7,8 +7,14 @@ import { CallbackID, CommandProcess, COMMAND_INVOKE, COMMAND_KILL, COMMAND_SUBMI
 
 let currentWorkingDirectory = '';
 
-export const start = async (initialWorkingDirectory: string) => {
+export const start = async (initialWorkingDirectory: string, initialCmds: string[]) => {
   currentWorkingDirectory = initialWorkingDirectory;
+
+  ipcMain.handle('app.ready', (event) => {
+    console.log('app ready');
+    // Send command line to renderer
+    event.sender.send('onCommand', initialCmds);
+  });
 
   ipcMain.handle('wd.get', () => currentWorkingDirectory);
   ipcMain.handle('wd.set', (event, wd) => (currentWorkingDirectory = wd));

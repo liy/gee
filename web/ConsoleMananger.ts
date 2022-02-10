@@ -65,8 +65,6 @@ class ConsoleManager {
     });
 
     window.command.onCommand((cmds) => {
-      console.log('!??!');
-      console.log(cmds);
       this.process(cmds);
     });
   }
@@ -84,6 +82,8 @@ class ConsoleManager {
   }
 
   async process(cmds: string[]) {
+    if (cmds.length === 0) return;
+
     switch (cmds[0].toLowerCase()) {
       case 'clear':
         this.consoleElement.innerHTML = '';

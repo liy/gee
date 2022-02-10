@@ -16,6 +16,7 @@ interface DataElement<T> {
 declare global {
   interface Window {
     api: {
+      appReady(): void;
       // Ask main to open a repository
       // openRepository: (path: string) => Promise<Repository__Output>;
       // Main send a notification message

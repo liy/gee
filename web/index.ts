@@ -39,3 +39,5 @@ if (wd) {
 } else {
   // Display splash screen
 }
+
+window.api.appReady();
