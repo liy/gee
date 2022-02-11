@@ -4,8 +4,6 @@ import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron
 import * as path from 'path';
 import { start } from './app';
 
-// const args = require('minimist')(process.env.NODE_ENV !== 'production' ? process.argv.slice(3) : process.argv).;
-// console.log(args);
 const args = process.env.NODE_ENV !== 'production' ? process.argv.slice(3) : process.argv.slice(1);
 
 // If dev mode then allow reload electron main and renderer on source file changes

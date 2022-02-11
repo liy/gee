@@ -1,0 +1,4 @@
+.tag-view-content {
+  display: flex;
+  flex-wrap: wrap;
+}

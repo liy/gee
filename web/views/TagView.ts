@@ -1,6 +1,8 @@
 import { CommitTag } from '../components/Tag';
 import { TagData } from '../commands/tag';
 import { ViewBase } from './ViewBase';
+import './TagView.css';
+
 export class TagView extends ViewBase {
   testData!: TagData[];
 
@@ -9,7 +11,7 @@ export class TagView extends ViewBase {
 
     this.title = 'tag';
     this.heading.textContent = this.title;
-    this.content.classList.add('content-flex');
+    this.content.classList.add('tag-view-content');
   }
 
   update(data: TagData[]) {
