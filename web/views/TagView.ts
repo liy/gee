@@ -11,7 +11,7 @@ export class TagView extends ViewBase {
 
     this.title = 'tag';
     this.heading.textContent = this.title;
-    this.content.classList.add('tag-view-content');
+    this.content.classList.add('tag-view');
   }
 
   update(data: TagData[]) {

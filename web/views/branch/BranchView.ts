@@ -1,6 +1,7 @@
 import { BranchData } from '../../commands/branch';
 import { Branch } from '../../components/Branch';
 import { ViewBase } from '../ViewBase';
+import './BranchView.css';
 
 export class BranchView extends ViewBase {
   constructor() {
@@ -8,7 +9,7 @@ export class BranchView extends ViewBase {
 
     this.title = 'branch';
     this.heading.textContent = this.title;
-    this.content.classList.add('content-flex');
+    this.content.classList.add('branch-view');
   }
 
   update(data: BranchData[]) {
