@@ -39,7 +39,13 @@ export class Commit extends HTMLDivElement {
     this.dateTimeNode = this.querySelector('.date-time')!;
   }
 
-  update(data: Log, branches: Branch[] | undefined, tags: Tag[] | undefined, selected = false) {
+  update(
+    data: Log,
+    branches: Branch[] | undefined,
+    tags: Tag[] | undefined,
+    isHead: boolean = false,
+    selected = false
+  ) {
     this.data = data;
     this.clear();
 
@@ -65,6 +71,10 @@ export class Commit extends HTMLDivElement {
     }
 
     this.setSelection(selected);
+
+    if (isHead) {
+      this.classList.add('head');
+    }
   }
 
   setSelection(selected: boolean) {

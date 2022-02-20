@@ -71,3 +71,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.commit.head::before {
+  font-weight: bolder;
+}

@@ -71,3 +71,6 @@ export const store = new Store<State, Actions>(initialState, {
     };
   },
 });
+
+// @ts-ignore
+window.logStore = store;
