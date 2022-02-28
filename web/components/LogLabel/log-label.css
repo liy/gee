@@ -11,3 +11,11 @@
 .log-label.tag {
   background-color: #ff0000;
 }
+
+.log-label.head::before {
+  content: '🔨 ';
+}
+
+.log-label.branch.head::before {
+  content: '🔨 ';
+}

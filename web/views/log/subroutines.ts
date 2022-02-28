@@ -12,7 +12,7 @@ export function log(workingDirectory: string): Subroutine<Actions, State> {
       tags,
       branches,
       head,
-      simulations: [],
+      // simulations: [],
     });
   };
 }

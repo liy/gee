@@ -3,7 +3,10 @@ export type Update = {
   logs: Log[];
   tags: Tag[];
   branches: Branch[];
-  head: string;
+  head: {
+    hash: string | null;
+    ref: string | null;
+  };
 };
 
 // export type UpdateLog = {

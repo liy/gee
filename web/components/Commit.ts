@@ -1,4 +1,3 @@
-import ConsoleMananger from '../ConsoleMananger';
 import GraphStyle from '../views/log/GraphStyle';
 import './Commit.css';
 import template from './Commit.html';
@@ -43,7 +42,7 @@ export class Commit extends HTMLDivElement {
     data: Log,
     branches: Branch[] | undefined,
     tags: Tag[] | undefined,
-    isHead: boolean = false,
+    head: { hash: string | null; ref: string | null },
     selected = false
   ) {
     this.data = data;
@@ -58,7 +57,7 @@ export class Commit extends HTMLDivElement {
       for (const labelInfo of branches) {
         const label = document.createElement('div', { is: 'log-label' }) as LogLabel;
         this.refNode.appendChild(label);
-        label.update(labelInfo);
+        label.update(labelInfo, head);
       }
     }
 
@@ -66,13 +65,13 @@ export class Commit extends HTMLDivElement {
       for (const labelInfo of tags) {
         const label = document.createElement('div', { is: 'log-label' }) as LogLabel;
         this.refNode.appendChild(label);
-        label.update(labelInfo);
+        label.update(labelInfo, head);
       }
     }
 
     this.setSelection(selected);
 
-    if (isHead) {
+    if (data.hash === head.hash) {
       this.classList.add('head');
     }
   }

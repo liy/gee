@@ -8,7 +8,10 @@ export type State = {
   tags: Map<string, Tag[]>;
   branches: Map<string, Branch[]>;
   selectedLog: Log | null;
-  head: string;
+  head: {
+    hash: string | null;
+    ref: string | null;
+  };
 };
 
 const initialState: State = {
@@ -18,7 +21,10 @@ const initialState: State = {
   tags: new Map<string, Tag[]>(),
   branches: new Map<string, Branch[]>(),
   selectedLog: null,
-  head: '',
+  head: {
+    hash: null,
+    branch: null,
+  },
 };
 
 export const store = new Store<State, Actions>(initialState, {

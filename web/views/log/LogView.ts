@@ -133,7 +133,7 @@ export class LogView extends HTMLElement {
             this.logs[ii],
             branches,
             tags,
-            this.logs[ii].hash === store.currentState.head,
+            store.currentState.head,
             store.currentState.selectedLog?.hash === this.logs[ii].hash
           );
         }
