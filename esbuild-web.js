@@ -4,7 +4,7 @@ const sassPlugin = require('esbuild-plugin-sass');
 
 require('esbuild')
   .build({
-    entryPoints: ['web/index.ts'],
+    entryPoints: ['web/app.tsx'],
     bundle: true,
     sourcemap: true,
     watch: argv.watch && {

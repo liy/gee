@@ -10,6 +10,7 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "target": "ESNext",
+    "jsx": "react",
     "baseUrl": "./src",
     "preserveSymlinks": true,
     "allowSyntheticDefaultImports": true
