@@ -7,7 +7,7 @@ import { ViewBase } from '../ViewBase';
 import { store } from './store';
 import { status } from './subroutines';
 
-type IndexType = 'workspace' | 'stage';
+export type IndexType = 'workspace' | 'stage';
 
 export class IndexView extends ViewBase {
   private unsubscribe: (() => void) | undefined;
@@ -43,7 +43,7 @@ export class IndexView extends ViewBase {
     for (; i < editors.length; ++i) {
       if (diffs[i]) {
         const collapsed = this.collapsedState.get(diffs[i].heading.from);
-        editors[i].update(diffs[i], collapsed);
+        editors[i].update(diffs[i], indexType, collapsed);
       } else {
         const key = editors[i].diff?.heading.from;
         if (key) this.collapsedState.delete(key);
@@ -54,7 +54,7 @@ export class IndexView extends ViewBase {
     for (; i < diffs.length; ++i) {
       const elm = document.createElement('div', { is: 'diff-file' }) as DiffFile;
       const collapsed = this.collapsedState.get(diffs[i].heading.from);
-      elm.update(diffs[i], collapsed);
+      elm.update(diffs[i], indexType, collapsed);
       elm.addEventListener('line.mousedown', async (e) => {
         const patchText = createPatch([e.detail.editorLineNo], e.detail.diff, this.indexType === 'stage');
         if (patchText) {
@@ -64,6 +64,12 @@ export class IndexView extends ViewBase {
       });
       elm.addEventListener('diff.toggle', (e) => {
         this.collapsedState.set(e.detail.key, e.detail.collapsed);
+      });
+      elm.addEventListener('diff.stage', (e) => {
+        console.log('stage', e.detail.file);
+      });
+      elm.addEventListener('diff.unstage', (e) => {
+        console.log('unstage', e.detail.file);
       });
       this.content.appendChild(elm);
     }

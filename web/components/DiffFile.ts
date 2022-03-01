@@ -7,6 +7,7 @@ import { oneDarkHighlightStyle, oneDarkTheme } from '@codemirror/theme-one-dark'
 import { BlockInfo, Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@codemirror/view';
 import { diffExtension } from '../defaultExtension';
 import { Diff } from '../Diff';
+import { IndexType } from '../views/diff/IndexView';
 import './DiffFile.css';
 
 const customTheme = EditorView.theme({
@@ -118,6 +119,8 @@ class DiffLineGutter extends GutterMarker {
 
 export class DiffFile extends HTMLDivElement {
   private heading: HTMLDivElement;
+  private fileInfo: HTMLSpanElement;
+  private button: HTMLButtonElement;
 
   private content: HTMLDivElement;
 
@@ -129,6 +132,8 @@ export class DiffFile extends HTMLDivElement {
 
   diff: Diff | undefined;
 
+  private indexType: IndexType = 'workspace';
+
   constructor() {
     super();
 
@@ -138,11 +143,18 @@ export class DiffFile extends HTMLDivElement {
     this.heading.classList.add('heading');
     this.appendChild(this.heading);
 
+    this.button = document.createElement('button');
+    this.heading.appendChild(this.button);
+    this.fileInfo = document.createElement('span');
+    this.fileInfo.classList.add('file-info');
+    this.heading.appendChild(this.fileInfo);
+
     this.content = document.createElement('div');
     this.content.classList.add('content');
     this.appendChild(this.content);
 
     this.toggle = this.toggle.bind(this);
+    this.toggleStaging = this.toggleStaging.bind(this);
 
     this.editor = new EditorView({
       state: EditorState.create({
@@ -201,8 +213,9 @@ export class DiffFile extends HTMLDivElement {
     return true;
   }
 
-  update(diff: Diff, collapse = true) {
+  update(diff: Diff, indexType: IndexType, collapse = true) {
     this.diff = diff;
+    this.indexType = indexType;
 
     this.oldLineNos = diff.hunks.map((hunk) => hunk.oldLineNo).flat();
     this.newLineNos = diff.hunks.map((hunk) => hunk.newLineNo).flat();
@@ -215,7 +228,8 @@ export class DiffFile extends HTMLDivElement {
       },
     });
 
-    this.heading.textContent = diff.heading.from + ' ' + diff.heading.to;
+    this.fileInfo.textContent = diff.heading.from + ' ' + diff.heading.to;
+    this.button.textContent = indexType === 'workspace' ? 'stage' : 'unstage';
 
     this.collapsed = collapse;
   }
@@ -246,12 +260,24 @@ export class DiffFile extends HTMLDivElement {
     );
   }
 
+  toggleStaging() {
+    this.dispatchEvent(
+      new CustomEvent(this.indexType === 'workspace' ? 'diff.stage' : 'diff.unstage', {
+        detail: {
+          file: this.diff?.heading.from,
+        },
+      })
+    );
+  }
+
   connectedCallback() {
-    this.heading.addEventListener('click', this.toggle);
+    this.fileInfo.addEventListener('click', this.toggle);
+    this.button.addEventListener('click', this.toggleStaging);
   }
 
   disconnectedCallback() {
-    this.heading.removeEventListener('click', this.toggle);
+    this.fileInfo.removeEventListener('click', this.toggle);
+    this.button.removeEventListener('click', this.toggleStaging);
   }
 }
 

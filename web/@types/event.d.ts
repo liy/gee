@@ -28,4 +28,11 @@ interface CustomEventMap {
     key: string;
     collapsed: boolean;
   };
+
+  'diff.stage': {
+    file: string;
+  };
+  'diff.unstage': {
+    file: string;
+  };
 }

@@ -2,7 +2,7 @@ import './index.css';
 import './TagView';
 import './branch/BranchView';
 import './RebaseView';
-import './StatusView';
+// import './StatusView';
 import './diff/IndexView';
 import './log/LogView';
 import './show/ShowView';
