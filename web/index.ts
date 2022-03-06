@@ -8,6 +8,8 @@ import './views';
 import { LogView } from './views/log/LogView';
 import { log } from './views/log/subroutines';
 import { store as logStore } from './views/log/store';
+import { log as logCommand } from './commands/log';
+import { App } from './app';
 
 window.api.onWorkingDirectoryChanged((path) => {
   if (path !== appStore.currentState.workingDirectory) {
@@ -30,12 +32,15 @@ if (wd) {
     path: wd,
   });
 
-  const logView = document.createElement('main', { is: 'log-view' }) as LogView;
-  const root = document.getElementById('root')!;
-  root.prepend(logView);
+  // const logView = document.createElement('main', { is: 'log-view' }) as LogView;
+  // const root = document.getElementById('root')!;
+  // root.prepend(logView);
 
   // logs
-  await logStore.invoke(log(wd));
+  // await logStore.invoke(log(wd));
+
+  const [logs, branches, tags, head] = await logCommand(wd);
+  ReactDOM.render(<App logs />, document.getElementById('root'));
 } else {
   // Display splash screen
 }

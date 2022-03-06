@@ -1,8 +1,34 @@
-import React from 'react';
+import React, { FC } from 'react';
 import ReactDOM from 'react-dom';
+import { CommandInput } from './comps/CommandInput';
+import { LogPane } from './comps/LogPane';
+import './index.css';
 
-const Test = () => {
-  return <div>test</div>;
-};
+// window.api.onWorkingDirectoryChanged((path) => {
+//   if (path !== appStore.currentState.workingDirectory) {
+//     appStore.operate({
+//       type: 'wd.update',
+//       path,
+//     });
+//     logStore.invoke(log(appStore.currentState.workingDirectory));
+//   }
+// });
 
-ReactDOM.render(<Test />, document.getElementById('root'));
+window.api.onNotification((notification) => {
+  console.log(notification);
+});
+
+const wd = await window.api.getWorkingDirectory();
+if (wd) {
+  ReactDOM.render(
+    <>
+      <CommandInput></CommandInput>
+      <LogPane workingDirectory={wd}></LogPane>
+    </>,
+    document.getElementById('root')
+  );
+} else {
+  // Display splash screen
+}
+
+window.api.appReady();

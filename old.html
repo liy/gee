@@ -1,0 +1,125 @@
+<div id="root">
+  <main is="log-view" title="log" class="log-view">
+    <div class="container scrollbar-y" style="height: 507px">
+      <canvas
+        class="graph"
+        width="16"
+        height="507"
+        style="touch-action: none; width: 16px; height: 507px; cursor: inherit"
+      ></canvas>
+      <!-- commit table -->
+      <div id="commit-table" style="transform: translate(0px); top: 0px">
+        <div is="git-commit" class="commit" style="height: 64px">
+          <div class="top">
+            <div class="summary">Switch to React</div>
+            <span class="author">liy</span>
+          </div>
+          <div class="bottom">
+            <span class="hash">8b58a86</span>
+            <div class="refs">
+              <div is="log-label" class="log-label branch">origin/master</div>
+              <div is="log-label" class="log-label branch">origin/HEAD</div>
+              <div is="log-label" class="log-label branch">master</div>
+            </div>
+            <span class="date-time">01 Mar 2022 22:53</span>
+          </div>
+        </div>
+        <div is="git-commit" class="commit" style="height: 64px">
+          <div class="top">
+            <div class="summary">Working on file stage and unstage</div>
+            <span class="author">liy</span>
+          </div>
+          <div class="bottom">
+            <span class="hash">5144cc0</span>
+            <div class="refs">
+              <div is="log-label" class="log-label branch">HEAD</div>
+            </div>
+            <span class="date-time">01 Mar 2022 00:06</span>
+          </div>
+        </div>
+        <div is="git-commit" class="commit" style="height: 64px">
+          <div class="top">
+            <div class="summary">Add current head to point to ref or commit</div>
+            <span class="author">liy</span>
+          </div>
+          <div class="bottom">
+            <span class="hash">2eb5d54</span>
+            <div class="refs"></div>
+            <span class="date-time">28 Feb 2022 21:45</span>
+          </div>
+        </div>
+        <div is="git-commit" class="commit" style="height: 64px">
+          <div class="top">
+            <div class="summary">Working on HEAD</div>
+            <span class="author">liy</span>
+          </div>
+          <div class="bottom">
+            <span class="hash">0b461fd</span>
+            <div class="refs"></div>
+            <span class="date-time">20 Feb 2022 21:55</span>
+          </div>
+        </div>
+        <div is="git-commit" class="commit" style="height: 64px">
+          <div class="top">
+            <div class="summary">Update log view size</div>
+            <span class="author">liy</span>
+          </div>
+          <div class="bottom">
+            <span class="hash">1fc04e7</span>
+            <div class="refs"></div>
+            <span class="date-time">11 Feb 2022 11:55</span>
+          </div>
+        </div>
+        <div is="git-commit" class="commit" style="height: 64px">
+          <div class="top">
+            <div class="summary">Fix tag and branch view layout</div>
+            <span class="author">liy</span>
+          </div>
+          <div class="bottom">
+            <span class="hash">7b7334d</span>
+            <div class="refs"></div>
+            <span class="date-time">11 Feb 2022 01:39</span>
+          </div>
+        </div>
+        <div is="git-commit" class="commit" style="height: 64px">
+          <div class="top">
+            <div class="summary">Fix tag view</div>
+            <span class="author">liy</span>
+          </div>
+          <div class="bottom">
+            <span class="hash">36d2190</span>
+            <div class="refs"></div>
+            <span class="date-time">11 Feb 2022 01:35</span>
+          </div>
+        </div>
+        <div is="git-commit" class="commit" style="height: 64px">
+          <div class="top">
+            <div class="summary">When application is ready run command line args if any</div>
+            <span class="author">liy</span>
+          </div>
+          <div class="bottom">
+            <span class="hash">8a11277</span>
+            <div class="refs"></div>
+            <span class="date-time">10 Feb 2022 17:05</span>
+          </div>
+        </div>
+        <div is="git-commit" class="commit" style="height: 64px">
+          <div class="top">
+            <div class="summary">Fix cli launch</div>
+            <span class="author">liy</span>
+          </div>
+          <div class="bottom">
+            <span class="hash">b6e4425</span>
+            <div class="refs"></div>
+            <span class="date-time">10 Feb 2022 09:08</span>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-content" style="height: 8704px"></div>
+    </div>
+  </main>
+  <aside>
+    <div id="console"></div>
+  </aside>
+  <input class="command-input" placeholder="type command..." is="command-input" />
+</div>
