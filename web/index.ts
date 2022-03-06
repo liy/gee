@@ -40,7 +40,7 @@ if (wd) {
   // await logStore.invoke(log(wd));
 
   const [logs, branches, tags, head] = await logCommand(wd);
-  ReactDOM.render(<App logs />, document.getElementById('root'));
+  ReactDOM.render(<App />, document.getElementById('root'));
 } else {
   // Display splash screen
 }
