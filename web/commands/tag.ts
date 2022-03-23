@@ -5,7 +5,7 @@ export interface TagData {
   targetHash: string;
 }
 
-export const tag = (workingDirectory: string) => {
+export const getTags = (workingDirectory: string) => {
   const args = ['git', 'show-ref', '--tags', '-d'];
   return new Promise<Array<TagData>>((resolve, reject) => {
     // tag name -> tag

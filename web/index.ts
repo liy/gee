@@ -1,6 +1,8 @@
+// FIXME: to be deleted
+
 // Always import elements and views
-import './components';
-import './components/CommandInput';
+import './components-old';
+import './components-old/CommandInput';
 import './ConsoleMananger';
 import './index.css';
 import { appStore } from './appStore';

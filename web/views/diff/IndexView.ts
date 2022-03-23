@@ -1,6 +1,6 @@
 import { appStore } from '../../appStore';
 import { applyPatch } from '../../commands/apply';
-import { DiffFile } from '../../components/DiffFile';
+import { DiffFile } from '../../components-old/DiffFile';
 import { Diff } from '../../Diff';
 import { createPatch } from '../../Patch';
 import { ViewBase } from '../ViewBase';

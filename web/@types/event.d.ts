@@ -1,4 +1,4 @@
-import { LineMouseDownData } from '../components/DiffFile';
+import { LineMouseDownData } from '../components-old/DiffFile';
 
 // Maps event type to event data
 interface CustomEventMap {

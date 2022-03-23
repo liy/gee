@@ -5,7 +5,7 @@ import { rebase } from './commands/rebase';
 import { revParse } from './commands/revParse';
 import { show } from './commands/show';
 import { simple } from './commands/simple';
-import { tag } from './commands/tag';
+import { getTags } from './commands/tag';
 import { Diff } from './Diff';
 import { BranchView } from './views/branch/BranchView';
 import { CommitView } from './views/commit/CommitView';
@@ -90,7 +90,7 @@ class ConsoleManager {
         break;
       case 'tag':
         const tagView = document.createElement('div', { is: 'tag-view' }) as TagView;
-        tagView.update(await tag(appStore.currentState.workingDirectory));
+        tagView.update(await getTags(appStore.currentState.workingDirectory));
         this.consoleElement.prepend(tagView);
         break;
       case 'branch':

@@ -1,4 +1,4 @@
-import { CommitTag } from '../components/Tag';
+import { CommitTag } from '../components-old/Tag';
 import { TagData } from '../commands/tag';
 import { ViewBase } from './ViewBase';
 import './TagView.css';

@@ -1,5 +1,5 @@
 import { BranchData } from '../../commands/branch';
-import { Branch } from '../../components/Branch';
+import { Branch } from '../../components-old/Branch';
 import { ViewBase } from '../ViewBase';
 import './BranchView.css';
 

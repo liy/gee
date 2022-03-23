@@ -1,6 +1,6 @@
 import { CustomEventMap } from '../../@types/event';
 import { appStore } from '../../appStore';
-import { Commit } from '../../components/Commit';
+import { Commit } from '../../components-old/Commit';
 import Graph from '../../graph/Graph';
 import GraphStore from '../../graph/GraphStore';
 import StraightLayout from '../../layouts/StraightLayout';

@@ -1,6 +1,6 @@
 import { appStore } from '../../appStore';
 import { commit } from '../../commands/commit';
-import { DiffFile } from '../../components/DiffFile';
+import { DiffFile } from '../../components-old/DiffFile';
 import { Diff } from '../../Diff';
 import { createDebounce } from '../../utils';
 import { store as diffStore } from '../diff/store';

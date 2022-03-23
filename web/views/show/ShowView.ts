@@ -1,5 +1,5 @@
-import { DiffFile } from '../../components/DiffFile';
-import HashLink from '../../components/HashLink';
+import { DiffFile } from '../../components-old/DiffFile';
+import HashLink from '../../components-old/HashLink';
 import { Diff } from '../../Diff';
 import { ViewBase } from '../ViewBase';
 import './ShowView.css';

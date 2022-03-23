@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import '../components/Commit.css';
+import '../components-old/Commit.css';
 import GraphStyle from '../views/log/GraphStyle';
 
 const dateFormat = Intl.DateTimeFormat('en-GB', {
