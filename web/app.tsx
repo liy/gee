@@ -5,7 +5,7 @@ import { Console } from './components/Console';
 import { LogPane } from './components/LogPane';
 import { DispatchContext, StateContext } from './contexts';
 import './index.css';
-import { PromptAction } from './prompts/actions';
+import { ClearAction, PromptAction } from './prompts/actions';
 
 // type Prompt = typeof Prompts[keyof typeof Prompts];
 
@@ -23,7 +23,14 @@ interface Props {
   workingDirectory: string;
 }
 
-const reducer = (state: AppState, action: PromptAction) => {
+const reducer = (state: AppState, action: PromptAction | ClearAction) => {
+  if (action.type === 'command.clear') {
+    return {
+      ...state,
+      prompts: [],
+    };
+  }
+
   switch (action.type) {
     case 'command.branch':
     case 'command.getTags':

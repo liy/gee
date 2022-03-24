@@ -6,16 +6,21 @@ import { getTags } from '../../commands/tag';
 import { DispatchContext, StateContext } from '../../contexts';
 import { Diff } from '../../Diff';
 import { BranchPrompt, TagPrompt } from '../../prompts';
-import { PromptAction } from '../../prompts/actions';
+import { ClearAction, PromptAction } from '../../prompts/actions';
 import { CommitPrompt } from '../../prompts/Commit';
 import { StatusPrompt } from '../../prompts/Status';
 import './command-input.scss';
 
-async function process(cmds: string[], dispatch: React.Dispatch<PromptAction>, workingDirectory: string) {
+async function process(cmds: string[], dispatch: React.Dispatch<PromptAction | ClearAction>, workingDirectory: string) {
   if (cmds.length === 0) return;
 
   const cmd = cmds[0].toLowerCase();
   switch (cmd) {
+    case 'clear':
+      dispatch({
+        type: 'command.clear',
+      });
+      break;
     case 'branch':
       dispatch({
         type: 'command.branch',
