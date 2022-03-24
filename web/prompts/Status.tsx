@@ -4,17 +4,17 @@ import { DiffFile } from '../components/DiffFile';
 import { Diff } from '../Diff';
 
 export type Props = {
-  workingDirectory: string;
   workspaceChanges: Diff[];
   stagedChanges: Diff[];
 };
 
 export const StatusPrompt: FC<Props> = ({ workspaceChanges, stagedChanges }) => {
+  console.log('status');
   return (
     <div className="status-prompt">
       <div>
         {stagedChanges.map((diff) => (
-          <div>
+          <div key={diff.heading.from + ' > ' + diff.heading.to}>
             <div className="heading">{diff.heading.from + ' > ' + diff.heading.to}</div>
             <DiffFile diff={diff} key={diff.heading.from} />
           </div>
@@ -22,7 +22,7 @@ export const StatusPrompt: FC<Props> = ({ workspaceChanges, stagedChanges }) => 
       </div>
       <div>
         {workspaceChanges.map((diff) => (
-          <div>
+          <div key={diff.heading.from + ' > ' + diff.heading.to}>
             <div className="heading">{diff.heading.from + ' > ' + diff.heading.to}</div>
             <DiffFile diff={diff} key={diff.heading.from} />
           </div>

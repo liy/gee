@@ -1,39 +1,23 @@
 import React, { FC } from 'react';
-import { commit } from '../commands/commit';
 import { Diff } from '../Diff';
+import './Commit.scss';
+import { StatusPrompt } from './Status';
 
 export type Props = {
-  workingDirectory: string;
+  workspaceChanges: Diff[];
+  stagedChanges: Diff[];
 };
 
-export const CommitPrompt: FC<Props> = ({ workingDirectory }) => {
+export const CommitPrompt: FC<Props> = ({ workspaceChanges, stagedChanges }) => {
   return (
-    <div className="commit-prompt">
-      <div
-        contentEditable
-        className="commit-message-input"
-        placeholder="commit message"
-        onKeyDown={async (e) => {
-          if (e.ctrlKey && e.key === 'Enter') {
-            if (e.currentTarget.innerText.trim()) {
-              try {
-                await commit(e.currentTarget.innerText, workingDirectory);
-                // diffStore.invoke(status(appStore.currentState.workingDirectory));
-
-                // // remove this view
-                // this.remove();
-
-                // // update log
-                // logStore.invoke(log(appStore.currentState.workingDirectory));
-              } catch (err) {
-                console.log(err);
-              }
-            }
-          }
-        }}
-      ></div>
-      <div className="editor-container"></div>
-    </div>
+    <>
+      <div contentEditable className="commit-message-input" placeholder="commit message"></div>
+      <div className="commit-prompt">
+        <div className="editor-container">
+          <StatusPrompt workspaceChanges={workspaceChanges} stagedChanges={stagedChanges}></StatusPrompt>
+        </div>
+      </div>
+    </>
   );
 };
 

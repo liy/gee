@@ -1,0 +1,15 @@
+.commit-message-input {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+
+  width: 100%;
+  padding: 0;
+  border: 0;
+  /* line-height: 1; */
+  background-color: #3a3a3aee;
+  color: white;
+
+  outline: none;
+  resize: vertical;
+}
