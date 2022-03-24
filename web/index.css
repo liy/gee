@@ -67,6 +67,7 @@ aside {
   font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
   font-size: 11px;
 
+  width: 60vw;
   height: 100vh;
   overflow-y: auto;
 }

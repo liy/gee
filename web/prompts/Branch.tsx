@@ -7,7 +7,6 @@ export type Props = {
 };
 
 export const BranchPrompt: FC<Props> = ({ branches }) => {
-  console.log(branches);
   return (
     <div className="branch-prompt">
       {branches?.map((branch) => (

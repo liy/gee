@@ -1,16 +1,21 @@
+import { nanoid } from 'nanoid';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { allBranches } from '../../commands/branch';
+import { stagedChanges, workspaceChanges } from '../../commands/changes';
+import { getTags } from '../../commands/tag';
 import { DispatchContext, StateContext } from '../../contexts';
-import './command-input.scss';
-import { nanoid } from 'nanoid';
+import { Diff } from '../../Diff';
 import { BranchPrompt, TagPrompt } from '../../prompts';
 import { PromptAction } from '../../prompts/actions';
-import { getTags } from '../../commands/tag';
+import { CommitPrompt } from '../../prompts/Commit';
+import { StatusPrompt } from '../../prompts/Status';
+import './command-input.scss';
 
 async function process(cmds: string[], dispatch: React.Dispatch<PromptAction>, workingDirectory: string) {
   if (cmds.length === 0) return;
 
-  switch (cmds[0].toLowerCase()) {
+  const cmd = cmds[0].toLowerCase();
+  switch (cmd) {
     case 'branch':
       dispatch({
         type: 'command.branch',
@@ -34,6 +39,38 @@ async function process(cmds: string[], dispatch: React.Dispatch<PromptAction>, w
           },
         },
       });
+      break;
+    case 'commit':
+    case 'status':
+      const [workspaceDiffText, stagedDiffText] = await Promise.all([
+        workspaceChanges(workingDirectory),
+        stagedChanges(workingDirectory),
+      ]);
+      if (cmd === 'commit') {
+        dispatch({
+          type: 'command.commit',
+          prompt: {
+            component: CommitPrompt,
+            props: {
+              key: nanoid(),
+              workspaceChanges: Diff.parse(workspaceDiffText),
+              stagedChanges: Diff.parse(stagedDiffText),
+            },
+          },
+        });
+      } else {
+        dispatch({
+          type: 'command.status',
+          prompt: {
+            component: StatusPrompt,
+            props: {
+              key: nanoid(),
+              workspaceChanges: Diff.parse(workspaceDiffText),
+              stagedChanges: Diff.parse(stagedDiffText),
+            },
+          },
+        });
+      }
       break;
   }
 }
