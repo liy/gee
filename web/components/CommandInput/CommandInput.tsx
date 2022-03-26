@@ -7,7 +7,6 @@ import { DispatchContext, StateContext } from '../../contexts';
 import { Diff } from '../../Diff';
 import { BranchPrompt, TagPrompt } from '../../prompts';
 import { ClearAction, PromptAction } from '../../prompts/actions';
-import { CommitPrompt } from '../../prompts/Commit';
 import { StatusPrompt } from '../../prompts/Status';
 import './command-input.scss';
 
@@ -51,31 +50,18 @@ async function process(cmds: string[], dispatch: React.Dispatch<PromptAction | C
         workspaceChanges(workingDirectory),
         stagedChanges(workingDirectory),
       ]);
-      if (cmd === 'commit') {
-        dispatch({
-          type: 'command.commit',
-          prompt: {
-            component: CommitPrompt,
-            props: {
-              key: nanoid(),
-              workspaceChanges: Diff.parse(workspaceDiffText),
-              stagedChanges: Diff.parse(stagedDiffText),
-            },
+      dispatch({
+        type: 'command.status',
+        prompt: {
+          component: StatusPrompt,
+          props: {
+            key: nanoid(),
+            isCommit: cmd === 'commit',
+            workspaceChanges: Diff.parse(workspaceDiffText),
+            stagedChanges: Diff.parse(stagedDiffText),
           },
-        });
-      } else {
-        dispatch({
-          type: 'command.status',
-          prompt: {
-            component: StatusPrompt,
-            props: {
-              key: nanoid(),
-              workspaceChanges: Diff.parse(workspaceDiffText),
-              stagedChanges: Diff.parse(stagedDiffText),
-            },
-          },
-        });
-      }
+        },
+      });
       break;
   }
 }

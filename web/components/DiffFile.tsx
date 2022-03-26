@@ -183,5 +183,5 @@ export const DiffFile: FC<Props> = ({ diff }) => {
     });
   }, [ref.current]);
 
-  return <div ref={ref}></div>;
+  return <div className="diff-file" ref={ref}></div>;
 };

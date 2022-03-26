@@ -35,7 +35,6 @@ const reducer = (state: AppState, action: PromptAction | ClearAction) => {
     case 'command.branch':
     case 'command.getTags':
     case 'command.status':
-    case 'command.commit':
       state = {
         ...state,
         prompts: [action.prompt, ...state.prompts],
