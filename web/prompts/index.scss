@@ -1,13 +1,12 @@
 .prompt {
   box-sizing: border-box;
-  padding: 6px 6px 6px 6px;
 
   border-radius: 8px;
   /* line-height: 1; */
   background-color: #3a3a3aee;
 
   // margin-top: 6px;
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 
   h3 {
     display: block;
@@ -18,6 +17,7 @@
 
     position: sticky;
     z-index: 2;
+
     background-color: #3a3a3aee;
     color: #a7ceff;
   }
