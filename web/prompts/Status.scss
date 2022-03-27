@@ -1,16 +1,30 @@
-.prompt {
-  .commit-input {
-    position: sticky;
-    z-index: 2;
-    top: 4px;
+// .prompt {
+//   .commit-input-container {
+//     position: sticky;
+//     z-index: 3;
+//     top: 0;
 
-    width: calc(100% - 16px);
-    padding: 4px 8px;
-    border: 0;
+//     background-color: rgba(58, 58, 58, 0.933);
+//   }
 
-    color: white;
+//   .commit-input {
+//     width: calc(100% - 16px);
+//     padding: 4px 8px;
+//     border: 0;
 
-    outline: none;
-    resize: vertical;
-  }
-}
+//     color: white;
+//     background-color: rgb(78, 78, 78);
+//     border-radius: 6px;
+
+//     font-size: 12px;
+//     line-height: 12px;
+//     min-height: 36px;
+
+//     outline: none;
+//     resize: vertical;
+//   }
+
+//   .commit-input.is-sticky {
+//     border-radius: 0 0 6px 6px;
+//   }
+// }

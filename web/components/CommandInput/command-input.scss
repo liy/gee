@@ -4,6 +4,8 @@ input.command-input {
   width: 400px;
   height: 20px;
 
+  z-index: 4;
+
   // display: none;
 
   /* centre */
@@ -20,8 +22,6 @@ input.command-input {
   font-size: 12px;
 
   box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
-
-  z-index: 3;
 }
 
 input.command-input::placeholder {
