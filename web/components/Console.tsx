@@ -1,6 +1,7 @@
 import React, { FC, useContext } from 'react';
 import '../components-old/Commit.css';
 import { StateContext } from '../contexts';
+import './Console.scss';
 
 export const Console = () => {
   // get all the prompts type and props from a state, and React.createElement them.

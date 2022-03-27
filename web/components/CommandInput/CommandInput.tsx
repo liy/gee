@@ -5,8 +5,8 @@ import { stagedChanges, workspaceChanges } from '../../commands/changes';
 import { getTags } from '../../commands/tag';
 import { DispatchContext, StateContext } from '../../contexts';
 import { Diff } from '../../Diff';
-import { BranchPrompt, TagPrompt } from '../../prompts';
 import { ClearAction, PromptAction } from '../../prompts/actions';
+import { ReferencePrompt } from '../../prompts/Reference';
 import { StatusPrompt } from '../../prompts/Status';
 import './command-input.scss';
 
@@ -21,25 +21,15 @@ async function process(cmds: string[], dispatch: React.Dispatch<PromptAction | C
       });
       break;
     case 'branch':
-      dispatch({
-        type: 'command.branch',
-        prompt: {
-          component: BranchPrompt,
-          props: {
-            key: nanoid(),
-            branches: await allBranches(workingDirectory),
-          },
-        },
-      });
-      break;
     case 'tag':
       dispatch({
-        type: 'command.getTags',
+        type: 'command.getReferences',
         prompt: {
-          component: TagPrompt,
+          component: ReferencePrompt,
           props: {
             key: nanoid(),
-            tags: await getTags(workingDirectory),
+            title: cmd === 'branch' ? 'branches' : 'tags',
+            references: cmd === 'branch' ? await allBranches(workingDirectory) : await getTags(workingDirectory),
           },
         },
       });
@@ -50,6 +40,7 @@ async function process(cmds: string[], dispatch: React.Dispatch<PromptAction | C
         workspaceChanges(workingDirectory),
         stagedChanges(workingDirectory),
       ]);
+
       dispatch({
         type: 'command.status',
         prompt: {

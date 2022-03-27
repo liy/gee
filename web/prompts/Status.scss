@@ -1,21 +1,13 @@
-.status-prompt {
-  .section {
-    margin-top: 16px;
-  }
-  .section:first-of-type {
-    margin-top: 0;
-  }
-
+.prompt {
   .commit-input {
     position: sticky;
-    z-index: 1;
-    top: 0;
+    z-index: 2;
+    top: 4px;
 
-    width: 100%;
-    padding: 0;
+    width: calc(100% - 16px);
+    padding: 4px 8px;
     border: 0;
-    /* line-height: 1; */
-    background-color: #3a3a3aee;
+
     color: white;
 
     outline: none;

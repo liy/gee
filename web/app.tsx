@@ -5,6 +5,7 @@ import { Console } from './components/Console';
 import { LogPane } from './components/LogPane';
 import { DispatchContext, StateContext } from './contexts';
 import './index.css';
+import './prompts/index';
 import { ClearAction, PromptAction } from './prompts/actions';
 
 // type Prompt = typeof Prompts[keyof typeof Prompts];
@@ -32,8 +33,7 @@ const reducer = (state: AppState, action: PromptAction | ClearAction) => {
   }
 
   switch (action.type) {
-    case 'command.branch':
-    case 'command.getTags':
+    case 'command.getReferences':
     case 'command.status':
       state = {
         ...state,

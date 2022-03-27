@@ -1,11 +1,10 @@
-import { BranchAction } from './Branch';
-import { TagAction } from './Tag';
+import { GetReferenceAction } from './Reference';
 import { StatusAction } from './Status';
 
 export type ClearAction = {
   type: 'command.clear';
 };
 
-export type PromptAction = BranchAction | TagAction | StatusAction;
+export type PromptAction = GetReferenceAction | StatusAction;
 
 export type PromptActionType = PromptAction['type'];

@@ -10,28 +10,40 @@ export type Props = {
 };
 
 export const StatusPrompt: FC<Props> = ({ workspaceChanges, stagedChanges, isCommit = false }) => {
-  if (workspaceChanges.length == 0 && stagedChanges.length == 0) {
-    return <div>Nothing to commit, working tree clean</div>;
-  }
+  const stagedElements =
+    stagedChanges.length != 0 ? (
+      stagedChanges.map((diff) => (
+        <>
+          <h4 className="heading">{diff.heading.from + ' > ' + diff.heading.to}</h4>
+          <DiffFile diff={diff} key={diff.heading.from + ' > ' + diff.heading.to} />
+        </>
+      ))
+    ) : (
+      <div>Nothing to commit</div>
+    );
+
+  const workspaceElements =
+    workspaceChanges.length !== 0 ? (
+      workspaceChanges.map((diff) => (
+        <>
+          <h4 className="heading">{diff.heading.from + ' > ' + diff.heading.to}</h4>
+          <DiffFile diff={diff} key={diff.heading.from} />
+        </>
+      ))
+    ) : (
+      <div>Working tree clean</div>
+    );
 
   return (
-    <div className="status-prompt">
+    <div className="prompt">
       {isCommit && <div contentEditable className="commit-input" placeholder="commit message"></div>}
       <div className="stage">
-        {stagedChanges.map((diff) => (
-          <div className="section" key={diff.heading.from + ' > ' + diff.heading.to}>
-            <div className="heading">{diff.heading.from + ' > ' + diff.heading.to}</div>
-            <DiffFile diff={diff} key={diff.heading.from} />
-          </div>
-        ))}
+        <h3>staged</h3>
+        {stagedElements}
       </div>
       <div className="workspace">
-        {workspaceChanges.map((diff) => (
-          <div className="section" key={diff.heading.from + ' > ' + diff.heading.to}>
-            <div className="heading">{diff.heading.from + ' > ' + diff.heading.to}</div>
-            <DiffFile diff={diff} key={diff.heading.from} />
-          </div>
-        ))}
+        <h3>workspace</h3>
+        {workspaceElements}
       </div>
     </div>
   );

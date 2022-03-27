@@ -1,7 +1,7 @@
-import { CommitTag } from '../components-old/Tag';
 import { TagData } from '../commands/tag';
-import { ViewBase } from './ViewBase';
+import { CommitTag } from '../components-old/Tag';
 import './TagView.css';
+import { ViewBase } from './ViewBase';
 
 export class TagView extends ViewBase {
   testData!: TagData[];
