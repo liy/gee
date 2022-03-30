@@ -3,15 +3,21 @@
 import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron';
 import * as path from 'path';
 import { start } from './app';
+import chokidar from 'chokidar';
+import { watch } from 'original-fs';
+
+const watcher = chokidar.watch('.', {
+  ignored: /node_modules/,
+});
 
 const args = process.env.NODE_ENV !== 'production' ? process.argv.slice(3) : process.argv.slice(1);
 
 // If dev mode then allow reload electron main and renderer on source file changes
-if (process.env.NODE_ENV !== 'production') {
-  require('electron-reload')(__dirname, {
-    electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
-  });
-}
+// if (process.env.NODE_ENV !== 'production') {
+//   require('electron-reload')(__dirname, {
+//     electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
+//   });
+// }
 
 function createMainWindow() {
   const preloadPath = path.join(__dirname, './context/preload.js');
@@ -57,6 +63,9 @@ if (app.requestSingleInstanceLock()) {
 
       // Send command line to renderer
       mainWindow.webContents.send('onCommand', commandLine.slice(2));
+
+      watcher.unwatch('.');
+      watcher.add(workingDirectory);
     });
 
     // Close to the tray
@@ -89,6 +98,26 @@ if (app.requestSingleInstanceLock()) {
     });
 
     start(process.cwd(), args);
+
+    let ready = false;
+    watcher
+      .on('add', (path, stats) => {
+        if (ready) {
+          console.log('add', path, stats);
+          // mainWindow.webContents.send('notification', { title: 'add', data:  });
+          mainWindow.webContents.send('fs.changed');
+        }
+      })
+      .on('change', (path, stats) => {
+        if (ready) {
+          console.log('change', path, stats);
+          // mainWindow.webContents.send('notification', { title: 'change', data:  });
+          mainWindow.webContents.send('fs.changed');
+        }
+      })
+      .on('ready', () => {
+        ready = true;
+      });
   });
 } else {
   // console.log('single instance lock, exiting.');

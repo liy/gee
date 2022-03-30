@@ -4,9 +4,10 @@ import { CommandInput } from './components/CommandInput/CommandInput';
 import { Console } from './components/Console';
 import { LogPane } from './components/LogPane';
 import { DispatchContext, StateContext } from './contexts';
+import { Diff } from './Diff';
 import './index.css';
-import './prompts/index';
 import { ClearAction, PromptAction } from './prompts/actions';
+import './prompts/index';
 
 // type Prompt = typeof Prompts[keyof typeof Prompts];
 
@@ -16,6 +17,8 @@ export const initialState = {
   prompts: [] as Prompt[],
   commandHistory: [],
   workingDirectory: '',
+  workspaceChanges: [] as Diff[],
+  stagedChanges: [] as Diff[],
 };
 
 export type AppState = typeof initialState;
@@ -38,6 +41,13 @@ const reducer = (state: AppState, action: PromptAction | ClearAction) => {
       state = {
         ...state,
         prompts: [action.prompt, ...state.prompts],
+      };
+      break;
+    case 'log.changes':
+      state = {
+        ...state,
+        workspaceChanges: action.workspaceChanges,
+        stagedChanges: action.stagedChanges,
       };
       break;
   }

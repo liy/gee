@@ -61,6 +61,10 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.on('wd.changed', (event: Electron.IpcRendererEvent, path: string) => callback(path));
   },
 
+  onFileSysChanged: (callback: () => void) => {
+    ipcRenderer.on('fs.changed', (event: Electron.IpcRendererEvent, n: Notification) => callback());
+  },
+
   onNotification: (callback: (_: Notification) => void) => {
     ipcRenderer.on('notification', (event: Electron.IpcRendererEvent, n: Notification) => callback(n));
   },
