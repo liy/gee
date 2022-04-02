@@ -6,12 +6,25 @@ export type ClearAction = {
   type: 'command.clear';
 };
 
-export type LogChangeAction = {
-  type: 'log.changes';
-  workspaceChanges: Diff[];
-  stagedChanges: Diff[];
+/**
+ * Manual update logs, e.g., when external git command changed commit logs it will trigger file changes
+ * and fire this action; or fired when application first time load
+ */
+export type LogUpdate = {
+  type: 'log.update';
+  logs: Log[];
 };
 
-export type PromptAction = GetReferenceAction | StatusAction | LogChangeAction;
+/**
+ * Update working directory
+ */
+export type WorkingDirectoryUpdate = {
+  type: 'workingDirectory.update';
+  workingDirectory: string;
+};
+
+export type PromptAction = GetReferenceAction | StatusAction;
 
 export type PromptActionType = PromptAction['type'];
+
+export type Actions = PromptAction | ClearAction | LogUpdate | WorkingDirectoryUpdate;

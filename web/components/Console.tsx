@@ -1,11 +1,13 @@
-import React, { FC, useContext, useEffect, useRef } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import '../components-old/Commit.css';
-import { StateContext } from '../contexts';
+import { AppState, Prompt } from '../store';
 import './Console.scss';
 
 export const Console = () => {
   // get all the prompts type and props from a state, and React.createElement them.
-  const state = useContext(StateContext);
+  // const state = useContext(StateContext);
+  const prompts = useSelector<AppState, Prompt[]>((state) => state.prompts);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -16,7 +18,7 @@ export const Console = () => {
 
   return (
     <div id="console" ref={ref}>
-      {state.prompts.map(({ component, props }) => {
+      {prompts.map(({ component, props }) => {
         // TODO: find a way to avoid unnecessary rendering of the previous prompts
         return React.createElement(component as FC, props);
       })}

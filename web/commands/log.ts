@@ -35,12 +35,14 @@ function parseLog(matches: RegExpExecArray): Log | null {
         name: matches[4],
         email: matches[5],
       },
-      authorDate: new Date(parseInt(matches[6]) * 1000),
+      // authorDate: new Date(parseInt(matches[6]) * 1000),
+      authorDate: parseInt(matches[6]),
       committer: {
         name: matches[7],
         email: matches[8],
       },
-      commitDate: new Date(parseInt(matches[9]) * 1000),
+      // commitDate: new Date(parseInt(matches[9]) * 1000),
+      commitDate: parseInt(matches[9]),
     };
 
     return log;

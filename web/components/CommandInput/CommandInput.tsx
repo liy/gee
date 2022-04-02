@@ -1,28 +1,27 @@
 import { nanoid } from 'nanoid';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { allBranches } from '../../commands/branch';
 import { stagedChanges, workspaceChanges } from '../../commands/changes';
 import { getTags } from '../../commands/tag';
-import { DispatchContext, StateContext } from '../../contexts';
 import { Diff } from '../../Diff';
-import { ClearAction, PromptAction } from '../../prompts/actions';
 import { ReferencePrompt } from '../../prompts/Reference';
 import { StatusPrompt } from '../../prompts/Status';
+import { store } from '../../store';
 import './command-input.scss';
 
-async function process(cmds: string[], dispatch: React.Dispatch<PromptAction | ClearAction>, workingDirectory: string) {
+async function process(cmds: string[], workingDirectory: string) {
   if (cmds.length === 0) return;
 
   const cmd = cmds[0].toLowerCase();
   switch (cmd) {
     case 'clear':
-      dispatch({
+      store.dispatch({
         type: 'command.clear',
       });
       break;
     case 'branch':
     case 'tag':
-      dispatch({
+      store.dispatch({
         type: 'command.getReferences',
         prompt: {
           component: ReferencePrompt,
@@ -41,7 +40,7 @@ async function process(cmds: string[], dispatch: React.Dispatch<PromptAction | C
         stagedChanges(workingDirectory),
       ]);
 
-      dispatch({
+      store.dispatch({
         type: 'command.status',
         prompt: {
           component: StatusPrompt,
@@ -61,14 +60,11 @@ export const CommandInput = () => {
   const ref = useRef<HTMLInputElement>(null);
   const [visible, setVisible] = useState(false);
 
-  const dispatch = useContext(DispatchContext);
-  const appState = useContext(StateContext);
-
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key == 'p' && e.ctrlKey) {
-        setVisible((v) => !v);
         ref.current?.focus();
+        setVisible((v) => !v);
       }
     };
 
@@ -89,7 +85,7 @@ export const CommandInput = () => {
           setVisible(false);
           // 1. Send and wait async command output completes
           // 2. Create and send action to update current prompts state, which includes all the prompt type and props
-          process(e.currentTarget.value.split(' '), dispatch, appState.workingDirectory);
+          process(e.currentTarget.value.split(' '), store.getState().workingDirectory);
         }
       }}
     />

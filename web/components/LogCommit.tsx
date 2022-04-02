@@ -1,4 +1,5 @@
 import React, { FC } from 'react';
+import './LogCommit.scss';
 
 export type Props = {
   onSubmit: (message: string) => void;
@@ -6,7 +7,7 @@ export type Props = {
 
 export const LogCommit: FC<Props> = ({ onSubmit }) => {
   return (
-    <div>
+    <div className="log-commit">
       <div
         contentEditable
         className="commit-input"

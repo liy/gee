@@ -8,9 +8,9 @@ interface Log {
   parents: string[];
   subject: string;
   author: Signature;
-  authorDate: Date;
+  authorDate: number;
   committer: Signature;
-  commitDate: Date;
+  commitDate: number;
 }
 
 interface Tag {
