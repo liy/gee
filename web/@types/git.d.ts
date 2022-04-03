@@ -11,6 +11,7 @@ interface Log {
   authorDate: number;
   committer: Signature;
   commitDate: number;
+  simulation: boolean;
 }
 
 interface Tag {

@@ -50,12 +50,17 @@ function parseLog(matches: RegExpExecArray): Log | null {
 
   return null;
 }
+
+export type Head = {
+  hash: string | null;
+  ref: string | null;
+};
 /**
  * Get the head hash
  * @param workingDirectory Current root of the git repository
  * @returns Hash that HEAD is pointed to
  */
-export const head = async (workingDirectory: string) => {
+export const head = async (workingDirectory: string): Promise<Head> => {
   // return window.command.invoke(['git', 'rev-parse', 'HEAD'], workingDirectory);
   const lineText = await window.command.invoke(['git', 'show', '--no-patch', '--pretty="[%H][%D]"'], workingDirectory);
   const matches = /\[(.*)\]\[HEAD -> (.*)\]/.exec(lineText);
@@ -79,7 +84,7 @@ export const log = (workingDirectory: string) => {
   const logs = new Array<Log>();
   const branchList = new Array<Branch>();
   const tagList = new Array<Tag>();
-  return new Promise<[Log[], Branch[], Tag[], { hash: string | null; branch: string | null }]>((resolve, reject) => {
+  return new Promise<[Log[], Branch[], Tag[], Head]>((resolve, reject) => {
     window.command.submit(args, workingDirectory, {
       onReadLine: (lineText: string) => {
         const matches = /\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]\[(.*)\]/.exec(

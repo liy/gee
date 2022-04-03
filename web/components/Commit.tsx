@@ -1,5 +1,11 @@
+import { nanoid } from 'nanoid';
 import React, { FC } from 'react';
+import { useSelector } from 'react-redux';
+import { show } from '../commands/show';
 import '../components-old/Commit.css';
+import { Diff } from '../Diff';
+import { ShowPrompt } from '../prompts/Show';
+import { AppState, store } from '../store';
 import GraphStyle from '../views/log/GraphStyle';
 
 const dateFormat = Intl.DateTimeFormat('en-GB', {
@@ -27,8 +33,32 @@ export interface Props {
 }
 
 export const Commit: FC<Props> = ({ log }) => {
+  const workingDirectory = useSelector((state: AppState) => state.workingDirectory);
+
   return (
-    <div className="commit" style={{ height: GraphStyle.sliceHeight + 'px' }}>
+    <div
+      className="commit"
+      style={{ height: GraphStyle.sliceHeight + 'px' }}
+      onClick={async () => {
+        const { branches, tags, bodyText, diffText } = await show(log.hash, workingDirectory);
+
+        store.dispatch({
+          type: 'prompt.show',
+          prompt: {
+            component: ShowPrompt,
+            props: {
+              key: nanoid(),
+              diffs: Diff.parse(diffText),
+              log: log,
+              logBody: bodyText,
+              branches,
+              tags,
+              title: `show ${log.hash.substring(0, 6)}`,
+            },
+          },
+        });
+      }}
+    >
       <div className="top">
         <div className="summary">{log.subject}</div>
         <span className="author">{log.author.name}</span>

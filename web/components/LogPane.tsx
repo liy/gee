@@ -1,19 +1,12 @@
 import React, { FC, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { numChanges } from '../commands/numChanges';
 import GraphStore from '../graph/GraphStore';
 import StraightLayout from '../layouts/StraightLayout';
 import { AppState } from '../store';
 import GraphStyle from '../views/log/GraphStyle';
 import GraphView from '../views/log/GraphView';
 import '../views/log/LogView.css';
-import { Commit } from './Commit';
-import { LogCommit } from './LogCommit';
-
-export interface Head {
-  hash: string;
-  branch: string | null;
-}
+import { LogEntry } from './LogEntry';
 
 export interface Props {
   logs: Log[];
@@ -26,22 +19,8 @@ export const LogPane: FC<Props> = ({ logs, workingDirectory }) => {
   const [numRows, setNumRows] = useState(Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1);
   const [startIndex, setStartIndex] = useState(0);
   const [scrollHeight, setScrollHeight] = useState(0);
-  const [hasChanges, setHasChanges] = useState(false);
 
-  useEffect(() => {
-    window.api.onFileSysChanged(async () => {
-      console.log('fs changed, get git status');
-      const num = await numChanges(workingDirectory);
-      setHasChanges(num !== 0);
-    });
-
-    numChanges(workingDirectory).then((num) => {
-      console.log(num);
-      setHasChanges(num !== 0);
-    });
-  }, []);
-
-  // Re-render graph and logs
+  // Re-render graph and logs?
   useEffect(() => {
     const graph = GraphStore.getGraph(workingDirectory);
     graph.clear();
@@ -63,8 +42,8 @@ export const LogPane: FC<Props> = ({ logs, workingDirectory }) => {
     };
   }, [logs]);
 
-  const commits = logs.slice(startIndex, startIndex + numRows).map((log) => {
-    return <Commit key={log.hash} log={log}></Commit>;
+  const logEntries = logs.slice(startIndex, startIndex + numRows).map((log) => {
+    return <LogEntry key={log.hash} log={log}></LogEntry>;
   });
 
   return (
@@ -83,14 +62,7 @@ export const LogPane: FC<Props> = ({ logs, workingDirectory }) => {
         <canvas className="graph"></canvas>
 
         <div ref={table} id="commit-table">
-          {hasChanges && (
-            <LogCommit
-              onSubmit={(msg) => {
-                console.log(msg);
-              }}
-            ></LogCommit>
-          )}
-          {commits}
+          {logEntries}
         </div>
         <div style={{ height: `${scrollHeight}px` }} className="scroll-content"></div>
       </div>
@@ -101,6 +73,7 @@ export const LogPane: FC<Props> = ({ logs, workingDirectory }) => {
 export const LogPaneContainer: FC = () => {
   const workingDirectory = useSelector((state: AppState) => state.workingDirectory);
   const logs = useSelector((state: AppState) => state.logs);
+  const simulations = useSelector((state: AppState) => state.simulations);
 
-  return <LogPane logs={logs} workingDirectory={workingDirectory}></LogPane>;
+  return <LogPane logs={[...simulations, ...logs]} workingDirectory={workingDirectory}></LogPane>;
 };

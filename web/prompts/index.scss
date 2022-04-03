@@ -21,7 +21,6 @@
     background-color: #3a3a3aee;
     color: #a7ceff;
   }
-
   h4 {
     top: 22px;
 
@@ -35,5 +34,9 @@
     z-index: 1;
     /* line-height: 1; */
     background-color: #3a3a3aee;
+  }
+
+  h4:hover {
+    cursor: pointer;
   }
 }

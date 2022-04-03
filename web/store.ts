@@ -1,9 +1,11 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { numChanges } from './commands/numChanges';
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
+import { Head } from './commands/log';
 import { Diff } from './Diff';
 import { Actions, PromptAction } from './prompts/actions';
 
 export type Prompt = PromptAction['prompt'];
+
+export type GitState = 'default' | 'rebase' | 'merge' | 'cherry-pick' | 'timeline';
 
 export type AppState = {
   prompts: Prompt[];
@@ -12,9 +14,10 @@ export type AppState = {
   workspaceChanges: Diff[];
   stagedChanges: Diff[];
   logs: Log[];
-  // Simulation stores the index of the simulated logs in store.logs
-  simulations: number[];
+  simulations: Log[];
   currentUser: Signature;
+  head: Head;
+  gitState: GitState;
 };
 
 export const initialState: AppState = {
@@ -29,9 +32,14 @@ export const initialState: AppState = {
     name: 'liy',
     email: 'liy@test.com',
   },
+  head: {
+    hash: null,
+    ref: null,
+  },
+  gitState: 'default',
 };
 
-export const rootReducer = (state = initialState, action: Actions) => {
+export const rootReducer = (state = initialState, action: Actions): AppState => {
   if (action.type === 'command.clear') {
     return {
       ...state,
@@ -40,8 +48,9 @@ export const rootReducer = (state = initialState, action: Actions) => {
   }
 
   switch (action.type) {
-    case 'command.getReferences':
-    case 'command.status':
+    case 'prompt.references':
+    case 'prompt.status':
+    case 'prompt.show':
       state = {
         ...state,
         prompts: [action.prompt, ...state.prompts],
@@ -71,18 +80,36 @@ export const rootReducer = (state = initialState, action: Actions) => {
       return {
         ...state,
         logs: action.logs,
+        head: action.head,
       };
     case 'workingDirectory.update':
       return {
         ...state,
         workingDirectory: action.workingDirectory,
       };
+    case 'simulation.update':
+      return {
+        ...state,
+        simulations: action.simulations,
+      };
+    case 'gitState.update':
+      return {
+        ...state,
+        gitState: action.gitState,
+      };
   }
   return state;
 };
 
-export const store = configureStore<AppState>({
+export const store = configureStore({
   reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActionPaths: ['prompt', 'prompt.component'],
+        ignoredPaths: ['prompts'],
+      },
+    }),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

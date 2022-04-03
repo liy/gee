@@ -1,0 +1,16 @@
+.commit.simulated {
+  .commit-input {
+    transition: all 0.3s ease;
+
+    position: absolute;
+    border-radius: 6px;
+    top: 20px;
+
+    width: calc(100% - 10px);
+    background-color: rgba(75, 75, 75, 0.9);
+    line-height: 18px;
+    padding: 5px;
+
+    overflow: hidden;
+  }
+}

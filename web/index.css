@@ -45,7 +45,7 @@ body {
 /* Handle */
 ::-webkit-scrollbar-thumb {
   border-radius: 3px;
-  background: rgba(85, 85, 85, 0.1);
+  background: rgba(85, 85, 85, 0.3);
 }
 
 /* Handle on hover */

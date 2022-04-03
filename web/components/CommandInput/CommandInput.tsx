@@ -22,7 +22,7 @@ async function process(cmds: string[], workingDirectory: string) {
     case 'branch':
     case 'tag':
       store.dispatch({
-        type: 'command.getReferences',
+        type: 'prompt.references',
         prompt: {
           component: ReferencePrompt,
           props: {
@@ -41,12 +41,11 @@ async function process(cmds: string[], workingDirectory: string) {
       ]);
 
       store.dispatch({
-        type: 'command.status',
+        type: 'prompt.status',
         prompt: {
           component: StatusPrompt,
           props: {
             key: nanoid(),
-            isCommit: cmd === 'commit',
             workspaceChanges: Diff.parse(workspaceDiffText),
             stagedChanges: Diff.parse(stagedDiffText),
           },
@@ -63,7 +62,6 @@ export const CommandInput = () => {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key == 'p' && e.ctrlKey) {
-        ref.current?.focus();
         setVisible((v) => !v);
       }
     };
@@ -74,18 +72,25 @@ export const CommandInput = () => {
     };
   }, []);
 
-  if (!visible) return null;
+  // Focus when open
+  useEffect(() => {
+    if (visible) ref.current?.focus();
+  }, [visible]);
 
   return (
     <input
       ref={ref}
       className="command-input"
+      style={{ display: visible ? 'block' : 'none' }}
       onKeyDown={(e) => {
         if (e.key == 'Enter') {
           setVisible(false);
           // 1. Send and wait async command output completes
           // 2. Create and send action to update current prompts state, which includes all the prompt type and props
           process(e.currentTarget.value.split(' '), store.getState().workingDirectory);
+
+          // Clear input
+          if (ref.current) ref.current.value = '';
         }
       }}
     />

@@ -24,7 +24,7 @@ export const ReferencePrompt: FC<Props> = ({ references, title }) => {
 };
 
 export type GetReferenceAction = {
-  type: 'command.getReferences';
+  type: 'prompt.references';
   prompt: {
     component: React.FC<Props>;
     props: {

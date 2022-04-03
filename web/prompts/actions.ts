@@ -1,5 +1,7 @@
-import { Diff } from '../Diff';
+import { Head } from '../commands/log';
+import { GitState } from '../store';
 import { GetReferenceAction } from './Reference';
+import { PromptShowAction } from './Show';
 import { StatusAction } from './Status';
 
 export type ClearAction = {
@@ -13,6 +15,7 @@ export type ClearAction = {
 export type LogUpdate = {
   type: 'log.update';
   logs: Log[];
+  head: Head;
 };
 
 /**
@@ -23,8 +26,24 @@ export type WorkingDirectoryUpdate = {
   workingDirectory: string;
 };
 
-export type PromptAction = GetReferenceAction | StatusAction;
+export type SimulationUpdate = {
+  type: 'simulation.update';
+  simulations: Log[];
+};
+
+export type GitStateUpdate = {
+  type: 'gitState.update';
+  gitState: GitState;
+};
+
+export type PromptAction = GetReferenceAction | StatusAction | PromptShowAction;
 
 export type PromptActionType = PromptAction['type'];
 
-export type Actions = PromptAction | ClearAction | LogUpdate | WorkingDirectoryUpdate;
+export type Actions =
+  | PromptAction
+  | ClearAction
+  | LogUpdate
+  | WorkingDirectoryUpdate
+  | SimulationUpdate
+  | GitStateUpdate;
