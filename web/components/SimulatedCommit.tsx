@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { nanoid } from 'nanoid';
 import React, { FC, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -47,6 +48,11 @@ const processSelection = async (log: Log, gitState: GitState, workingDirectory: 
         },
       },
     });
+
+    store.dispatch({
+      type: 'log.selection',
+      hash: log.hash,
+    });
   }
   // Get current commit diff information: git show <hash>
   else {
@@ -76,8 +82,11 @@ export const SimulatedCommit: FC<Props> = ({ log }) => {
   const gitState = useSelector((state: AppState) => state.gitState);
   const ref = useRef<HTMLDivElement>(null);
 
+  const [placeholder, setPlaceholder] = useState('commit message');
+
   return (
-    <div className="commit simulated" style={{ height: GraphStyle.sliceHeight + 'px' }}>
+    <div className={classNames('commit', 'simulated')} style={{ height: GraphStyle.sliceHeight + 'px' }}>
+      <div className="placeholder">{placeholder}</div>
       <div
         ref={ref}
         contentEditable
@@ -89,11 +98,22 @@ export const SimulatedCommit: FC<Props> = ({ log }) => {
           setInputHeight('auto');
           processSelection(log, gitState, workingDirectory);
         }}
-        onBlur={() => setInputHeight(16 + 'px')}
+        onBlur={() => {
+          setInputHeight(16 + 'px');
+        }}
         onKeyDown={(e) => {
           if (e.ctrlKey && e.key === 'Enter') {
             processSubmit(e.currentTarget.innerText, gitState, workingDirectory);
           }
+
+          // display placeholder or not
+          setTimeout(() => {
+            if (ref.current?.innerText === '') {
+              setPlaceholder('commit message');
+            } else {
+              setPlaceholder('');
+            }
+          });
         }}
       ></div>
     </div>

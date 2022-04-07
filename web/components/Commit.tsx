@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { nanoid } from 'nanoid';
 import React, { FC } from 'react';
 import { useSelector } from 'react-redux';
@@ -34,10 +35,11 @@ export interface Props {
 
 export const Commit: FC<Props> = ({ log }) => {
   const workingDirectory = useSelector((state: AppState) => state.workingDirectory);
+  const selectedHash = useSelector((state: AppState) => state.selectedHash);
 
   return (
     <div
-      className="commit"
+      className={classNames('commit', { selected: selectedHash === log.hash })}
       style={{ height: GraphStyle.sliceHeight + 'px' }}
       onClick={async () => {
         const { branches, tags, bodyText, diffText } = await show(log.hash, workingDirectory);
@@ -56,6 +58,11 @@ export const Commit: FC<Props> = ({ log }) => {
               title: `show ${log.hash.substring(0, 6)}`,
             },
           },
+        });
+
+        store.dispatch({
+          type: 'log.selection',
+          hash: log.hash,
         });
       }}
     >

@@ -18,6 +18,7 @@ export type AppState = {
   currentUser: Signature;
   head: Head;
   gitState: GitState;
+  selectedHash: string;
 };
 
 export const initialState: AppState = {
@@ -37,6 +38,7 @@ export const initialState: AppState = {
     ref: null,
   },
   gitState: 'default',
+  selectedHash: '',
 };
 
 export const rootReducer = (state = initialState, action: Actions): AppState => {
@@ -81,6 +83,11 @@ export const rootReducer = (state = initialState, action: Actions): AppState => 
         ...state,
         logs: action.logs,
         head: action.head,
+      };
+    case 'log.selection':
+      return {
+        ...state,
+        selectedHash: action.hash,
       };
     case 'workingDirectory.update':
       return {

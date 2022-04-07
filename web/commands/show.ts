@@ -8,7 +8,7 @@ export const show = async (hash: string, workingDirectory: string) => {
   const firstNewLineIndex = showText.indexOf('\n');
   const refLine = showText.substring(0, firstNewLineIndex);
 
-  const bodyText = showText.substring(firstNewLineIndex);
+  const bodyText = showText.substring(firstNewLineIndex).trim();
   const [branches, tags] = parseReference(refLine);
   // return Promise.all([
   //   ,

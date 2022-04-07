@@ -9,6 +9,8 @@
   justify-content: center;
 
   cursor: default;
+  padding: 0 6px;
+  margin-left: 6px;
 }
 
 .commit .top {
@@ -28,6 +30,7 @@
 }
 
 .commit.selected {
+  border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.116);
 }
 

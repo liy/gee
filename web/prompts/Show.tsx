@@ -20,6 +20,8 @@ export const ShowPrompt: FC<Props> = ({ title, diffs, log, logBody }) => {
   return (
     <div className="prompt">
       <h3 style={{ top: 0 }}>{title}</h3>
+      <div className="subject">{log.subject}</div>
+      <p className="body">{logBody}</p>
       {elements}
     </div>
   );

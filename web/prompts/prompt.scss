@@ -33,10 +33,22 @@
 
     z-index: 1;
     /* line-height: 1; */
-    background-color: #3a3a3aee;
+    background-color: rgba(48, 48, 48, 0.9);
+    color: rgb(160, 160, 160);
   }
 
   h4:hover {
     cursor: pointer;
+  }
+
+  .subject {
+    margin-top: 8px;
+    margin-left: 4px;
+    margin-bottom: 8px;
+  }
+
+  p.body {
+    margin-left: 4px;
+    margin-bottom: 8px;
   }
 }

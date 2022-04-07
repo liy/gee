@@ -1,6 +1,5 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 import { DiffBlock } from '../components/DiffBlock';
-import { DiffFile } from '../components/DiffFile';
 import { Diff } from '../Diff';
 import './Status.scss';
 

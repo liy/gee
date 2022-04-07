@@ -36,6 +36,11 @@ export type GitStateUpdate = {
   gitState: GitState;
 };
 
+export type LogSelection = {
+  type: 'log.selection';
+  hash: string;
+};
+
 export type PromptAction = GetReferenceAction | StatusAction | PromptShowAction;
 
 export type PromptActionType = PromptAction['type'];
@@ -46,4 +51,5 @@ export type Actions =
   | LogUpdate
   | WorkingDirectoryUpdate
   | SimulationUpdate
-  | GitStateUpdate;
+  | GitStateUpdate
+  | LogSelection;

@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -10,6 +11,8 @@ import './index.css';
 import { SimulationUpdate } from './prompts/actions';
 import './prompts/index';
 import { AppState, store } from './store';
+
+export const ZERO_HASH = '0000000000000000000000000000000000000000';
 
 const App = () => {
   return (
@@ -37,7 +40,7 @@ const updateSimulations = async (wd: string) => {
       type: 'simulation.update',
       simulations: [
         {
-          hash: '',
+          hash: ZERO_HASH,
           parents: [head.hash],
           subject: 'Simulation',
           author: state.currentUser,
