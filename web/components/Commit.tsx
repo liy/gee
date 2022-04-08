@@ -42,6 +42,9 @@ export const Commit: FC<Props> = ({ log }) => {
       className={classNames('commit', { selected: selectedHash === log.hash })}
       style={{ height: GraphStyle.sliceHeight + 'px' }}
       onClick={async () => {
+        // If selection did not change do nothing
+        if (log.hash === selectedHash) return;
+
         const { branches, tags, bodyText, diffText } = await show(log.hash, workingDirectory);
 
         store.dispatch({
