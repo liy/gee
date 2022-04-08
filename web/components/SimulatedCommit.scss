@@ -1,5 +1,6 @@
 .commit.simulated {
   .commit-input {
+    // absolute make sures the input expand towards bottom
     position: absolute;
     width: calc(100% - 28px);
 

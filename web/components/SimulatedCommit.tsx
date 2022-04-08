@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import React, { FC, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { stagedChanges, workspaceChanges } from '../commands/changes';
+import { commit } from '../commands/commit';
 import { show } from '../commands/show';
 import { Diff } from '../Diff';
 import { StatusPrompt } from '../prompts';
@@ -19,7 +20,7 @@ const processSubmit = async (msg: string, gitState: GitState, workingDirectory: 
   // commit
   switch (gitState) {
     case 'default':
-      console.log('commit');
+      commit(msg, workingDirectory);
       break;
     case 'merge':
       break;
@@ -102,16 +103,17 @@ export const SimulatedCommit: FC<Props> = ({ log }) => {
         onKeyDown={(e) => {
           if (e.ctrlKey && e.key === 'Enter') {
             processSubmit(e.currentTarget.innerText, gitState, workingDirectory);
+            if (ref.current) ref.current.textContent = '';
+          } else {
+            // display placeholder or not
+            setTimeout(() => {
+              if (ref.current?.textContent === '') {
+                setPlaceholder('commit message');
+              } else {
+                setPlaceholder('');
+              }
+            });
           }
-
-          // display placeholder or not
-          setTimeout(() => {
-            if (ref.current?.textContent === '') {
-              setPlaceholder('commit message');
-            } else {
-              setPlaceholder('');
-            }
-          });
         }}
       ></div>
       <div className="placeholder">{placeholder}</div>
