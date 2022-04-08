@@ -52,7 +52,9 @@ const processSubmit = async (msg: string, gitState: GitState, workingDirectory: 
 const processSelection = async (log: Log, gitState: GitState, workingDirectory: string) => {
   // display status, workspace and staged changes
   if (gitState === 'default') {
-    showStatusPrompt(workingDirectory);
+    if (store.getState().selectedHash !== log.hash) {
+      showStatusPrompt(workingDirectory);
+    }
 
     store.dispatch({
       type: 'log.selection',
