@@ -16,11 +16,31 @@ export type Props = {
   log: Log;
 };
 
+const showStatusPrompt = async (workingDirectory: string) => {
+  const [workspaceDiffText, stagedDiffText] = await Promise.all([
+    workspaceChanges(workingDirectory),
+    stagedChanges(workingDirectory),
+  ]);
+
+  store.dispatch({
+    type: 'prompt.status',
+    prompt: {
+      component: StatusPrompt,
+      props: {
+        key: nanoid(),
+        workspaceChanges: Diff.parse(workspaceDiffText),
+        stagedChanges: Diff.parse(stagedDiffText),
+      },
+    },
+  });
+};
+
 const processSubmit = async (msg: string, gitState: GitState, workingDirectory: string) => {
   // commit
   switch (gitState) {
     case 'default':
-      commit(msg, workingDirectory);
+      await commit(msg, workingDirectory);
+      showStatusPrompt(workingDirectory);
       break;
     case 'merge':
       break;
@@ -32,22 +52,7 @@ const processSubmit = async (msg: string, gitState: GitState, workingDirectory: 
 const processSelection = async (log: Log, gitState: GitState, workingDirectory: string) => {
   // display status, workspace and staged changes
   if (gitState === 'default') {
-    const [workspaceDiffText, stagedDiffText] = await Promise.all([
-      workspaceChanges(workingDirectory),
-      stagedChanges(workingDirectory),
-    ]);
-
-    store.dispatch({
-      type: 'prompt.status',
-      prompt: {
-        component: StatusPrompt,
-        props: {
-          key: nanoid(),
-          workspaceChanges: Diff.parse(workspaceDiffText),
-          stagedChanges: Diff.parse(stagedDiffText),
-        },
-      },
-    });
+    showStatusPrompt(workingDirectory);
 
     store.dispatch({
       type: 'log.selection',
