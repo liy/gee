@@ -45,6 +45,11 @@ export const Commit: FC<Props> = ({ log }) => {
         const { branches, tags, bodyText, diffText } = await show(log.hash, workingDirectory);
 
         store.dispatch({
+          type: 'log.selection',
+          hash: log.hash,
+        });
+
+        store.dispatch({
           type: 'prompt.show',
           prompt: {
             component: ShowPrompt,
@@ -58,11 +63,6 @@ export const Commit: FC<Props> = ({ log }) => {
               title: `show ${log.hash.substring(0, 6)}`,
             },
           },
-        });
-
-        store.dispatch({
-          type: 'log.selection',
-          hash: log.hash,
         });
       }}
     >

@@ -1,13 +1,14 @@
 .commit.simulated {
   .commit-input {
+    position: absolute;
+    width: calc(100% - 28px);
+
     transition: all 0.3s ease;
 
-    position: absolute;
     border-radius: 6px;
     top: 20px;
 
-    width: calc(100% - 10px);
-    background-color: rgba(75, 75, 75, 0.9);
+    background-color: rgba(20, 20, 20, 0.9);
     line-height: 18px;
     padding: 5px;
 
@@ -15,9 +16,13 @@
   }
 
   .placeholder {
+    position: absolute;
+    color: rgb(88, 88, 88);
+
     height: 16px;
     line-height: 18px;
     padding: 5px;
     top: 20px;
+    pointer-events: none;
   }
 }

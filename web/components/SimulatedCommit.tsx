@@ -3,7 +3,6 @@ import { nanoid } from 'nanoid';
 import React, { FC, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { stagedChanges, workspaceChanges } from '../commands/changes';
-import { revParse } from '../commands/revParse';
 import { show } from '../commands/show';
 import { Diff } from '../Diff';
 import { StatusPrompt } from '../prompts';
@@ -86,7 +85,6 @@ export const SimulatedCommit: FC<Props> = ({ log }) => {
 
   return (
     <div className={classNames('commit', 'simulated')} style={{ height: GraphStyle.sliceHeight + 'px' }}>
-      <div className="placeholder">{placeholder}</div>
       <div
         ref={ref}
         contentEditable
@@ -108,7 +106,7 @@ export const SimulatedCommit: FC<Props> = ({ log }) => {
 
           // display placeholder or not
           setTimeout(() => {
-            if (ref.current?.innerText === '') {
+            if (ref.current?.textContent === '') {
               setPlaceholder('commit message');
             } else {
               setPlaceholder('');
@@ -116,6 +114,7 @@ export const SimulatedCommit: FC<Props> = ({ log }) => {
           });
         }}
       ></div>
+      <div className="placeholder">{placeholder}</div>
     </div>
   );
 };
