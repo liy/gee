@@ -8,6 +8,8 @@ import React, { FC, useEffect, useRef } from 'react';
 import { diffExtension } from '../defaultExtension';
 import { Diff } from '../Diff';
 
+export type IndexType = 'workspace' | 'stage';
+
 const customTheme = EditorView.theme({
   '&.cm-editor': {
     fontSize: '12px',
@@ -117,22 +119,16 @@ class DiffLineGutter extends GutterMarker {
 
 export type Props = {
   diff: Diff;
+  onLineClick: (editorLineNo: number, diff: Diff) => void;
 };
 
-export const DiffFile: FC<Props> = ({ diff }) => {
+export const DiffFile: FC<Props> = ({ diff, onLineClick }) => {
   const ref = useRef(null);
   const onLineMouseDown = (view: EditorView, lineInfo: BlockInfo): boolean => {
     if (!diff) return false;
 
     const editorLineNo = view.state.doc.lineAt(lineInfo.from).number;
-    // this.dispatchEvent(
-    //   new CustomEvent<LineMouseDownData>('line.mousedown', {
-    //     detail: {
-    //       editorLineNo,
-    //       diff: this.diff,
-    //     },
-    //   })
-    // );
+    onLineClick(editorLineNo, diff);
     return true;
   };
 
@@ -142,7 +138,7 @@ export const DiffFile: FC<Props> = ({ diff }) => {
   useEffect(() => {
     if (!ref.current) return;
 
-    new EditorView({
+    const editorView = new EditorView({
       state: EditorState.create({
         doc: diff.content,
         extensions: [
@@ -181,7 +177,11 @@ export const DiffFile: FC<Props> = ({ diff }) => {
       }),
       parent: ref.current,
     });
-  }, [ref.current]);
+
+    return () => {
+      editorView.dom.remove();
+    };
+  }, [ref.current, diff]);
 
   return <div className="diff-file" ref={ref}></div>;
 };

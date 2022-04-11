@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
+import { hasNewFiles } from './commands/changes';
 import { log } from './commands/log';
 import { numChanges } from './commands/numChanges';
 import { CommandInput } from './components/CommandInput/CommandInput';
@@ -74,6 +75,7 @@ if (wd) {
 
   window.api.onFileSysChanged(() => updateSimulations(wd));
   updateSimulations(wd);
+  hasNewFiles(wd);
 } else {
   // Display splash screen
 }

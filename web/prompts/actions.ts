@@ -1,4 +1,5 @@
 import { Head } from '../commands/log';
+import { Diff } from '../Diff';
 import { GitState } from '../store';
 import { GetReferenceAction } from './Reference';
 import { PromptShowAction } from './Show';
@@ -41,6 +42,12 @@ export type LogSelection = {
   hash: string;
 };
 
+export type UpdateStatus = {
+  type: 'status.update';
+  workspaceChanges: Diff[];
+  stagedChanges: Diff[];
+};
+
 export type PromptAction = GetReferenceAction | StatusAction | PromptShowAction;
 
 export type PromptActionType = PromptAction['type'];
@@ -52,4 +59,5 @@ export type Actions =
   | WorkingDirectoryUpdate
   | SimulationUpdate
   | GitStateUpdate
-  | LogSelection;
+  | LogSelection
+  | UpdateStatus;

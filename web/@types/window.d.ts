@@ -32,6 +32,8 @@ declare global {
 
       onFileSysChanged(callback: () => void): void;
 
+      onIndexChanged(callbck: () => void): void;
+
       onNotification: (callback: (data: Notification) => void) => void;
 
       readFileLine: (path: string, callback: CommandCallback, workingDirectory: string) => void;

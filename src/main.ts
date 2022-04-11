@@ -1,14 +1,15 @@
 // #!/usr/bin/env node
 
+import chokidar from 'chokidar';
 import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron';
 import * as path from 'path';
 import { start } from './app';
-import chokidar from 'chokidar';
-import { watch } from 'original-fs';
 
 const watcher = chokidar.watch('.', {
-  ignored: /node_modules/,
+  ignored: /node_modules|\.git/,
 });
+
+const indexWatcher = chokidar.watch('.git/index');
 
 const args = process.env.NODE_ENV !== 'production' ? process.argv.slice(3) : process.argv.slice(1);
 
@@ -66,6 +67,9 @@ if (app.requestSingleInstanceLock()) {
 
       watcher.unwatch('.');
       watcher.add(workingDirectory);
+
+      indexWatcher.unwatch('.git/index');
+      indexWatcher.add(workingDirectory + '/.git/index');
     });
 
     // Close to the tray
@@ -99,25 +103,30 @@ if (app.requestSingleInstanceLock()) {
 
     start(process.cwd(), args);
 
-    let ready = false;
-    watcher
-      .on('add', (path, stats) => {
-        if (ready) {
-          console.log('add', path, stats);
-          // mainWindow.webContents.send('notification', { title: 'add', data:  });
-          mainWindow.webContents.send('fs.changed');
-        }
-      })
-      .on('change', (path, stats) => {
-        if (ready) {
-          console.log('change', path, stats);
-          // mainWindow.webContents.send('notification', { title: 'change', data:  });
-          mainWindow.webContents.send('fs.changed');
-        }
-      })
-      .on('ready', () => {
-        ready = true;
-      });
+    // let ready = false;
+    // watcher
+    //   .on('add', (path, stats) => {
+    //     if (ready) {
+    //       console.log('add', path, stats);
+    //       // mainWindow.webContents.send('notification', { title: 'add', data:  });
+    //       mainWindow.webContents.send('fs.changed');
+    //     }
+    //   })
+    //   .on('change', (path, stats) => {
+    //     if (ready) {
+    //       console.log('change', path, stats);
+    //       // mainWindow.webContents.send('notification', { title: 'change', data:  });
+    //       mainWindow.webContents.send('fs.changed');
+    //     }
+    //   })
+    //   .on('ready', () => {
+    //     ready = true;
+    //   });
+
+    indexWatcher.on('change', (path, stats) => {
+      console.log('index change?', path, stats);
+      mainWindow.webContents.send('git.index.changed');
+    });
   });
 } else {
   // console.log('single instance lock, exiting.');

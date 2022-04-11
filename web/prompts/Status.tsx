@@ -1,17 +1,50 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { applyPatch } from '../commands/apply';
+import { stagedChanges, workspaceChanges } from '../commands/changes';
 import { DiffBlock } from '../components/DiffBlock';
 import { Diff } from '../Diff';
+import { createPatch } from '../Patch';
+import { AppState, store } from '../store';
 import './Status.scss';
 
-export type Props = {
-  workspaceChanges: Diff[];
-  stagedChanges: Diff[];
+const updateStatus = async (workingDirectory: string) => {
+  const [workspaceDiffText, stagedDiffText] = await Promise.all([
+    workspaceChanges(workingDirectory),
+    stagedChanges(workingDirectory),
+  ]);
+
+  store.dispatch({
+    type: 'status.update',
+    workspaceChanges: Diff.parse(workspaceDiffText),
+    stagedChanges: Diff.parse(stagedDiffText),
+  });
 };
 
-export const StatusPrompt: FC<Props> = ({ workspaceChanges, stagedChanges }) => {
+const onLineClick = async (workingDirectory: string, editorLineNo: number, diff: Diff, reverse: boolean) => {
+  const patchText = createPatch([editorLineNo], diff, reverse);
+  if (patchText) {
+    await applyPatch(patchText, workingDirectory);
+    // No need to manually update status, as StatusPrompt will listening
+    // to local fs changes to auto update status by default?
+    // updateStatus(workingDirectory);
+  }
+};
+
+export const StatusPrompt: FC = () => {
+  const workspaceChanges = useSelector((state: AppState) => state.workspaceChanges);
+  const stagedChanges = useSelector((state: AppState) => state.stagedChanges);
+  const workingDirectory = useSelector((state: AppState) => state.workingDirectory);
+
   const stagedElements =
     stagedChanges.length != 0 ? (
-      stagedChanges.map((diff) => <DiffBlock key={diff.heading.from + ' > ' + diff.heading.to} diff={diff}></DiffBlock>)
+      stagedChanges.map((diff) => (
+        <DiffBlock
+          key={diff.heading.from + ' > ' + diff.heading.to}
+          diff={diff}
+          onLineClick={(editorLineNo, diff) => onLineClick(workingDirectory, editorLineNo, diff, true)}
+        ></DiffBlock>
+      ))
     ) : (
       <h4>nothing to commit</h4>
     );
@@ -19,11 +52,22 @@ export const StatusPrompt: FC<Props> = ({ workspaceChanges, stagedChanges }) => 
   const workspaceElements =
     workspaceChanges.length !== 0 ? (
       workspaceChanges.map((diff) => (
-        <DiffBlock key={diff.heading.from + ' > ' + diff.heading.to} diff={diff}></DiffBlock>
+        <DiffBlock
+          key={diff.heading.from + ' > ' + diff.heading.to}
+          diff={diff}
+          onLineClick={(editorLineNo, diff) => onLineClick(workingDirectory, editorLineNo, diff, false)}
+        ></DiffBlock>
       ))
     ) : (
       <h4>working tree clean</h4>
     );
+
+  // listening to the file changes to update status
+  // remove listener if prompt component is removed
+  useEffect(() => {
+    const cleanup = window.api.onIndexChanged(() => updateStatus(workingDirectory));
+    return cleanup;
+  }, []);
 
   return (
     <div className="prompt">
@@ -42,11 +86,9 @@ export const StatusPrompt: FC<Props> = ({ workspaceChanges, stagedChanges }) => 
 export type StatusAction = {
   type: 'prompt.status';
   prompt: {
-    component: React.FC<Props>;
+    component: React.FC;
     props: {
       key: string;
-      workspaceChanges: Diff[];
-      stagedChanges: Diff[];
     };
   };
 };

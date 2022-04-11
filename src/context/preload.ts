@@ -62,7 +62,26 @@ contextBridge.exposeInMainWorld('api', {
   },
 
   onFileSysChanged: (callback: () => void) => {
-    ipcRenderer.on('fs.changed', (event: Electron.IpcRendererEvent, n: Notification) => callback());
+    const listener = (event: Electron.IpcRendererEvent, n: Notification) => callback();
+    ipcRenderer.on('fs.changed', listener);
+
+    return () => {
+      ipcRenderer.off('fs.changed', listener);
+    };
+  },
+
+  /**
+   * When git index file changed
+   * @param callback callback
+   * @returns callback clean up
+   */
+  onIndexChanged: (callback: () => void) => {
+    const listener = (event: Electron.IpcRendererEvent, n: Notification) => callback();
+    ipcRenderer.on('git.index.changed', listener);
+
+    return () => {
+      ipcRenderer.off('git.index.changed', listener);
+    };
   },
 
   onNotification: (callback: (_: Notification) => void) => {

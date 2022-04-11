@@ -40,14 +40,19 @@ async function process(cmds: string[], workingDirectory: string) {
         stagedChanges(workingDirectory),
       ]);
 
+      // Update status
+      store.dispatch({
+        type: 'status.update',
+        workspaceChanges: Diff.parse(workspaceDiffText),
+        stagedChanges: Diff.parse(stagedDiffText),
+      });
+
       store.dispatch({
         type: 'prompt.status',
         prompt: {
           component: StatusPrompt,
           props: {
             key: nanoid(),
-            workspaceChanges: Diff.parse(workspaceDiffText),
-            stagedChanges: Diff.parse(stagedDiffText),
           },
         },
       });

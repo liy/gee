@@ -104,6 +104,12 @@ export const rootReducer = (state = initialState, action: Actions): AppState => 
         ...state,
         gitState: action.gitState,
       };
+    case 'status.update':
+      return {
+        ...state,
+        stagedChanges: action.stagedChanges,
+        workspaceChanges: action.workspaceChanges,
+      };
   }
   return state;
 };
@@ -114,7 +120,7 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActionPaths: ['prompt', 'prompt.component'],
-        ignoredPaths: ['prompts'],
+        ignoredPaths: ['prompts', 'workspaceChanges', 'stagedChanges'],
       },
     }),
 });
