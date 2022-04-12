@@ -168,6 +168,8 @@ export interface DiffHeading {
   lines: string[];
 }
 
+export type ChangeType = 'edit' | 'delete' | 'rename' | 'new';
+
 export class Diff {
   static parse(text: string): Diff[] {
     text = text.trimEnd();
@@ -180,8 +182,6 @@ export class Diff {
   }
 
   static create(text: string): Diff {
-    const indices = Array.from(text.matchAll(/^@@.*@@/gm)).map((r) => r.index!);
-
     const heading: DiffHeading = {
       from: '',
       to: '',
@@ -191,9 +191,15 @@ export class Diff {
       new: false,
       rename: false,
       similarity: '0%',
-      text: text.substring(0, indices[0] - 1),
+      text,
       lines: [],
     };
+
+    const indices = Array.from(text.matchAll(/^@@.*@@/gm)).map((r) => r.index!);
+    // Check whether the diff contains hunk. Because rename will not have hunk at all. So the heading text will be the diff text passed in
+    if (indices[0] !== undefined) {
+      heading.text = text.substring(0, indices[0] - 1);
+    }
 
     const reader = new LineReader(heading.text);
     const result = /^diff --git (?:[ia]\/(.*)) (?:[wb]\/(.*))/.exec(reader.readLine()!);
@@ -226,6 +232,11 @@ export class Diff {
       }
 
       heading.lines.push(line);
+    }
+
+    // it is a rename, not diff content
+    if (heading.rename) {
+      return new Diff(text, heading, '', [], []);
     }
 
     const hunkRanges = new Array<[number, number]>();
@@ -291,5 +302,17 @@ export class Diff {
    */
   getLineNo(hunkLine: HunkLine) {
     return this.lineNos.get(hunkLine);
+  }
+
+  get changeType(): ChangeType {
+    if (this.heading.rename) {
+      return 'rename';
+    } else if (this.heading.deleted) {
+      return 'delete';
+    } else if (this.heading.new) {
+      return 'new';
+    } else {
+      return 'edit';
+    }
   }
 }

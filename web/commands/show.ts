@@ -3,7 +3,7 @@ import { parseReference } from './log';
 export const show = async (hash: string, workingDirectory: string) => {
   const [showText, diffText] = await Promise.all([
     window.command.invoke(['git', 'show', '--quiet', '--pretty=%D%n%b', hash], workingDirectory),
-    window.command.invoke(['git', 'diff-tree', '--cc', hash], workingDirectory),
+    window.command.invoke(['git', 'diff-tree', '--cc', '--find-renames', hash], workingDirectory),
   ]);
   const firstNewLineIndex = showText.indexOf('\n');
   const refLine = showText.substring(0, firstNewLineIndex);

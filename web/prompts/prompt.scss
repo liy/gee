@@ -21,6 +21,7 @@
     background-color: #3a3a3aee;
     color: #a7ceff;
   }
+
   h4 {
     top: 22px;
 
@@ -35,6 +36,19 @@
     /* line-height: 1; */
     background-color: rgba(48, 48, 48, 0.9);
     color: rgb(160, 160, 160);
+
+    span {
+      white-space: pre;
+    }
+    span.edit {
+      color: #5c80ac;
+    }
+    span.rename {
+      color: #cead6f;
+    }
+    span.delete {
+      color: #a74040;
+    }
   }
 
   h4:hover {

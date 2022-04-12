@@ -2,6 +2,7 @@ import React, { FC, useState } from 'react';
 import { DiffFile } from './DiffFile';
 import { Diff } from '../Diff';
 import { createPatch } from '../Patch';
+import classNames from 'classnames';
 
 export type IndexType =
   | 'workspace'
@@ -26,7 +27,8 @@ export const DiffBlock: FC<Props> = ({ diff, onLineClick }) => {
           setCollapsed((c) => !c);
         }}
       >
-        {diff.heading.from + ' > ' + diff.heading.to}
+        <span className={diff.changeType}>{diff.changeType.padEnd(6, ' ')} </span>
+        {diff.heading.rename ? diff.heading.to + ' > ' + diff.heading.to : diff.heading.to}
       </h4>
       {collapsed && (
         <DiffFile

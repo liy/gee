@@ -132,6 +132,11 @@ export const DiffFile: FC<Props> = ({ diff, onLineClick }) => {
     return true;
   };
 
+  // If it is rename, no diff
+  if (diff.heading.rename) {
+    return null;
+  }
+
   const oldLineNos = diff.hunks.map((hunk) => hunk.oldLineNo).flat();
   const newLineNos = diff.hunks.map((hunk) => hunk.newLineNo).flat();
 
