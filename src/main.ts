@@ -103,25 +103,25 @@ if (app.requestSingleInstanceLock()) {
 
     start(process.cwd(), args);
 
-    // let ready = false;
-    // watcher
-    //   .on('add', (path, stats) => {
-    //     if (ready) {
-    //       console.log('add', path, stats);
-    //       // mainWindow.webContents.send('notification', { title: 'add', data:  });
-    //       mainWindow.webContents.send('fs.changed');
-    //     }
-    //   })
-    //   .on('change', (path, stats) => {
-    //     if (ready) {
-    //       console.log('change', path, stats);
-    //       // mainWindow.webContents.send('notification', { title: 'change', data:  });
-    //       mainWindow.webContents.send('fs.changed');
-    //     }
-    //   })
-    //   .on('ready', () => {
-    //     ready = true;
-    //   });
+    let ready = false;
+    watcher
+      .on('add', (path, stats) => {
+        if (ready) {
+          console.log('add', path, stats);
+          // mainWindow.webContents.send('notification', { title: 'add', data:  });
+          mainWindow.webContents.send('fs.changed');
+        }
+      })
+      .on('change', (path, stats) => {
+        if (ready) {
+          console.log('change', path, stats);
+          // mainWindow.webContents.send('notification', { title: 'change', data:  });
+          mainWindow.webContents.send('fs.changed');
+        }
+      })
+      .on('ready', () => {
+        ready = true;
+      });
 
     indexWatcher.on('change', (path, stats) => {
       console.log('index change?', path, stats);
