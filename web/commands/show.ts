@@ -10,10 +10,6 @@ export const show = async (hash: string, workingDirectory: string) => {
 
   const bodyText = showText.substring(firstNewLineIndex).trim();
   const [branches, tags] = parseReference(refLine);
-  // return Promise.all([
-  //   ,
-  //   ,
-  // ]);
 
   return {
     branches,

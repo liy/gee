@@ -2,11 +2,13 @@
 
 import chokidar from 'chokidar';
 import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron';
+import { Stats } from 'original-fs';
 import * as path from 'path';
+import { createDebounce } from '../web/utils/delay';
 import { start } from './app';
 
 const watcher = chokidar.watch('.', {
-  ignored: /node_modules|\.git/,
+  ignored: /node_modules|\.git|dist/,
 });
 
 const indexWatcher = chokidar.watch('.git/index');
@@ -38,6 +40,8 @@ function createMainWindow() {
 
   return browserWindow;
 }
+
+const changeDebounce = createDebounce(500);
 
 // Avoid GC causing tray icon disappers.
 let tray = null;
@@ -104,21 +108,18 @@ if (app.requestSingleInstanceLock()) {
     start(process.cwd(), args);
 
     let ready = false;
+    const notifyFileChanged = (path: string) => {
+      if (ready) {
+        changeDebounce(() => {
+          console.log(`File ${path} changed`);
+          mainWindow.webContents.send('fs.changed');
+        });
+      }
+    };
     watcher
-      .on('add', (path, stats) => {
-        if (ready) {
-          console.log('add', path, stats);
-          // mainWindow.webContents.send('notification', { title: 'add', data:  });
-          mainWindow.webContents.send('fs.changed');
-        }
-      })
-      .on('change', (path, stats) => {
-        if (ready) {
-          console.log('change', path, stats);
-          // mainWindow.webContents.send('notification', { title: 'change', data:  });
-          mainWindow.webContents.send('fs.changed');
-        }
-      })
+      .on('add', notifyFileChanged)
+      .on('change', notifyFileChanged)
+      .on('unlink', notifyFileChanged)
       .on('ready', () => {
         ready = true;
       });
