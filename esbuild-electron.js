@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const argv = require('minimist')(process.argv.slice(2));
 /* eslint-disable @typescript-eslint/no-var-requires */
 require('esbuild')
@@ -6,7 +7,7 @@ require('esbuild')
     bundle: true,
     sourcemap: true,
     platform: 'node',
-    external: ['nodegit', 'electron', 'electron-reload', 'node-pty'],
+    external: ['nodegit', 'electron', 'electron-reload', 'node-pty', 'fsevents'],
     outdir: 'dist',
     minify: process.env.NODE_ENV === 'production',
     preserveSymlinks: true,
