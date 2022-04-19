@@ -119,7 +119,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActionPaths: ['prompt', 'prompt.component'],
+        ignoredActionPaths: ['prompt', 'prompt.component', 'workspaceChanges', 'stagedChanges'],
         ignoredPaths: ['prompts', 'workspaceChanges', 'stagedChanges'],
       },
     }),
