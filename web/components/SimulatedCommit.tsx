@@ -43,8 +43,9 @@ const processSubmit = async (msg: string, gitState: GitState, workingDirectory: 
   // commit
   switch (gitState) {
     case 'default':
-      await commit(msg, workingDirectory);
-      showStatusPrompt(workingDirectory);
+      // No need to run status command anymore. The current status prompt will be 
+      // updated via chokidar
+      commit(msg, workingDirectory);
       break;
     case 'merge':
       break;
