@@ -1,21 +1,16 @@
 import React, { FC, useState } from 'react';
-import { DiffFile } from './DiffFile';
 import { Diff } from '../Diff';
-import { createPatch } from '../Patch';
-import classNames from 'classnames';
+import { DiffFile } from './DiffFile';
+import './DiffBlock.scss';
 
-export type IndexType =
-  | 'workspace'
-  | 'stage'
-  // history commit
-  | 'history';
 
 export type Props = {
   diff: Diff;
   onLineClick?: (editorLineNo: number, diff: Diff) => void;
+  headingButton?: JSX.Element;
 };
 
-export const DiffBlock: FC<Props> = ({ diff, onLineClick }) => {
+export const DiffBlock: FC<Props> = ({ diff, onLineClick, headingButton }) => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -28,7 +23,8 @@ export const DiffBlock: FC<Props> = ({ diff, onLineClick }) => {
         }}
       >
         <span className={diff.changeType}>{diff.changeType.padEnd(6, ' ')} </span>
-        {diff.heading.rename ? diff.heading.to + ' > ' + diff.heading.to : diff.heading.to}
+        {diff.heading.rename ? diff.heading.to + ' > ' + diff.heading.to : diff.heading.to} 
+        {headingButton}
       </h4>
       {collapsed && (
         <DiffFile

@@ -139,16 +139,15 @@ dialog.showErrorBox = function (title, content) {
   console.log(`${title}\n${content}`);
 };
 
-import { LCDClient, Coin } from '@terra-money/terra.js';
+import { LCDClient } from '@terra-money/terra.js';
 
 // connect to bombay testnet
 const terra = new LCDClient({
-  URL: 'https://bombay-lcd.terra.dev',
-  chainID: 'bombay-12',
+  URL: 'https://lcd.terra.dev',
+  chainID: 'columbus-3',
 });
 
-// get the current swap rate from 1 TerraUSD to TerraKRW
-const offerCoin = new Coin('uusd', '1000000');
-terra.market.swapRate(offerCoin, 'ukrw').then((c) => {
-  console.log(`${offerCoin.toString()} can be swapped for ${c.toString()}`);
-});
+const address = 'terra1s7qpzjx8zs5fjesapvctnv8927hgn4cthlr28q';
+terra.bank.balance(address).then(([balance]) => {
+  console.log(balance.toData());
+})

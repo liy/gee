@@ -18,8 +18,10 @@
     position: sticky;
     z-index: 2;
 
-    background-color: #3a3a3aee;
+    // background-color: #3a3a3a5d;
     color: #a7ceff;
+    // blur background
+    backdrop-filter: blur(6px) saturate(180%);
   }
 
   h4 {
@@ -34,8 +36,11 @@
 
     z-index: 1;
     /* line-height: 1; */
-    background-color: rgba(48, 48, 48, 0.9);
+    // background-color: rgba(48, 48, 48, 0.9);
     color: rgb(160, 160, 160);
+
+    // blur background
+    backdrop-filter: blur(6px) saturate(180%);
 
     span {
       white-space: pre;

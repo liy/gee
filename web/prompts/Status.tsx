@@ -1,6 +1,6 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { applyPatch } from '../commands/apply';
+import { applyPatch, stage, unstage } from '../commands/apply';
 import { stagedChanges, workspaceChanges } from '../commands/changes';
 import { DiffBlock } from '../components/DiffBlock';
 import { Diff } from '../Diff';
@@ -36,6 +36,14 @@ export const StatusPrompt: FC = () => {
   const stagedChanges = useSelector((state: AppState) => state.stagedChanges);
   const workingDirectory = useSelector((state: AppState) => state.workingDirectory);
 
+  const onStageBtnClick = useCallback((filePath) => {
+    stage(filePath, store.getState().workingDirectory)
+  }, []);
+
+  const onUnstageBtnClick = useCallback((filePath) => {
+    unstage(filePath, store.getState().workingDirectory)
+  }, []);
+
   const stagedElements =
     stagedChanges.length != 0 ? (
       stagedChanges.map((diff) => (
@@ -43,6 +51,10 @@ export const StatusPrompt: FC = () => {
           key={diff.heading.from + ' > ' + diff.heading.to}
           diff={diff}
           onLineClick={(editorLineNo, diff) => onLineClick(workingDirectory, editorLineNo, diff, true)}
+          headingButton={<button onClick={(e) => {
+            e.stopPropagation();
+            onUnstageBtnClick(diff.heading.to);
+          }}>unstage</button>}
         ></DiffBlock>
       ))
     ) : (
@@ -56,6 +68,10 @@ export const StatusPrompt: FC = () => {
           key={diff.heading.from + ' > ' + diff.heading.to}
           diff={diff}
           onLineClick={(editorLineNo, diff) => onLineClick(workingDirectory, editorLineNo, diff, false)}
+          headingButton={<button onClick={(e) => {
+            e.stopPropagation();
+            onStageBtnClick(diff.heading.to)
+          }}>stage</button>}
         ></DiffBlock>
       ))
     ) : (
