@@ -53,6 +53,14 @@ export default class EventEmitter<EventMap> {
     }
   }
 
+  /**
+   * Clear all the listeners of a specific event type
+   * @param type event type
+   */
+  clear(type: keyof EventMap & string) {
+    this.listeners.delete(type);
+  }
+
   once(type: string, fn: (data: any, type: string) => void, context: any = fn): void {
     // this.listeners[type] = this.listeners[type] || [];
     const listeners = this.listeners.get(type) || [];

@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { PromptBase } from 'prompts/PromptBase';
+import { PromptBase } from '../../prompts/PromptBase';
 
 export interface Props {
   branches: string[];
