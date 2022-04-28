@@ -2,7 +2,6 @@
 
 import chokidar from 'chokidar';
 import { app, BrowserWindow, dialog, globalShortcut, Menu, Tray } from 'electron';
-import { Stats } from 'original-fs';
 import * as path from 'path';
 import { createDebounce } from '../web/utils/delay';
 import { start } from './app';
@@ -71,6 +70,7 @@ if (app.requestSingleInstanceLock()) {
 
       watcher.unwatch('.');
       watcher.add(workingDirectory);
+      watcher.add(workingDirectory + '/.git/objects')
 
       indexWatcher.unwatch('.git/index');
       indexWatcher.add(workingDirectory + '/.git/index');
