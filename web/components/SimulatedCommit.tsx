@@ -4,6 +4,7 @@ import React, { FC, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { stagedChanges, workspaceChanges } from '../commands/changes';
 import { commit } from '../commands/commit';
+import { log } from '../commands/log';
 import { show } from '../commands/show';
 import { Diff } from '../Diff';
 import { StatusPrompt } from '../prompts';
@@ -42,11 +43,20 @@ const showStatusPrompt = async (workingDirectory: string) => {
 const processSubmit = async (msg: string, gitState: GitState, workingDirectory: string) => {
   // commit
   switch (gitState) {
-    case 'default':
+    case 'default': {
       // No need to run status command anymore. The current status prompt will be 
       // updated via chokidar
-      commit(msg, workingDirectory);
+      await commit(msg, workingDirectory);
+
+      // Update logs
+      const [logs, , , head] = await log(workingDirectory);
+      store.dispatch({
+        type: 'log.update',
+        logs,
+        head,
+      });
       break;
+    }
     case 'merge':
       break;
     case 'rebase':
