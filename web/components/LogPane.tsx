@@ -46,7 +46,6 @@ export const LogPane: FC<Props> = ({ logs, workingDirectory }) => {
     // Imagine if we store selected log index in a state, every time we add a new log, simulated or
     // not, the log index will need to be calculated manually. It is going to rather tedious and slow.
     // I think log focus is a perfect use case for transitional event.
-    // test
     transition.on('log.focus', (hash) => {
       const index = logs.findIndex(v => v.hash === hash);
       if(index !== -1) {

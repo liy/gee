@@ -44,6 +44,13 @@ const processSubmit = async (msg: string, gitState: GitState, workingDirectory: 
   // commit
   switch (gitState) {
     case 'default': {
+      // Clear simulation
+      // TODO: display progress?
+      store.dispatch({
+        type: 'simulation.update',
+        simulations: [],
+      });
+      
       // No need to run status command anymore. The current status prompt will be 
       // updated via chokidar
       await commit(msg, workingDirectory);
