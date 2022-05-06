@@ -19,6 +19,7 @@ body {
 .scrollbar-y {
   overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .scrollbar-y.scroll-content {
