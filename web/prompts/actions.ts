@@ -17,6 +17,8 @@ export type LogUpdate = {
   type: 'log.update';
   logs: Log[];
   head: Head;
+  branches: Branch[];
+  tags: Tag[];
 };
 
 /**

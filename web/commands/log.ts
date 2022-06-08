@@ -55,6 +55,7 @@ export type Head = {
   hash: string | null;
   ref: string | null;
 };
+
 /**
  * Get the head hash
  * @param workingDirectory Current root of the git repository

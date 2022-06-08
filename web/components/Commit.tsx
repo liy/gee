@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid';
 import React, { FC } from 'react';
 import { useSelector } from 'react-redux';
 import { show } from '../commands/show';
-import '../components-old/Commit.css';
+import './Commit.scss';
 import { Diff } from '../Diff';
 import { ShowPrompt } from '../prompts/Show';
 import { AppState, store } from '../store';
@@ -31,9 +31,11 @@ export const LogLabel: FC<LabelProps> = ({ name }) => {
 
 export interface Props {
   log: Log;
+  tags?: string[];
+  branches?: string[];
 }
 
-export const Commit: FC<Props> = ({ log }) => {
+export const Commit: FC<Props> = ({ log, branches, tags }) => {
   const workingDirectory = useSelector((state: AppState) => state.workingDirectory);
   const selectedHash = useSelector((state: AppState) => state.selectedHash);
 
@@ -45,7 +47,7 @@ export const Commit: FC<Props> = ({ log }) => {
         // If selection did not change do nothing
         if (log.hash === selectedHash) return;
 
-        const { branches, tags, bodyText, diffText } = await show(log.hash, workingDirectory);
+        const { bodyText, diffText } = await show(log.hash, workingDirectory);
 
         store.dispatch({
           type: 'log.selection',
@@ -75,7 +77,22 @@ export const Commit: FC<Props> = ({ log }) => {
       </div>
       <div className="bottom">
         <span className="hash">{log.hash.substring(0, 7)}</span>
-        <div className="refs"></div>
+        <div className="refs">
+          {branches?.map((b) => {
+            return (
+              <span className="branch" key={b}>
+                {b}
+              </span>
+            );
+          })}
+          {tags?.map((t) => {
+            return (
+              <span className="tag" key={t}>
+                {t}
+              </span>
+            );
+          })}
+        </div>
         <span className="date-time">{dateFormat.format(log.commitDate) + ' ' + timeFormat.format(log.commitDate)}</span>
       </div>
     </div>

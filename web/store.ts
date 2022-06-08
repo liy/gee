@@ -19,6 +19,8 @@ export type AppState = {
   head: Head;
   gitState: GitState;
   selectedHash: string;
+  branches: Branch[];
+  tags: Tag[];
 };
 
 export const initialState: AppState = {
@@ -39,6 +41,8 @@ export const initialState: AppState = {
   },
   gitState: 'default',
   selectedHash: '',
+  branches: [],
+  tags: [],
 };
 
 export const rootReducer = (state = initialState, action: Actions): AppState => {
@@ -83,6 +87,8 @@ export const rootReducer = (state = initialState, action: Actions): AppState => 
         ...state,
         logs: action.logs,
         head: action.head,
+        branches: action.branches,
+        tags: action.tags,
       };
     case 'log.selection':
       return {

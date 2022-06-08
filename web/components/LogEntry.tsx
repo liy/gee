@@ -6,10 +6,16 @@ import { SimulatedCommit } from './SimulatedCommit';
 
 export type Props = {
   log: Log;
+  branches?: string[];
+  tags?: string[];
 };
 
-export const LogEntry: FC<Props> = ({ log }) => {
+export const LogEntry: FC<Props> = ({ log, branches, tags }) => {
   const gitState = useSelector((state: AppState) => state.gitState);
 
-  return log.simulation ? <SimulatedCommit log={log}></SimulatedCommit> : <Commit log={log}></Commit>;
+  return log.simulation ? (
+    <SimulatedCommit log={log}></SimulatedCommit>
+  ) : (
+    <Commit log={log} branches={branches} tags={tags}></Commit>
+  );
 };

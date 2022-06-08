@@ -66,11 +66,13 @@ if (wd) {
   const root = ReactDOM.createRoot(document.getElementById('root'));
   root.render(<App />);
 
-  const [logs, , , head] = await log(wd);
+  const [logs, branches, tags, head] = await log(wd);
   store.dispatch({
     type: 'log.update',
     logs,
     head,
+    branches,
+    tags,
   });
 
   window.api.onFileSysChanged(() => updateSimulations(wd));

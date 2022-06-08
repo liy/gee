@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React, { FC, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { Hash } from '../@types/window';
 import GraphStore from '../graph/GraphStore';
 import StraightLayout from '../layouts/StraightLayout';
 import { AppState } from '../store';
@@ -12,12 +13,14 @@ import { LogEntry } from './LogEntry';
 
 export interface Props {
   logs: Log[];
+  branchMap: Map<Hash, string[]>;
+  tagMap: Map<Hash, string[]>;
   workingDirectory: string;
 }
 
-export const LogPane: FC<Props> = ({ logs, workingDirectory }) => {
+export const LogPane: FC<Props> = ({ logs, workingDirectory, branchMap, tagMap }) => {
   const tableRef = useRef<HTMLDivElement>(null);
-  const scrollbarRef = useRef<HTMLDivElement>(null)
+  const scrollbarRef = useRef<HTMLDivElement>(null);
 
   const [numRows, setNumRows] = useState(Math.ceil(window.innerHeight / GraphStyle.sliceHeight) + 1);
   const [startIndex, setStartIndex] = useState(0);
@@ -47,12 +50,12 @@ export const LogPane: FC<Props> = ({ logs, workingDirectory }) => {
     // not, the log index will need to be calculated manually. It is going to rather tedious and slow.
     // I think log focus is a perfect use case for transitional event.
     transition.on('log.focus', (hash) => {
-      const index = logs.findIndex(v => v.hash === hash);
-      if(index !== -1) {
-        if(scrollbarRef.current) scrollbarRef.current.scrollTop = (index * GraphStyle.sliceHeight);
+      const index = logs.findIndex((v) => v.hash === hash);
+      if (index !== -1) {
+        if (scrollbarRef.current) scrollbarRef.current.scrollTop = index * GraphStyle.sliceHeight;
         setStartIndex(index);
       }
-    })
+    });
 
     return () => {
       window.removeEventListener('resize', onResize);
@@ -61,7 +64,9 @@ export const LogPane: FC<Props> = ({ logs, workingDirectory }) => {
   }, [logs]);
 
   const logEntries = logs.slice(startIndex, startIndex + numRows).map((log) => {
-    return <LogEntry key={log.hash} log={log}></LogEntry>;
+    return (
+      <LogEntry key={log.hash} log={log} branches={branchMap.get(log.hash)} tags={tagMap.get(log.hash)}></LogEntry>
+    );
   });
 
   return (
@@ -93,6 +98,33 @@ export const LogPaneContainer: FC = () => {
   const workingDirectory = useSelector((state: AppState) => state.workingDirectory);
   const logs = useSelector((state: AppState) => state.logs);
   const simulations = useSelector((state: AppState) => state.simulations);
+  const branchMap = useSelector((state: AppState) => {
+    const map = new Map<Hash, string[]>();
+    state.branches.forEach((b) => {
+      const names = map.get(b.targetHash) || [];
+      if (names.length === 0) map.set(b.targetHash, names);
+      names.push(b.shorthand);
+    });
 
-  return <LogPane logs={[...simulations, ...logs]} workingDirectory={workingDirectory}></LogPane>;
+    return map;
+  });
+  const tagMap = useSelector((state: AppState) => {
+    const map = new Map<Hash, string[]>();
+    state.tags.forEach((t) => {
+      const names = map.get(t.targetHash) || [];
+      if (names.length === 0) map.set(t.targetHash, names);
+      names.push(t.shorthand);
+    });
+
+    return map;
+  });
+
+  return (
+    <LogPane
+      logs={[...simulations, ...logs]}
+      workingDirectory={workingDirectory}
+      branchMap={branchMap}
+      tagMap={tagMap}
+    ></LogPane>
+  );
 };
