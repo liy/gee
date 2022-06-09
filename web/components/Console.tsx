@@ -1,6 +1,5 @@
 import React, { FC, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import '../components-old/Commit.css';
 import { AppState, Prompt } from '../store';
 import './Console.scss';
 
