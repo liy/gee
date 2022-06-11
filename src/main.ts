@@ -70,7 +70,7 @@ if (app.requestSingleInstanceLock()) {
 
       watcher.unwatch('.');
       watcher.add(workingDirectory);
-      watcher.add(workingDirectory + '/.git/objects')
+      watcher.add(workingDirectory + '/.git/objects');
 
       indexWatcher.unwatch('.git/index');
       indexWatcher.add(workingDirectory + '/.git/index');
@@ -138,16 +138,3 @@ if (app.requestSingleInstanceLock()) {
 dialog.showErrorBox = function (title, content) {
   console.log(`${title}\n${content}`);
 };
-
-import { LCDClient } from '@terra-money/terra.js';
-
-// connect to bombay testnet
-const terra = new LCDClient({
-  URL: 'https://lcd.terra.dev',
-  chainID: 'columbus-3',
-});
-
-const address = 'terra1s7qpzjx8zs5fjesapvctnv8927hgn4cthlr28q';
-terra.bank.balance(address).then(([balance]) => {
-  console.log(balance.toData());
-})
