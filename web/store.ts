@@ -1,4 +1,4 @@
-import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import { Head } from './commands/log';
 import { Diff } from './Diff';
 import { Actions, PromptAction } from './prompts/actions';
